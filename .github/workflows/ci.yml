@@ -134,6 +134,9 @@ jobs:
     runs-on: ubuntu-24.04
     container:
       image: archlinux:latest
+      # Docker's injected init reaps grandchildren after process-group tests;
+      # the default `tail` PID 1 leaves dead children as permanent zombies.
+      options: --init
     steps:
       - uses: actions/checkout@v4
       - name: Arch prerequisites (git for actions, gcc for the race lane, PTY device)
@@ -172,6 +175,7 @@ jobs:
     runs-on: ubuntu-24.04-arm
     container:
       image: menci/archlinuxarm:base-devel
+      options: --init
     steps:
       - uses: actions/checkout@v4
       - name: Arch prerequisites (git for actions, PTY device present in container)
