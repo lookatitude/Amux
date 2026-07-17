@@ -37,7 +37,7 @@ const grantColumns = `id, project_key, hook_id, exec_path, exec_sha256,
 // InsertGrant records one approved grant. The project must already be
 // registered (foreign key), keeping every grant traceable to a trust row.
 func (s *Store) InsertGrant(g GrantRow) error {
-	_, err := s.db.Exec(`
+	_, err := s.execWrite(`
 		INSERT INTO grants (`+grantColumns+`)
 		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
 		g.ID, g.ProjectKey, g.HookID, g.ExecPath, g.ExecSHA256,
@@ -55,7 +55,7 @@ func (s *Store) InsertGrant(g GrantRow) error {
 // later snapshot import can never flip these back active (ADR-0005).
 // Returns the number of grants deactivated.
 func (s *Store) DeactivateGrantsForProject(projectKey string) (int64, error) {
-	res, err := s.db.Exec(
+	res, err := s.execWrite(
 		`UPDATE grants SET active = 0 WHERE project_key = ? AND active = 1`,
 		projectKey)
 	if err != nil {

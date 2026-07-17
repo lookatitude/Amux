@@ -29,7 +29,7 @@ const notificationColumns = `id, session, workspace, pane, kind, title, body,
 // InsertNotification records one notification. ReadAtMS on the input is
 // ignored; a new notification is always unread.
 func (s *Store) InsertNotification(n NotificationRow) error {
-	_, err := s.db.Exec(`
+	_, err := s.execWrite(`
 		INSERT INTO notifications (id, session, workspace, pane, kind, title, body, created_ms)
 		VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
 		n.ID, n.Session, n.Workspace, n.Pane, n.Kind, n.Title, n.Body, n.CreatedMS)
@@ -43,7 +43,7 @@ func (s *Store) InsertNotification(n NotificationRow) error {
 // notification keeps its original read time. Returns ErrNotFound for an
 // unknown id.
 func (s *Store) MarkRead(id string, atMS int64) error {
-	res, err := s.db.Exec(
+	res, err := s.execWrite(
 		`UPDATE notifications SET read_at_ms = ? WHERE id = ? AND read_at_ms = 0`,
 		atMS, id)
 	if err != nil {
@@ -71,7 +71,7 @@ func (s *Store) MarkRead(id string, atMS int64) error {
 // MarkAllRead marks every unread notification of a session read at atMS and
 // returns how many it marked.
 func (s *Store) MarkAllRead(session string, atMS int64) (int64, error) {
-	res, err := s.db.Exec(
+	res, err := s.execWrite(
 		`UPDATE notifications SET read_at_ms = ? WHERE session = ? AND read_at_ms = 0`,
 		atMS, session)
 	if err != nil {

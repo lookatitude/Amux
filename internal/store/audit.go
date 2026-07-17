@@ -21,7 +21,7 @@ type AuditRow struct {
 // AppendAudit appends one audit record and returns its assigned monotonic
 // sequence number. The caller-provided Seq is ignored.
 func (s *Store) AppendAudit(a AuditRow) (uint64, error) {
-	res, err := s.db.Exec(`
+	res, err := s.execWrite(`
 		INSERT INTO audit (kind, project_key, epoch, code, at_ms, details_json)
 		VALUES (?, ?, ?, ?, ?, ?)`,
 		a.Kind, a.ProjectKey, int64(a.Epoch), a.Code, a.AtMS, a.DetailsJSON)

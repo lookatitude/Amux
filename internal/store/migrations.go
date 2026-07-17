@@ -116,7 +116,7 @@ func supportedSchemaVersion() int { return migrations[len(migrations)-1].version
 // database, and applies each pending migration in its own transaction.
 // Re-running against an up-to-date database is a no-op (idempotent reopen).
 func (s *Store) migrate() error {
-	if _, err := s.db.Exec(`CREATE TABLE IF NOT EXISTS schema_migrations (
+	if _, err := s.execWrite(`CREATE TABLE IF NOT EXISTS schema_migrations (
 		version         INTEGER PRIMARY KEY,
 		applied_unix_ms INTEGER NOT NULL
 	)`); err != nil {

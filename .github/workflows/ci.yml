@@ -141,7 +141,7 @@ jobs:
           # gcc: the Go race detector (make race, below) links the C runtime, so
           # this amd64 reference lane needs a C compiler even though product
           # builds stay CGO_ENABLED=0. ubuntu-hosted lanes already ship gcc.
-          pacman -Sy --noconfirm --needed git ca-certificates gcc
+          pacman -Sy --noconfirm --needed git ca-certificates gcc make
           test -c /dev/ptmx && echo "native PTY device present"
       - name: Load pinned tool versions
         run: grep -Ev '^[[:space:]]*(#|$)' scripts/tools.env >> "$GITHUB_ENV"
@@ -150,6 +150,8 @@ jobs:
       - name: Download modules (retry network only)
         run: for i in 1 2 3; do go mod download && break || sleep 5; done
       - uses: ./.github/actions/owner-tmpdir     # STR-3 owner-only TMPDIR (before any test/daemon)
+        env:
+          AMUX_TMPDIR_BASE: /root
       - name: Blocking unit/integration suite (Arch reference)
         run: make test
       - name: Race detector (Arch amd64)
@@ -186,6 +188,8 @@ jobs:
       - name: Download modules (retry network only)
         run: for i in 1 2 3; do go mod download && break || sleep 5; done
       - uses: ./.github/actions/owner-tmpdir     # STR-3 owner-only TMPDIR (before any test/daemon)
+        env:
+          AMUX_TMPDIR_BASE: /root
       - name: Blocking unit/integration suite (Arch reference, arm64 feasible subset)
         run: make test
       - name: Native arm64 build

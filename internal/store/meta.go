@@ -10,7 +10,7 @@ import (
 // checkpoint ids, and similar single-value durability records). Overwrites an
 // existing key.
 func (s *Store) SetMeta(key, value string) error {
-	_, err := s.db.Exec(`
+	_, err := s.execWrite(`
 		INSERT INTO meta (key, value) VALUES (?, ?)
 		ON CONFLICT(key) DO UPDATE SET value = excluded.value`, key, value)
 	if err != nil {
