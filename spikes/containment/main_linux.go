@@ -15,7 +15,8 @@
 //
 // PASS CRITERIA (exit 0):
 //   - the grandchild PID is captured,
-//   - after KillTree the grandchild is no longer alive (kill(pid,0) -> ESRCH),
+//   - after KillTree the grandchild is no longer executable (ESRCH or a
+//     killed-but-not-yet-reaped zombie in /proc),
 //   - the cgroup is removed.
 //
 // FAIL (exit 1) if the grandchild survives, proving the mechanism is required.
@@ -41,7 +42,7 @@ func main() {
 		fmt.Fprintln(os.Stderr, "FAIL:", err)
 		os.Exit(1)
 	}
-	fmt.Println("PASS: grandchild reaped by cgroup KillTree")
+	fmt.Println("PASS: grandchild terminated by cgroup KillTree")
 }
 
 func run() error {
@@ -107,5 +108,23 @@ func run() error {
 
 func alive(pid int) bool {
 	err := unix.Kill(pid, 0)
-	return err == nil || err == unix.EPERM
+	if err != nil && err != unix.EPERM {
+		return false
+	}
+	// kill(pid, 0) also succeeds for zombies. A zombie cannot execute and has
+	// already been killed by cgroup.kill; whether PID 1 has reaped it yet is an
+	// init-system property, not descendant-containment failure.
+	stat, readErr := os.ReadFile(filepath.Join("/proc", strconv.Itoa(pid), "stat"))
+	if readErr != nil {
+		return true // fail closed unless disappearance was proved by kill(0)
+	}
+	end := strings.LastIndexByte(string(stat), ')')
+	if end < 0 {
+		return true
+	}
+	fields := strings.Fields(string(stat[end+1:]))
+	if len(fields) == 0 {
+		return true
+	}
+	return fields[0] != "Z" && fields[0] != "X"
 }
