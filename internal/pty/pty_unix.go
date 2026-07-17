@@ -72,6 +72,7 @@ func (unixPTY) Start(spec platform.PTYSpec) (platform.PTYHandle, error) {
 	// fresh PTY the controlling terminal and the child a session (and thus
 	// process-group) leader.
 	cmd.SysProcAttr = &syscall.SysProcAttr{Setsid: true}
+	applyContainmentAttrs(cmd.SysProcAttr, spec)
 
 	size := spec.Size
 	if size.Rows == 0 || size.Cols == 0 {

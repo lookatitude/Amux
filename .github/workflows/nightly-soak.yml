@@ -35,7 +35,7 @@ jobs:
     timeout-minutes: 540             # 9h: 8h soak + setup/teardown headroom
     steps:
       - uses: actions/checkout@v4
-      - run: cat scripts/tools.env >> "$GITHUB_ENV"
+      - run: grep -Ev '^[[:space:]]*(#|$)' scripts/tools.env >> "$GITHUB_ENV"
       - uses: actions/setup-go@v5
         with: { go-version: '${{ env.GO_VERSION }}', cache: true }
       - uses: ./.github/actions/owner-tmpdir     # STR-3 owner-only TMPDIR (before the daemon soak)

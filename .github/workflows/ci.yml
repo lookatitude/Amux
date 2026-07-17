@@ -59,7 +59,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Load pinned tool versions
-        run: cat scripts/tools.env >> "$GITHUB_ENV"
+        run: grep -Ev '^[[:space:]]*(#|$)' scripts/tools.env >> "$GITHUB_ENV"
       - uses: actions/setup-go@v5
         with:
           go-version: ${{ env.GO_VERSION }}
@@ -80,7 +80,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Load pinned tool versions
-        run: cat scripts/tools.env >> "$GITHUB_ENV"
+        run: grep -Ev '^[[:space:]]*(#|$)' scripts/tools.env >> "$GITHUB_ENV"
       - uses: actions/setup-go@v5
         with: { go-version: '${{ env.GO_VERSION }}', cache: true }
       - name: Download modules (retry network only)
@@ -115,7 +115,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Load pinned tool versions
-        run: cat scripts/tools.env >> "$GITHUB_ENV"
+        run: grep -Ev '^[[:space:]]*(#|$)' scripts/tools.env >> "$GITHUB_ENV"
       - uses: actions/setup-go@v5
         with: { go-version: '${{ env.GO_VERSION }}', cache: true }
       - name: Download modules (retry network only)
@@ -134,6 +134,9 @@ jobs:
     runs-on: ubuntu-24.04
     container:
       image: archlinux:latest
+      # Docker's injected init reaps grandchildren after process-group tests;
+      # the default `tail` PID 1 leaves dead children as permanent zombies.
+      options: --init
     steps:
       - uses: actions/checkout@v4
       - name: Arch prerequisites (git for actions, gcc for the race lane, PTY device)
@@ -141,15 +144,17 @@ jobs:
           # gcc: the Go race detector (make race, below) links the C runtime, so
           # this amd64 reference lane needs a C compiler even though product
           # builds stay CGO_ENABLED=0. ubuntu-hosted lanes already ship gcc.
-          pacman -Sy --noconfirm --needed git ca-certificates gcc
+          pacman -Sy --noconfirm --needed git ca-certificates gcc make
           test -c /dev/ptmx && echo "native PTY device present"
       - name: Load pinned tool versions
-        run: cat scripts/tools.env >> "$GITHUB_ENV"
+        run: grep -Ev '^[[:space:]]*(#|$)' scripts/tools.env >> "$GITHUB_ENV"
       - uses: actions/setup-go@v5
         with: { go-version: '${{ env.GO_VERSION }}', cache: true }
       - name: Download modules (retry network only)
         run: for i in 1 2 3; do go mod download && break || sleep 5; done
       - uses: ./.github/actions/owner-tmpdir     # STR-3 owner-only TMPDIR (before any test/daemon)
+        env:
+          AMUX_TMPDIR_BASE: /root
       - name: Blocking unit/integration suite (Arch reference)
         run: make test
       - name: Race detector (Arch amd64)
@@ -170,19 +175,25 @@ jobs:
     runs-on: ubuntu-24.04-arm
     container:
       image: menci/archlinuxarm:base-devel
+      options: --init
     steps:
       - uses: actions/checkout@v4
       - name: Arch prerequisites (git for actions, PTY device present in container)
         run: |
-          pacman -Sy --noconfirm --needed git ca-certificates
+          # The GitHub container host cannot expose Landlock to this image.
+          # Pacman's documented escape hatch keeps the failure explicit and
+          # scoped to package downloads; the native test lane remains blocking.
+          pacman --disable-sandbox -Sy --noconfirm --needed git ca-certificates
           test -c /dev/ptmx && echo "native PTY device present"
       - name: Load pinned tool versions
-        run: cat scripts/tools.env >> "$GITHUB_ENV"
+        run: grep -Ev '^[[:space:]]*(#|$)' scripts/tools.env >> "$GITHUB_ENV"
       - uses: actions/setup-go@v5
         with: { go-version: '${{ env.GO_VERSION }}', cache: true }
       - name: Download modules (retry network only)
         run: for i in 1 2 3; do go mod download && break || sleep 5; done
       - uses: ./.github/actions/owner-tmpdir     # STR-3 owner-only TMPDIR (before any test/daemon)
+        env:
+          AMUX_TMPDIR_BASE: /root
       - name: Blocking unit/integration suite (Arch reference, arm64 feasible subset)
         run: make test
       - name: Native arm64 build
@@ -197,7 +208,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Load pinned tool versions
-        run: cat scripts/tools.env >> "$GITHUB_ENV"
+        run: grep -Ev '^[[:space:]]*(#|$)' scripts/tools.env >> "$GITHUB_ENV"
       - uses: actions/setup-go@v5
         with: { go-version: '${{ env.GO_VERSION }}', cache: true }
       - name: Cross-compile both release arches (CGO disabled)

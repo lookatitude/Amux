@@ -33,6 +33,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"sync"
 
 	// Register the cgo-free "sqlite" database/sql driver (ADR-0007: the
 	// modernc pure-Go route is the sanctioned SQLite dependency).
@@ -51,8 +52,9 @@ const busyTimeoutMS = 5000
 // notifications, metadata, and event cursors. All methods are safe for
 // concurrent use; SQLite serializes writes under WAL with a busy timeout.
 type Store struct {
-	db   *sql.DB
-	path string
+	db      *sql.DB
+	path    string
+	writeMu sync.Mutex
 	// trustTxFailpoint injects deterministic failures between the statements
 	// of ApplyTrustTransition. Test scaffolding only (fail-closed direction
 	// only); nil in production. See SetTrustTransitionFailpoint.
@@ -96,10 +98,24 @@ func (s *Store) Close() error {
 	return s.db.Close()
 }
 
+// execWrite serializes every single-statement mutation issued by this Store.
+// SQLite permits one writer at a time, but database/sql may otherwise send
+// concurrent writes through different connections and exhaust busy_timeout on
+// slower hosts. The mutex makes in-process contention deterministic while WAL
+// still allows reads to use independent connections; busy_timeout remains the
+// bounded fallback for contention outside this process.
+func (s *Store) execWrite(query string, args ...any) (sql.Result, error) {
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
+	return s.db.Exec(query, args...)
+}
+
 // inTx runs fn inside one transaction, committing on nil and rolling back on
 // error, so every multi-statement mutation is atomic (ADR-0005: never partial
 // writes).
 func (s *Store) inTx(fn func(tx *sql.Tx) error) error {
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
 	tx, err := s.db.Begin()
 	if err != nil {
 		return err

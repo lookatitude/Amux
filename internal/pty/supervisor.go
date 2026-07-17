@@ -92,9 +92,15 @@ type SupervisorConfig struct {
 // that does not simply opts out of pid-based features.
 type pidReporter interface{ PID() int }
 
-// pidEnroller matches the Linux containment handle's post-start enrollment
-// hook (cgroup.procs write). Asserted dynamically so this file stays portable.
+// pidEnroller matches the Linux containment handle's post-start fallback.
+// The supported PTY path uses cgroupFDProvider instead; this remains for test
+// or alternate seams that cannot perform atomic clone-time placement.
 type pidEnroller interface{ AddPID(pid int) error }
+
+// cgroupFDProvider is the Linux containment handle's optional atomic-launch
+// seam. Keeping it out of the cross-platform ContainmentHandle contract lets
+// non-Linux and fake handles remain syscall-agnostic.
+type cgroupFDProvider interface{ CgroupFD() int }
 
 // pidRecord tracks one spawned child for OrphanScan: the pid and whether its
 // handle has been reaped. Records are retained after exit on purpose — the
@@ -185,6 +191,13 @@ func (s *Supervisor) Spawn(id string, spec platform.PTYSpec) error {
 		ch = prepared
 	}
 
+	preEnrolled := false
+	if provider, ok := ch.(cgroupFDProvider); ok && provider.CgroupFD() >= 0 {
+		spec.UseCgroupFD = true
+		spec.CgroupFD = provider.CgroupFD()
+		preEnrolled = true
+	}
+
 	handle, err := s.cfg.PTY.Start(spec)
 	if err != nil {
 		if ch != nil {
@@ -205,9 +218,9 @@ func (s *Supervisor) Spawn(id string, spec platform.PTYSpec) error {
 		p.record = &pidRecord{id: id, pid: p.pid}
 		s.records = append(s.records, p.record)
 	}
-	// Enroll the fresh child into containment (Linux: cgroup.procs) before it
-	// can double-fork away.
-	if ch != nil && p.pid > 0 {
+	// Alternate PTY seams without clone-time placement use the post-start
+	// fallback. The supported Linux path is already enrolled atomically.
+	if ch != nil && p.pid > 0 && !preEnrolled {
 		if en, ok := ch.(pidEnroller); ok {
 			if err := en.AddPID(p.pid); err != nil {
 				s.cfg.Logger.Warn("containment enrollment failed",

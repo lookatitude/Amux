@@ -16,17 +16,15 @@ import "github.com/amux-run/amux/internal/platform"
 // containment whose KillTree fails closed (the Supervisor then falls back to
 // group SIGKILL and logs the downgrade — never a silent degradation).
 //
-// DEFERRED RUNTIME EVIDENCE (ADR-0006 §"Deferred Linux evidence"): this file
-// compiles under GOOS=linux, but the kill-tree runtime behavior cannot be
-// proven on the macOS author host and MUST be validated on a cgroup-v2 Linux
-// host with:
+// LINUX RUNTIME EVIDENCE (ADR-0006): this behavior cannot be inferred from the
+// macOS author host and MUST remain green on a cgroup-v2 Linux host with:
 //
 //	sudo AMUX_CGROUP_ROOT=/sys/fs/cgroup/amux-spike go run ./spikes/containment
 //
-// PASS (exit 0): grandchild PID captured; after cgroup.kill the grandchild is
-// not alive; cgroup removed. FAIL if the grandchild survives. This becomes a
-// blocking T3/T6 CI job; no claim of passing containment runtime behavior is
-// made from the author host.
+// PASS (exit 0): the child is placed atomically in the cgroup, the inherited
+// grandchild PID is captured, cgroup.kill terminates it, and the cgroup is
+// removed. This is a blocking CI job; no Linux-runtime claim is inferred from
+// an author-host-only run.
 func PlatformContainment(cgroupRoot string) platform.Containment {
 	return platform.NewLinuxContainment(cgroupRoot)
 }

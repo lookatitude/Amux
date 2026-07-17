@@ -72,7 +72,7 @@ Non-Linux builds get fail-closed placeholders (`fsid_other.go`,
 `unsupported_linuxonly.go`) returning `ErrUnsupportedPlatform`; a real non-Linux
 implementation is a supported-platform change requiring spec confirmation.
 
-## Linux-only mechanisms (design frozen; runtime evidence deferred)
+## Linux-only mechanisms (design frozen; native runtime evidence required)
 
 ### Descendant containment (`containment_linux.go`)
 
@@ -83,6 +83,12 @@ escapes its process group and reparents to init remains a cgroup member, so
 cgroup is available the daemon runs in reduced-containment (pdeathsig-only) mode
 and `KillTree` reports it cannot guarantee grandchild reaping (fail-closed
 fallback, not a silent downgrade).
+
+The supported PTY path opens the prepared cgroup directory and passes its file
+descriptor through `SysProcAttr.UseCgroupFD`, placing the child in the cgroup
+atomically during clone. Post-start `cgroup.procs` enrollment is retained only
+as a fallback for alternate PTY seams because it has an unavoidable
+fork-before-enrollment escape window.
 
 ### Descriptor-bound launch (`launch_linux.go`)
 
@@ -95,16 +101,16 @@ replacement between validation and exec cannot substitute a different object;
 path-only revalidation is explicitly insufficient and unsupported executable
 forms fail closed.
 
-### Deferred Linux evidence (cannot run on the macOS author host)
+### Native Linux evidence (cannot be inferred from the macOS author host)
 
 Both harnesses compile under `GOOS=linux` (verified: `GOOS=linux GOARCH=amd64`
-and `arm64` `go build ./...` succeed) but their runtime behavior MUST be proven
-on a cgroup-v2 Linux host and is deferred to T4/T6 on the CI matrix:
+and `arm64` `go build ./...` succeed), and their runtime behavior MUST be proven
+on the native T4/T6 CI matrix:
 
 - **`spikes/containment`** — RUN: `sudo AMUX_CGROUP_ROOT=/sys/fs/cgroup/amux-spike
-  go run ./spikes/containment`. PASS (exit 0): grandchild PID captured; after
-  `cgroup.kill` the grandchild is not alive; cgroup removed. FAIL if the
-  grandchild survives.
+  go run ./spikes/containment`. PASS (exit 0): clone-time cgroup placement is
+  confirmed, the inherited grandchild PID is captured, `cgroup.kill`
+  terminates it, and the cgroup is removed. FAIL if the grandchild survives.
 - **`spikes/launch`** — RUN: `go run ./spikes/launch` (kernel ≥ 5.6 for openat2).
   PASS (exit 0): symlink refused under `RESOLVE_NO_SYMLINKS`; after a
   rename/byte-replacement race the bound descriptor's inode is unchanged and
