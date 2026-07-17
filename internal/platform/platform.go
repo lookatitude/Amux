@@ -144,6 +144,12 @@ type PTYSpec struct {
 	Env         []string
 	Size        PTYSize
 	Containment ContainmentSpec
+	// UseCgroupFD asks the Linux PTY launcher to place the child into CgroupFD
+	// atomically during clone, before user code can fork. Other platforms ignore
+	// both fields. The Supervisor populates them from a prepared containment
+	// handle; callers outside the PTY/containment assembly leave them zero.
+	UseCgroupFD bool
+	CgroupFD    int
 }
 
 // PTYSize is terminal geometry in cells.

@@ -8,6 +8,8 @@ import (
 	"path/filepath"
 	"syscall"
 	"time"
+
+	"golang.org/x/sys/unix"
 )
 
 // linuxContainment implements daemon-death descendant containment with a
@@ -39,21 +41,27 @@ func NewLinuxContainment(cgroupRoot string) Containment {
 }
 
 func (c *linuxContainment) Prepare(spec ContainmentSpec) (ContainmentHandle, error) {
-	h := &linuxContainmentHandle{}
+	h := &linuxContainmentHandle{cgroupFD: -1}
 	if c.cgroupRoot != "" {
 		dir := filepath.Join(c.cgroupRoot, sanitizeLabel(spec.Label))
 		if err := os.MkdirAll(dir, 0o755); err != nil {
 			return nil, fmt.Errorf("create cgroup %s: %w", dir, err)
 		}
 		h.cgroupDir = dir
+		fd, err := unix.Open(dir, unix.O_RDONLY|unix.O_DIRECTORY|unix.O_CLOEXEC, 0)
+		if err != nil {
+			_ = os.Remove(dir)
+			return nil, fmt.Errorf("open cgroup %s: %w", dir, err)
+		}
+		h.cgroupFD = fd
 	}
 	return h, nil
 }
 
-// SysProcAttr returns the SysProcAttr a caller should apply to a contained
-// child: a new process group (so signals can target the whole group) and
-// SIGKILL parent-death signaling. The cgroup membership is applied by writing
-// the child PID to cgroup.procs after StartProcess (see AddPID).
+// SysProcAttr returns the non-cgroup SysProcAttr a caller should apply to a
+// contained child: a new process group (so signals can target the whole group)
+// and SIGKILL parent-death signaling. Production PTY launches add the prepared
+// CgroupFD through SysProcAttr.UseCgroupFD so membership is atomic at clone.
 func ContainedSysProcAttr(spec ContainmentSpec) *syscall.SysProcAttr {
 	attr := &syscall.SysProcAttr{Pdeathsig: syscall.SIGKILL}
 	if spec.NewProcessGroup {
@@ -64,11 +72,17 @@ func ContainedSysProcAttr(spec ContainmentSpec) *syscall.SysProcAttr {
 
 type linuxContainmentHandle struct {
 	cgroupDir string
+	cgroupFD  int
 }
 
-// AddPID enrolls a freshly started child into the containment cgroup. Callers
-// invoke it immediately after StartProcess so the child (and everything it
-// forks) is a cgroup member before it can double-fork away.
+// CgroupFD exposes the prepared cgroup directory solely to the Supervisor's
+// optional pre-enrollment seam. The PTY launcher passes it to clone3 via
+// SysProcAttr.UseCgroupFD, closing the fork-before-AddPID escape window.
+func (h *linuxContainmentHandle) CgroupFD() int { return h.cgroupFD }
+
+// AddPID is the fallback for a PTY seam that cannot consume CgroupFD. The
+// supported Linux PTY path uses atomic clone-time placement and skips this
+// post-start operation because it cannot close the fork-before-enroll race.
 func (h *linuxContainmentHandle) AddPID(pid int) error {
 	if h.cgroupDir == "" {
 		return nil // pdeathsig-only mode; nothing to enroll
@@ -90,6 +104,10 @@ func (h *linuxContainmentHandle) KillTree() error {
 // Close removes the (now-empty) cgroup directory. It retries briefly because the
 // kernel removes the cgroup only once all members have exited.
 func (h *linuxContainmentHandle) Close() error {
+	if h.cgroupFD >= 0 {
+		_ = unix.Close(h.cgroupFD)
+		h.cgroupFD = -1
+	}
 	if h.cgroupDir == "" {
 		return nil
 	}

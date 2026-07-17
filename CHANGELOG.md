@@ -28,5 +28,7 @@ All notable changes to Amux are documented in this file. The format follows
   prerequisites, and uses an owner-safe runtime path inside Arch containers.
 - SQLite writes from concurrent daemon components are serialized in-process,
   preventing slower ARM hosts from exhausting the database busy timeout.
+- Linux PTY children now enter their cgroup atomically at clone time, closing
+  the fork-before-enrollment escape window for descendant containment.
 
 [Unreleased]: https://github.com/lookatitude/Amux/compare/main...next
