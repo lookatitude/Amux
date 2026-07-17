@@ -58,7 +58,10 @@ func run() error {
 	// A shell that double-forks a grandchild which changes its process group
 	// (setsid) and sleeps, then prints the grandchild PID and exits — so the
 	// grandchild is reparented to init and has escaped the process group.
-	script := `setsid sh -c 'echo GC:$$; exec sleep 300' & echo done`
+	// Emit the PID through the capture pipe, then redirect the long-lived
+	// grandchild before exec. Otherwise sleep inherits stdout, Scanner never
+	// observes EOF, and the harness deadlocks before it can call cgroup.kill.
+	script := `setsid sh -c 'echo GC:$$; exec sleep 300 >/dev/null 2>&1' & echo done`
 	cmd := exec.Command("/bin/sh", "-c", script)
 	cmd.SysProcAttr = platform.ContainedSysProcAttr(platform.ContainmentSpec{NewProcessGroup: true, Label: "spike"})
 	stdout, err := cmd.StdoutPipe()
