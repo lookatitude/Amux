@@ -1,0 +1,45 @@
+task_run:
+  schema_version: guild.task_run.v1
+  ids:
+    initiative_id: null
+    run_id: run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0
+    task_id: T5-terminal-ui
+    task_run_id: trun-020
+  specialist: terminal-ui
+  objective: Implement and verify the complete Bubble Tea terminal UI lane U1-U8 over the frozen T1/T4 contracts, producing deterministic fixtures and a valid receipt for T6.
+  context_bundle: .guild/context/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/terminal-ui-T5-terminal-ui.md
+  inputs:
+    - .guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/handoffs/architect-T1-architect.md
+    - .guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/handoffs/backend-T4-backend.md
+  expected_outputs:
+    - internal/tui/**
+    - cmd/amux TUI command integration
+    - deterministic model/geometry/golden/benchmark fixtures
+    - docs/operator/tui.md
+    - .guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/handoffs/terminal-ui-T5-terminal-ui.md
+  depends_on:
+    - T1-architect
+    - T4-backend
+  permissions:
+    read: [repo]
+    write: [assigned_worktree]
+    network: dependency_resolution_only
+    shell: approval_required
+    destructive: approval_required
+  budget:
+    max_turns: 40
+    max_tokens: 120000
+  autonomy_policy: autonomous_within_frozen_contracts
+  loops_applicable: full
+  host:
+    requested: claude-code
+    selected: claude-code-cli
+    capability_requirements:
+      needs_pr: false
+      needs_parallel: false
+      needs_network: true
+      isolation: none
+    model_params:
+      model: claude-fable-5
+  trace:
+    events_ref: .guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/logs/v1.4-events.jsonl

@@ -1,0 +1,13 @@
+{
+  "schema_version": "guild.specialist_extraction_waiver.v1",
+  "role": "terminal-ui",
+  "prior_check": ".guild/evolve/create-terminal-ui-20260715T024645Z/extraction-check.json",
+  "waived_by": "user",
+  "waived_at": "2026-07-15T04:03:40Z",
+  "scope": "Extraction-history evidence only",
+  "instruction": "Add the specialist without the evidence.",
+  "remaining_gates_required": [
+    "paired routing evaluation",
+    "historical shadow-mode collision validation"
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "schema": "amux.security.fixtures.v1",
+  "fixtures": [
+    {
+      "id": "timing.absent-trust",
+      "requirement": "HA-3b, HA-22 (threat-model AB-1)",
+      "kind": "absent-trust",
+      "gate_ms": 250,
+      "expect": { "decision": "deny", "code": "project_trust_required" }
+    },
+    {
+      "id": "timing.revoke-cancel",
+      "requirement": "HA-18b, HA-22 (threat-model AB-3)",
+      "kind": "revoke-cancel",
+      "gate_ms": 250,
+      "expect": { "decision": "deny", "code": "project_trust_required" }
+    },
+    {
+      "id": "timing.revoke-first",
+      "requirement": "HA-14 (threat-model AB-3)",
+      "kind": "revoke-first",
+      "gate_ms": 250,
+      "expect": { "decision": "deny", "code": "project_trust_required" }
+    },
+    {
+      "id": "timing.launch-first",
+      "requirement": "HA-15, HA-16, AUD-4 (threat-model AB-4)",
+      "kind": "launch-first",
+      "gate_ms": 2000,
+      "expect": { "decision": "allow", "enforcement": "terminate_then_kill_tree" }
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "schema_version": "guild.lane_resume.v1",
+  "lane_id": "T1-architect",
+  "run_id": "run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0",
+  "attempts": 1,
+  "last_attempt_at": "2026-07-15T06:20:07.422Z",
+  "resumable_at": "2026-07-15T06:20:07.424Z",
+  "last_error": "Fable 5 resumed lane produced partial Go skeleton/domain/protocol/ordering/platform/persistence work but no ADR batch or receipt, then exceeded 600000ms without a write; host stdin was closed so nudge could not be delivered."
+}

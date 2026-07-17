@@ -1,0 +1,65 @@
+{
+  "surface": "sur-000001",
+  "up_to_seq": 42,
+  "grid": {
+    "rows": 2,
+    "cols": 3,
+    "cells": [
+      [
+        {
+          "t": "h",
+          "w": 1,
+          "s": {
+            "fg": {
+              "mode": "ansi",
+              "index": 1
+            },
+            "attrs": 1
+          }
+        },
+        {
+          "t": "i",
+          "w": 1
+        },
+        {
+          "w": 1
+        }
+      ],
+      [
+        {
+          "t": "世",
+          "w": 2,
+          "s": {
+            "bg": {
+              "mode": "rgb",
+              "r": 10,
+              "g": 20,
+              "b": 30
+            }
+          }
+        },
+        {
+          "w": 0
+        },
+        {
+          "w": 1
+        }
+      ]
+    ],
+    "cursor": {
+      "row": 0,
+      "col": 2,
+      "visible": true
+    },
+    "pen": {
+      "fg": {
+        "mode": "256",
+        "index": 208
+      }
+    },
+    "title": "amux",
+    "autowrap": true,
+    "scroll_top": 0,
+    "scroll_bottom": 1
+  }
+}

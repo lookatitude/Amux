@@ -1,0 +1,24 @@
+# Generated metadata for the AUR — regenerate with `makepkg --printsrcinfo > .SRCINFO`
+# whenever PKGBUILD changes (a stale .SRCINFO is an AUR-side defect). This
+# checked-in copy is a TEMPLATE: pkgver and the sha256sums are placeholders that
+# the release owner fills at publish time (see docs/release/aur-maintenance.md).
+pkgbase = amux-bin
+	pkgdesc = Go-authoritative, Linux-first terminal workspace runtime (daemon + CLI)
+	pkgver = 0.0.0
+	pkgrel = 1
+	url = https://example.invalid/amux
+	install = amux.install
+	arch = x86_64
+	arch = aarch64
+	license = custom
+	provides = amux
+	provides = amuxd
+	conflicts = amux
+	conflicts = amux-git
+	options = !strip
+	source_x86_64 = amux-0.0.0-x86_64.tar.gz::https://example.invalid/amux/releases/download/v0.0.0/amux_0.0.0_linux_amd64.tar.gz
+	sha256sums_x86_64 = 0000000000000000000000000000000000000000000000000000000000000000
+	source_aarch64 = amux-0.0.0-aarch64.tar.gz::https://example.invalid/amux/releases/download/v0.0.0/amux_0.0.0_linux_arm64.tar.gz
+	sha256sums_aarch64 = 0000000000000000000000000000000000000000000000000000000000000000
+
+pkgname = amux-bin

@@ -1,0 +1,30 @@
+{
+  "schema_version": "guild.scope.v1",
+  "run_id": "run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0",
+  "task_id": "T4-backend",
+  "specialist": "backend",
+  "write_globs": [
+    "cmd/amux/**",
+    "cmd/amuxd/**",
+    "api/v1/**",
+    "internal/**",
+    "testdata/backend/**",
+    "testdata/protocol/**",
+    "testdata/terminal/**",
+    "go.mod",
+    "go.sum",
+    ".guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/handoffs/backend-T4-backend.md"
+  ],
+  "forbidden_globs": [
+    "docs/adr/**",
+    "docs/security/**",
+    "internal/securitytest/**",
+    ".github/workflows/**",
+    "packaging/**",
+    "docs/operations/**",
+    "docs/release/**",
+    "internal/tui/**",
+    "testdata/tui/**",
+    "research/**"
+  ]
+}

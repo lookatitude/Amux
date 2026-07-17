@@ -1,0 +1,36 @@
+{
+  "schema_version": "review_result.v1",
+  "packet_id": "G-lane-T2-security-r2",
+  "artifact_sha256_reviewed": "c5a32cc281050917706bdfa14a6b75be0b8f77efa7b84ee74b224b1620e32312",
+  "verdict": "issues",
+  "findings": [
+    {
+      "severity": "blocking",
+      "title": "Revocation and replacement invalidation are still not durably atomic",
+      "detail": "The reopened T2 receipt claims fail-closed, transactional invalidation across project state, grant deactivation, audit, and listener containment, but the live implementation still splits that transition across independent durable writes. `invalidateIdentityLocked` and the ordinary revoke path both persist the project row before deactivating grants, then append audit best-effort. If `SaveProject` succeeds and `DeactivateGrants` fails, disk can already be at the bumped revoked epoch while in-memory state remains approved; on the ordinary revoke path that same actor can still authorize launches, and on the replacement-invalidation path a retry can trip `ErrEpochNotMonotonic` against the already-bumped durable epoch. Audit writes are also explicitly ignored after the state transition. That does not satisfy the packet's required failure atomicity.",
+      "evidence": "internal/control/actor.go:266-297,318-356,640-648; internal/daemon/truststore.go:28-40,96-103; internal/store/projects.go:40-52,81-104; internal/store/grants.go:57-64"
+    },
+    {
+      "severity": "blocking",
+      "title": "The second-UID pass receipt is stale and does not satisfy the amended F5 receipt rules",
+      "detail": "The packet required the second-UID manifest evidence to prove substantive execution of only the real Linux/root harness. Current source and the self-gate say the always-skipping `TestSecondUIDVariantsDeferred` stub was retired, but the frozen `integration-second-uid` pass receipt still records that skipped stub and even says security still needs to retire it. Under the amended receipt discipline, an undeclared skip in a `-run` check is not `pass`. Raw Ubuntu and Arch integration logs do show the four real foreign-owner tests running without the stub, so the problem is specifically that the receipt evidence at the frozen path no longer matches the current source/evidence set.",
+      "evidence": "docs/security/security-readiness.md:95-112; internal/transport/local/local_test.go:393-398; .amux-artifacts/security/integration-second-uid.receipt.json:1-12; .amux-artifacts/security/integration-second-uid.txt:1-12; .amux-artifacts/security/linux-integration-20260717/linux-gates-ubuntu.log:169-176; .amux-artifacts/security/linux-integration-arch-20260717/linux-gates-arch.log:168-175"
+    }
+  ],
+  "blocking_findings": [
+    {
+      "severity": "blocking",
+      "title": "Revocation and replacement invalidation are still not durably atomic",
+      "detail": "The reopened T2 receipt claims fail-closed, transactional invalidation across project state, grant deactivation, audit, and listener containment, but the live implementation still splits that transition across independent durable writes. `invalidateIdentityLocked` and the ordinary revoke path both persist the project row before deactivating grants, then append audit best-effort. If `SaveProject` succeeds and `DeactivateGrants` fails, disk can already be at the bumped revoked epoch while in-memory state remains approved; on the ordinary revoke path that same actor can still authorize launches, and on the replacement-invalidation path a retry can trip `ErrEpochNotMonotonic` against the already-bumped durable epoch. Audit writes are also explicitly ignored after the state transition. That does not satisfy the packet's required failure atomicity.",
+      "evidence": "internal/control/actor.go:266-297,318-356,640-648; internal/daemon/truststore.go:28-40,96-103; internal/store/projects.go:40-52,81-104; internal/store/grants.go:57-64"
+    },
+    {
+      "severity": "blocking",
+      "title": "The second-UID pass receipt is stale and does not satisfy the amended F5 receipt rules",
+      "detail": "The packet required the second-UID manifest evidence to prove substantive execution of only the real Linux/root harness. Current source and the self-gate say the always-skipping `TestSecondUIDVariantsDeferred` stub was retired, but the frozen `integration-second-uid` pass receipt still records that skipped stub and even says security still needs to retire it. Under the amended receipt discipline, an undeclared skip in a `-run` check is not `pass`. Raw Ubuntu and Arch integration logs do show the four real foreign-owner tests running without the stub, so the problem is specifically that the receipt evidence at the frozen path no longer matches the current source/evidence set.",
+      "evidence": "docs/security/security-readiness.md:95-112; internal/transport/local/local_test.go:393-398; .amux-artifacts/security/integration-second-uid.receipt.json:1-12; .amux-artifacts/security/integration-second-uid.txt:1-12; .amux-artifacts/security/linux-integration-20260717/linux-gates-ubuntu.log:169-176; .amux-artifacts/security/linux-integration-arch-20260717/linux-gates-arch.log:168-175"
+    }
+  ],
+  "round": 2,
+  "reviewer_host": "codex"
+}

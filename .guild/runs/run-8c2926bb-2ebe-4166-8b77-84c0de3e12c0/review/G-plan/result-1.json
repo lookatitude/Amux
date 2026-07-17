@@ -1,0 +1,36 @@
+{
+  "schema_version": "review_result.v1",
+  "packet_id": "G-plan-amux-go-linux-runtime-r1",
+  "artifact_sha256_reviewed": "a627efee524fa7418c9af266ba1c2f61e04361e2645dec062092c8fe73a74997",
+  "verdict": "issues",
+  "findings": [
+    {
+      "severity": "blocking",
+      "title": "Referenced capability scopes make T1 and T2 unexecutable",
+      "detail": "Architect must run property tests and Linux process/launch spikes but lacks Bash. Security must author documents, manifests, and deterministic fixtures but lacks Write, Edit, and Bash.",
+      "evidence": ".guild/plan/amux-go-linux-runtime.md:49-50,58-61,76-79,174-184,201-209; .guild/team/amux-go-linux-runtime.plan.yaml:13-20,54-59"
+    },
+    {
+      "severity": "blocking",
+      "title": "The strict DAG places Go module initialization downstream of CI that requires it",
+      "detail": "T3 must complete toolchain and module-integrity CI before T4 starts, while B1 inside T4 owns initialization of the module/toolchain and dependency manifest.",
+      "evidence": ".guild/plan/amux-go-linux-runtime.md:24-31,112-114,224-226,238-246"
+    }
+  ],
+  "blocking_findings": [
+    {
+      "severity": "blocking",
+      "title": "Referenced capability scopes make T1 and T2 unexecutable",
+      "detail": "Architect lacks Bash; security lacks Write, Edit, and Bash for their required lane outputs.",
+      "evidence": ".guild/team/amux-go-linux-runtime.plan.yaml"
+    },
+    {
+      "severity": "blocking",
+      "title": "The strict DAG places Go module initialization downstream of CI that requires it",
+      "detail": "T3 depends on bootstrap currently assigned to downstream T4 B1.",
+      "evidence": ".guild/plan/amux-go-linux-runtime.md"
+    }
+  ],
+  "round": 1,
+  "reviewer_host": "codex"
+}

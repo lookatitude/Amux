@@ -1,0 +1,30 @@
+# Taskfile for contributors who prefer `task` over `make` (go-task.github.io).
+#
+# It is a THIN alias layer over the Makefile so there is exactly one source of
+# truth for what each gate runs (T3 devops, D1). Every task shells out to the
+# matching `make` target; nothing is reimplemented here. If you add a target,
+# add it to the Makefile and mirror the alias below.
+version: '3'
+
+tasks:
+  default:
+    desc: List available tasks
+    cmds: [make help]
+
+  verify:
+    desc: Full deterministic D1 gate (fmt, vet, staticcheck, mod, manifest, license, generate)
+    cmds: [make verify]
+
+  fmt:      { desc: Format Go code,                      cmds: [make fmt] }
+  vet:      { desc: go vet (host + linux graph),         cmds: [make vet] }
+  test:     { desc: Blocking unit/integration suite,     cmds: [make test] }
+  race:     { desc: Suite under the race detector,       cmds: [make race] }
+  fuzz-smoke: { desc: Brief fuzz smoke over all targets, cmds: [make fuzz-smoke] }
+  bench:    { desc: Benchmark smoke,                     cmds: [make bench] }
+  build:    { desc: Build for the host,                  cmds: [make build] }
+  build-linux: { desc: Cross-compile linux amd64/arm64,  cmds: [make build-linux] }
+
+  release-check:    { desc: Validate the GoReleaser config,   cmds: [make release-check] }
+  release-snapshot: { desc: Local unpublished release build,  cmds: [make release-snapshot] }
+
+  soak: { desc: 30-minute blocking soak with evidence capture, cmds: [make soak] }

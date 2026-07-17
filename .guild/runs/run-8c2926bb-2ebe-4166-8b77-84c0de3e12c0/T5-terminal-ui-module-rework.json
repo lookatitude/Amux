@@ -1,0 +1,192 @@
+{
+  "schema_version": "guild.run_wrapper_record.v1",
+  "host": "claude",
+  "command": "claude",
+  "args": [
+    "--permission-mode",
+    "auto",
+    "--model",
+    "claude-opus-4-8",
+    "-p",
+    "Perform a narrow T5-terminal-ui rework. The implementation is otherwise\ncomplete, but independent orchestrator verification rejected the receipt because\nthe final staticcheck invocation polluted the durable module graph.\n\nExact evidence from the current workspace:\n\n- `go mod tidy -diff` exits 1.\n- It removes `honnef.co/go/tools v0.7.0` from go.mod/go.sum.\n- It adds `golang.org/x/exp v0.0.0-20231110203233-9a3e6036ecaa` as the correct\n  indirect module and removes stale staticcheck-only sums.\n- The receipt currently claims a green final gate, so it is not acceptable\n  until the graph is tidy-clean and all frozen manifests/docs reflect the\n  post-tidy truth.\n\nFix only this defect and any direct fallout:\n\n1. Run `go mod tidy` to restore the canonical module graph. Do not add\n   staticcheck as an application dependency; future staticcheck runs must use a\n   pinned external tool invocation that cannot mutate go.mod/go.sum.\n2. Regenerate `scripts/expected-modules-build.txt` and\n   `scripts/expected-modules-test.txt` only if the actual compiled graph changes.\n   Update `docs/dependencies.md` so its full module graph and verification claims\n   match the canonical post-tidy files.\n3. Prove `go mod tidy -diff` is empty, `go mod verify`, dependency manifest,\n   license gate, gofmt, vet, all tests, all race tests, Linux amd64/arm64 no-cgo\n   builds, and focused TUI tests are green. Re-run staticcheck only in a way that\n   leaves go.mod/go.sum byte-identical, or report the prior clean output without\n   re-running it; the durable graph is the higher-priority contract.\n4. Update the existing T5 handoff receipt with truthful final evidence and emit\n   exactly one valid `guild.handoff.v2` fence, no prose outside it. Summary <=600\n   characters, notes <=200. Do not change production TUI semantics or any\n   out-of-scope file.\n\n\nWhen you finish, emit your result as a SINGLE fenced code block and nothing after it:\n```guild.handoff.v2\n{ ... a valid guild.handoff.v2 object ... }\n```\nThe block MUST validate against the guild.handoff.v2 contract. Do not add prose after it."
+  ],
+  "cwd": "/Users/miguelp/Projects/Amux",
+  "launch_mode": {
+    "requested": "auto",
+    "effective": "auto",
+    "args": [
+      "--permission-mode",
+      "auto"
+    ],
+    "degraded": false
+  },
+  "bootstrap_method": "hookSpecificOutput.additionalContext",
+  "host_adapter": {
+    "schema_version": "guild.run_host_adapter_receipt.v1",
+    "requested_host": "claude",
+    "host": "claude-code-cli",
+    "host_id": "claude-code-cli",
+    "provenance": "verified",
+    "preflight": {
+      "schema_version": "guild.host_adapter_result.v1",
+      "host": "claude-code-cli",
+      "operation": "preflight",
+      "status": "ok",
+      "value": {
+        "request": {
+          "cwd": "/Users/miguelp/Projects/Amux",
+          "runId": "T5-terminal-ui-module-rework"
+        },
+        "verified_by": "HOST_REGISTRY_ROWS[claude-code-cli].capabilities.hooks",
+        "session_start_registry_value": true,
+        "hook_file": "hooks/hooks.json",
+        "native_events": [
+          "session_start",
+          "user_prompt_submit",
+          "pre_tool_use",
+          "post_tool_use",
+          "stop",
+          "pre_compact",
+          "subagent_stop",
+          "task_created",
+          "task_completed",
+          "teammate_idle"
+        ],
+        "session_start_commands": [
+          "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/bootstrap.sh\"",
+          "node \"${CLAUDE_PLUGIN_ROOT}/hooks/dist/detect-guild-version.js\"",
+          "node \"${CLAUDE_PLUGIN_ROOT}/hooks/dist/using-guild-bootstrap.js\""
+        ]
+      },
+      "receipt": {
+        "schema_version": "guild.host_adapter_receipt.v1",
+        "host": "claude-code-cli",
+        "operation": "preflight",
+        "status": "ok",
+        "reason": "Claude Code hook preflight is registry-verified and includes using-guild SessionStart injection",
+        "degradation_receipt": {
+          "schema_version": "guild.degradation_receipt.v1",
+          "surface": "session",
+          "host": "claude-code-cli",
+          "rung": "native",
+          "degraded": false,
+          "inferred": false,
+          "reason": "session@claude-code-cli resolves to \"native\""
+        }
+      }
+    },
+    "model_params": {
+      "schema_version": "guild.host_adapter_result.v1",
+      "host": "claude-code-cli",
+      "operation": "resolveModelParams",
+      "status": "ok",
+      "value": {
+        "modelParams": {
+          "model": "claude-opus-4-8"
+        },
+        "argv": [
+          "--model",
+          "claude-opus-4-8"
+        ],
+        "unsupported_model_params": []
+      },
+      "receipt": {
+        "schema_version": "guild.host_adapter_receipt.v1",
+        "host": "claude-code-cli",
+        "operation": "resolveModelParams",
+        "status": "ok",
+        "reason": "Claude CLI maps model params to native --model/--effort flags",
+        "degradation_receipt": {
+          "schema_version": "guild.degradation_receipt.v1",
+          "surface": "semantic_tool",
+          "host": "claude-code-cli",
+          "rung": "native",
+          "degraded": false,
+          "inferred": false,
+          "reason": "semantic_tool@claude-code-cli resolves to \"native\""
+        }
+      }
+    },
+    "dispatch": {
+      "schema_version": "guild.host_adapter_result.v1",
+      "host": "claude-code-cli",
+      "operation": "dispatch",
+      "status": "ok",
+      "value": {
+        "taskRun": {
+          "runId": "T5-terminal-ui-module-rework",
+          "prompt": "Perform a narrow T5-terminal-ui rework. The implementation is otherwise\ncomplete, but independent orchestrator verification rejected the receipt because\nthe final staticcheck invocation polluted the durable module graph.\n\nExact evidence from the current workspace:\n\n- `go mod tidy -diff` exits 1.\n- It removes `honnef.co/go/tools v0.7.0` from go.mod/go.sum.\n- It adds `golang.org/x/exp v0.0.0-20231110203233-9a3e6036ecaa` as the correct\n  indirect module and removes stale staticcheck-only sums.\n- The receipt currently claims a green final gate, so it is not acceptable\n  until the graph is tidy-clean and all frozen manifests/docs reflect the\n  post-tidy truth.\n\nFix only this defect and any direct fallout:\n\n1. Run `go mod tidy` to restore the canonical module graph. Do not add\n   staticcheck as an application dependency; future staticcheck runs must use a\n   pinned external tool invocation that cannot mutate go.mod/go.sum.\n2. Regenerate `scripts/expected-modules-build.txt` and\n   `scripts/expected-modules-test.txt` only if the actual compiled graph changes.\n   Update `docs/dependencies.md` so its full module graph and verification claims\n   match the canonical post-tidy files.\n3. Prove `go mod tidy -diff` is empty, `go mod verify`, dependency manifest,\n   license gate, gofmt, vet, all tests, all race tests, Linux amd64/arm64 no-cgo\n   builds, and focused TUI tests are green. Re-run staticcheck only in a way that\n   leaves go.mod/go.sum byte-identical, or report the prior clean output without\n   re-running it; the durable graph is the higher-priority contract.\n4. Update the existing T5 handoff receipt with truthful final evidence and emit\n   exactly one valid `guild.handoff.v2` fence, no prose outside it. Summary <=600\n   characters, notes <=200. Do not change production TUI semantics or any\n   out-of-scope file.\n",
+          "host": "claude",
+          "cwd": "/Users/miguelp/Projects/Amux",
+          "modelParams": {
+            "model": "claude-opus-4-8"
+          },
+          "command": "claude",
+          "args": [
+            "--permission-mode",
+            "auto",
+            "--model",
+            "claude-opus-4-8",
+            "-p",
+            "Perform a narrow T5-terminal-ui rework. The implementation is otherwise\ncomplete, but independent orchestrator verification rejected the receipt because\nthe final staticcheck invocation polluted the durable module graph.\n\nExact evidence from the current workspace:\n\n- `go mod tidy -diff` exits 1.\n- It removes `honnef.co/go/tools v0.7.0` from go.mod/go.sum.\n- It adds `golang.org/x/exp v0.0.0-20231110203233-9a3e6036ecaa` as the correct\n  indirect module and removes stale staticcheck-only sums.\n- The receipt currently claims a green final gate, so it is not acceptable\n  until the graph is tidy-clean and all frozen manifests/docs reflect the\n  post-tidy truth.\n\nFix only this defect and any direct fallout:\n\n1. Run `go mod tidy` to restore the canonical module graph. Do not add\n   staticcheck as an application dependency; future staticcheck runs must use a\n   pinned external tool invocation that cannot mutate go.mod/go.sum.\n2. Regenerate `scripts/expected-modules-build.txt` and\n   `scripts/expected-modules-test.txt` only if the actual compiled graph changes.\n   Update `docs/dependencies.md` so its full module graph and verification claims\n   match the canonical post-tidy files.\n3. Prove `go mod tidy -diff` is empty, `go mod verify`, dependency manifest,\n   license gate, gofmt, vet, all tests, all race tests, Linux amd64/arm64 no-cgo\n   builds, and focused TUI tests are green. Re-run staticcheck only in a way that\n   leaves go.mod/go.sum byte-identical, or report the prior clean output without\n   re-running it; the durable graph is the higher-priority contract.\n4. Update the existing T5 handoff receipt with truthful final evidence and emit\n   exactly one valid `guild.handoff.v2` fence, no prose outside it. Summary <=600\n   characters, notes <=200. Do not change production TUI semantics or any\n   out-of-scope file.\n\n\nWhen you finish, emit your result as a SINGLE fenced code block and nothing after it:\n```guild.handoff.v2\n{ ... a valid guild.handoff.v2 object ... }\n```\nThe block MUST validate against the guild.handoff.v2 contract. Do not add prose after it."
+          ],
+          "env": {},
+          "launch_mode": {
+            "requested": "auto",
+            "effective": "auto",
+            "args": [
+              "--permission-mode",
+              "auto"
+            ],
+            "degraded": false
+          }
+        },
+        "dispatch_kind": "wrapper_launch",
+        "command": "claude",
+        "args": [
+          "--permission-mode",
+          "auto",
+          "--model",
+          "claude-opus-4-8",
+          "-p",
+          "Perform a narrow T5-terminal-ui rework. The implementation is otherwise\ncomplete, but independent orchestrator verification rejected the receipt because\nthe final staticcheck invocation polluted the durable module graph.\n\nExact evidence from the current workspace:\n\n- `go mod tidy -diff` exits 1.\n- It removes `honnef.co/go/tools v0.7.0` from go.mod/go.sum.\n- It adds `golang.org/x/exp v0.0.0-20231110203233-9a3e6036ecaa` as the correct\n  indirect module and removes stale staticcheck-only sums.\n- The receipt currently claims a green final gate, so it is not acceptable\n  until the graph is tidy-clean and all frozen manifests/docs reflect the\n  post-tidy truth.\n\nFix only this defect and any direct fallout:\n\n1. Run `go mod tidy` to restore the canonical module graph. Do not add\n   staticcheck as an application dependency; future staticcheck runs must use a\n   pinned external tool invocation that cannot mutate go.mod/go.sum.\n2. Regenerate `scripts/expected-modules-build.txt` and\n   `scripts/expected-modules-test.txt` only if the actual compiled graph changes.\n   Update `docs/dependencies.md` so its full module graph and verification claims\n   match the canonical post-tidy files.\n3. Prove `go mod tidy -diff` is empty, `go mod verify`, dependency manifest,\n   license gate, gofmt, vet, all tests, all race tests, Linux amd64/arm64 no-cgo\n   builds, and focused TUI tests are green. Re-run staticcheck only in a way that\n   leaves go.mod/go.sum byte-identical, or report the prior clean output without\n   re-running it; the durable graph is the higher-priority contract.\n4. Update the existing T5 handoff receipt with truthful final evidence and emit\n   exactly one valid `guild.handoff.v2` fence, no prose outside it. Summary <=600\n   characters, notes <=200. Do not change production TUI semantics or any\n   out-of-scope file.\n\n\nWhen you finish, emit your result as a SINGLE fenced code block and nothing after it:\n```guild.handoff.v2\n{ ... a valid guild.handoff.v2 object ... }\n```\nThe block MUST validate against the guild.handoff.v2 contract. Do not add prose after it."
+        ],
+        "env": {},
+        "alternate_pane_command": "export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1; export GUILD_RUN_ID=T5-terminal-ui-module-rework; claude 'Perform a narrow T5-terminal-ui rework. The implementation is otherwise\ncomplete, but independent orchestrator verification rejected the receipt because\nthe final staticcheck invocation polluted the durable module graph.\n\nExact evidence from the current workspace:\n\n- `go mod tidy -diff` exits 1.\n- It removes `honnef.co/go/tools v0.7.0` from go.mod/go.sum.\n- It adds `golang.org/x/exp v0.0.0-20231110203233-9a3e6036ecaa` as the correct\n  indirect module and removes stale staticcheck-only sums.\n- The receipt currently claims a green final gate, so it is not acceptable\n  until the graph is tidy-clean and all frozen manifests/docs reflect the\n  post-tidy truth.\n\nFix only this defect and any direct fallout:\n\n1. Run `go mod tidy` to restore the canonical module graph. Do not add\n   staticcheck as an application dependency; future staticcheck runs must use a\n   pinned external tool invocation that cannot mutate go.mod/go.sum.\n2. Regenerate `scripts/expected-modules-build.txt` and\n   `scripts/expected-modules-test.txt` only if the actual compiled graph changes.\n   Update `docs/dependencies.md` so its full module graph and verification claims\n   match the canonical post-tidy files.\n3. Prove `go mod tidy -diff` is empty, `go mod verify`, dependency manifest,\n   license gate, gofmt, vet, all tests, all race tests, Linux amd64/arm64 no-cgo\n   builds, and focused TUI tests are green. Re-run staticcheck only in a way that\n   leaves go.mod/go.sum byte-identical, or report the prior clean output without\n   re-running it; the durable graph is the higher-priority contract.\n4. Update the existing T5 handoff receipt with truthful final evidence and emit\n   exactly one valid `guild.handoff.v2` fence, no prose outside it. Summary <=600\n   characters, notes <=200. Do not change production TUI semantics or any\n   out-of-scope file.\n'",
+        "alternate_pane_env": {
+          "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1",
+          "GUILD_RUN_ID": "T5-terminal-ui-module-rework"
+        }
+      },
+      "receipt": {
+        "schema_version": "guild.host_adapter_receipt.v1",
+        "host": "claude-code-cli",
+        "operation": "dispatch",
+        "status": "ok",
+        "reason": "Claude dispatch receipt follows the wrapper launch plan and keeps pane dispatch as an alternate host surface",
+        "degradation_receipt": {
+          "schema_version": "guild.degradation_receipt.v1",
+          "surface": "session",
+          "host": "claude-code-cli",
+          "rung": "native",
+          "degraded": false,
+          "inferred": false,
+          "reason": "session@claude-code-cli resolves to \"native\""
+        }
+      }
+    }
+  },
+  "session_id": "8c2926bb-2ebe-4166-8b77-84c0de3e12c0",
+  "exit": 0,
+  "receipt_paths": [
+    ".guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/handoffs/terminal-ui-T5-terminal-ui.md"
+  ],
+  "contract": "guild.handoff.v2",
+  "normalized": {
+    "ok": true,
+    "wire_schema_version": "guild.handoff.v2",
+    "rounds_used": 0,
+    "failed_closed": false,
+    "errors": []
+  }
+}

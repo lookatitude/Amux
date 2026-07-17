@@ -1,0 +1,10 @@
+{
+  "schema_version": "review_result.v1",
+  "packet_id": "G-lane-T4-backend-r3",
+  "artifact_sha256_reviewed": "2c2be5a3b524502bc6ce9a8132212c16df67cb6201fcd02416d06ff4008ad7c7",
+  "verdict": "satisfied",
+  "findings": [],
+  "blocking_findings": [],
+  "round": 3,
+  "reviewer_host": "codex"
+}

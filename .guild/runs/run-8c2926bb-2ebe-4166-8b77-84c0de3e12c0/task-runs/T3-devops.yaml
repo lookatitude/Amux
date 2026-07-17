@@ -1,0 +1,44 @@
+task_run:
+  schema_version: guild.task_run.v1
+  ids:
+    initiative_id: null
+    run_id: run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0
+    task_id: T3-devops
+    task_run_id: trun-008
+  specialist: devops
+  objective: "Close G-lane round-1 blockers: real Arch arm64 CI, fail-closed static/cgo smoke checks, correct cold backup/restore paths, verification, and replacement receipt."
+  retry:
+    attempt: 2
+    last_error: "Implementation retry completed, but G-lane round 1 rejected the receipt with three blocking defects recorded in review/G-lane:T3-devops/result-1.json."
+  context_bundle: .guild/context/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/devops-T3-devops.md
+  inputs:
+    - .guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/handoffs/architect-T1-architect.md
+  expected_outputs:
+    - .github/workflows
+    - packaging/aur/PKGBUILD
+    - docs/operations
+    - .guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/handoffs/devops-T3-devops.md
+  depends_on: [T1-architect]
+  permissions:
+    read: [repo]
+    write: [assigned_worktree]
+    network: disabled_by_default
+    shell: approval_required
+    destructive: approval_required
+  budget:
+    max_turns: 20
+    max_tokens: 70000
+  autonomy_policy: autonomous_after_plan_approval
+  loops_applicable: both
+  host:
+    requested: claude
+    selected: claude-code-cli
+    capability_requirements:
+      needs_pr: false
+      needs_parallel: false
+      needs_network: false
+      isolation: none
+    model_params:
+      model: claude-opus-4-8
+  trace:
+    events_ref: .guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/logs/v1.4-events.jsonl

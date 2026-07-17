@@ -1,0 +1,21 @@
+{
+  "should_trigger": [
+    "Implement the Bubble Tea multiplexer interface.",
+    "Render backend-provided immutable cell snapshots and build the split-pane layout.",
+    "Design keyboard focus and pane navigation.",
+    "Present the approved pane attachment contract and input-lease UX.",
+    "Profile terminal redraw and resize behavior.",
+    "Build the terminal notification inbox and latest-unread navigation over backend semantic events."
+  ],
+  "should_not_trigger": [
+    "Implement PTY process supervision in the daemon.",
+    "Design the authoritative notification store and read-state event semantics.",
+    "Implement the raw VT parser and authoritative terminal cell-state engine.",
+    "Define pane attach transport, lifecycle semantics, and replay sequencing.",
+    "Design the versioned IPC protocol and event persistence model.",
+    "Create the Arch Linux AUR release workflow.",
+    "Run a threat model for hook trust revocation.",
+    "Define the repository-wide test and soak strategy.",
+    "Build a React dashboard for workspace state."
+  ]
+}

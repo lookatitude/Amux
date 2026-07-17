@@ -1,0 +1,47 @@
+{
+  "workspace": "wsp-000001",
+  "name": "main",
+  "rev": 7,
+  "focused": "pan-000002",
+  "pane_order": [
+    "pan-000001",
+    "pan-000002"
+  ],
+  "focus_history": [
+    "pan-000001",
+    "pan-000002"
+  ],
+  "root": {
+    "split": {
+      "orientation": "horizontal",
+      "ratio": 0.6,
+      "first": {
+        "pane": {
+          "id": "pan-000001",
+          "cwd": "/repo",
+          "active": "sur-000001",
+          "surfaces": [
+            {
+              "id": "sur-000001",
+              "title": "shell",
+              "active": true
+            }
+          ]
+        }
+      },
+      "second": {
+        "pane": {
+          "id": "pan-000002",
+          "focused": true,
+          "active": "sur-000002",
+          "surfaces": [
+            {
+              "id": "sur-000002",
+              "active": true
+            }
+          ]
+        }
+      }
+    }
+  }
+}

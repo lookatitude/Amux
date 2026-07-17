@@ -1,0 +1,13 @@
+ok!
+
+
+
+
+
+--
+cursor: row=0 col=3 visible=true wrapnext=false
+pen: fg=default bg=default attrs=none
+title: 
+modes: altscreen=false autowrap=true region=0..5 rows=6 cols=20
+bell=0 unsupported=3
+styles:

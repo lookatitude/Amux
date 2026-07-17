@@ -1,0 +1,41 @@
+# schema_version: guild.skills_registry.v1
+# generated_by: guild.roster_resolve.v1
+# DERIVED INDEX of .guild/skills/*/SKILL.md — the SKILL.md files are the source of truth (D4).
+# Regenerate with: roster-resolve.ts --cwd <root> --write-registry. Do not hand-edit.
+skills:
+  - id: terminal-ui-attach-streams
+    file: .guild/skills/terminal-ui-attach-streams/SKILL.md
+    name: terminal-ui-attach-streams
+    description: >-
+      Presents an architect/backend-approved pane-attachment contract in the terminal client:
+      replay-to-live UI state, input-lease controls, detach/reconnect feedback, and snapshot-on-gap
+      presentation. Do not use for defining attach transport, lifecycle semantics, replay/event
+      sequencing, IPC, retention, restore states, process control, or hook trust policy.
+    type: specialist
+  - id: terminal-ui-interaction
+    file: .guild/skills/terminal-ui-interaction/SKILL.md
+    name: terminal-ui-interaction
+    description: >-
+      Implements terminal-native split layout, focus, keyboard routing, resize, command modes,
+      notification inbox/unread navigation, and deterministic interaction state machines over
+      backend semantic state. Do not use for daemon graph/notification authority, PTY lifecycle, web
+      UI, or product microcopy.
+    type: specialist
+  - id: terminal-ui-performance
+    file: .guild/skills/terminal-ui-performance/SKILL.md
+    name: terminal-ui-performance
+    description: >-
+      Profiles and improves terminal redraw latency, allocation behavior, resize storms, terminal
+      capability degradation, keyboard-only accessibility, and render-loop stability. Use for
+      measured TUI performance and compatibility work. Do not use for daemon profiling, release CI
+      ownership, web performance, or suite-wide quality policy.
+    type: specialist
+  - id: terminal-ui-vt-rendering
+    file: .guild/skills/terminal-ui-vt-rendering/SKILL.md
+    name: terminal-ui-vt-rendering
+    description: >-
+      Projects backend-provided immutable terminal cell snapshots/deltas into deterministic Bubble
+      Tea frames. Use for client-side glyph/style/cursor presentation, clipping, damage tracking,
+      and golden frames. Do not use for raw VT parsing, authoritative cell-state mutation, PTY
+      supervision, protocol design, web rendering, or suite-wide test strategy.
+    type: specialist

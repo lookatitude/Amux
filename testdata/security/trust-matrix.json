@@ -1,0 +1,417 @@
+{
+  "schema": "amux.security.trust-matrix.v1",
+  "gates": {
+    "absent_trust_ms": 250,
+    "revoke_cancel_ms": 250,
+    "kill_escalation_ms": 2000,
+    "default_timeout_ms": 2000,
+    "max_timeout_ms": 30000,
+    "output_cap_bytes": 1048576
+  },
+  "rows": [
+    {
+      "id": "project.trusted-baseline",
+      "family": "project",
+      "requirement": "HA-3",
+      "condition": "project trusted at current epoch; fresh active grant; scratch cwd; default bounds",
+      "expect": {
+        "decision": "allow"
+      }
+    },
+    {
+      "id": "project.unregistered",
+      "family": "project",
+      "requirement": "HA-2d, HA-3b",
+      "condition": "cwd inside a directory never explicitly registered; cwd alone creates no trust boundary",
+      "expect": {
+        "decision": "deny",
+        "code": "project_trust_required"
+      }
+    },
+    {
+      "id": "project.registered-not-approved",
+      "family": "project",
+      "requirement": "HA-3a, HA-3b",
+      "condition": "project registered but not opted in/approved; hooks.jsonc must not even be parsed",
+      "expect": {
+        "decision": "deny",
+        "code": "project_trust_required"
+      }
+    },
+    {
+      "id": "project.denied",
+      "family": "project",
+      "requirement": "HA-3b",
+      "condition": "operator explicitly denied the project",
+      "expect": {
+        "decision": "deny",
+        "code": "project_trust_required"
+      }
+    },
+    {
+      "id": "project.revoked",
+      "family": "project",
+      "requirement": "HA-3b, HA-18",
+      "condition": "project trust revoked; epoch bumped; grants inactive",
+      "expect": {
+        "decision": "deny",
+        "code": "project_trust_required"
+      }
+    },
+    {
+      "id": "project.replaced-root",
+      "family": "project",
+      "requirement": "HA-2c",
+      "condition": "root directory replaced (new inode) under the same path; identity tuple changed",
+      "expect": {
+        "decision": "deny",
+        "code": "project_trust_required"
+      }
+    },
+    {
+      "id": "project.remounted-root",
+      "family": "project",
+      "requirement": "HA-2c",
+      "condition": "root remounted (new st_dev); identity tuple changed",
+      "expect": {
+        "decision": "deny",
+        "code": "project_trust_required"
+      }
+    },
+    {
+      "id": "grant.absent",
+      "family": "grant",
+      "requirement": "HA-5",
+      "condition": "project trusted, hook has no grant",
+      "expect": {
+        "decision": "deny",
+        "code": "hook_grant_required"
+      }
+    },
+    {
+      "id": "grant.inactive-after-revocation",
+      "family": "grant",
+      "requirement": "HA-18e",
+      "condition": "project revoked then freshly reapproved; prior grant remains inactive and needs fresh approval",
+      "expect": {
+        "decision": "deny",
+        "code": "hook_grant_required"
+      }
+    },
+    {
+      "id": "grant.epoch-stale",
+      "family": "grant",
+      "requirement": "HA-4a, HA-7",
+      "condition": "grant bound to an earlier trust epoch than the project's current epoch",
+      "expect": {
+        "decision": "deny",
+        "code": "hook_grant_stale"
+      }
+    },
+    {
+      "id": "grant.exec-digest-changed",
+      "family": "grant",
+      "requirement": "HA-7, HA-11",
+      "condition": "executable bytes differ from the bound SHA-256 at descriptor validation",
+      "expect": {
+        "decision": "deny",
+        "code": "hook_grant_stale"
+      }
+    },
+    {
+      "id": "grant.config-digest-changed",
+      "family": "grant",
+      "requirement": "HA-7, HA-11",
+      "condition": ".amux/hooks.jsonc bytes differ from the bound SHA-256",
+      "expect": {
+        "decision": "deny",
+        "code": "hook_grant_stale"
+      }
+    },
+    {
+      "id": "grant.event-set-changed",
+      "family": "grant",
+      "requirement": "HA-7",
+      "condition": "config redefines the hook's event set after approval",
+      "expect": {
+        "decision": "deny",
+        "code": "hook_grant_stale"
+      }
+    },
+    {
+      "id": "grant.cwd-scope-changed",
+      "family": "grant",
+      "requirement": "HA-7",
+      "condition": "config redefines the hook's cwd scope after approval",
+      "expect": {
+        "decision": "deny",
+        "code": "hook_grant_stale"
+      }
+    },
+    {
+      "id": "grant.env-allowlist-changed",
+      "family": "grant",
+      "requirement": "HA-7",
+      "condition": "config redefines the hook's environment allowlist after approval",
+      "expect": {
+        "decision": "deny",
+        "code": "hook_grant_stale"
+      }
+    },
+    {
+      "id": "grant.timeout-changed",
+      "family": "grant",
+      "requirement": "HA-7",
+      "condition": "config redefines the hook's timeout after approval",
+      "expect": {
+        "decision": "deny",
+        "code": "hook_grant_stale"
+      }
+    },
+    {
+      "id": "grant.output-cap-changed",
+      "family": "grant",
+      "requirement": "HA-7",
+      "condition": "config redefines the hook's output cap after approval",
+      "expect": {
+        "decision": "deny",
+        "code": "hook_grant_stale"
+      }
+    },
+    {
+      "id": "scope.none-scratch",
+      "family": "scope",
+      "requirement": "HA-9",
+      "condition": "no cwd scope granted; hook runs in Amux-owned scratch directory",
+      "expect": {
+        "decision": "allow"
+      }
+    },
+    {
+      "id": "scope.fixed-valid",
+      "family": "scope",
+      "requirement": "HA-9",
+      "condition": "fixed scope; resolved object identity equals the granted object",
+      "expect": {
+        "decision": "allow"
+      }
+    },
+    {
+      "id": "scope.fixed-identity-changed",
+      "family": "scope",
+      "requirement": "HA-13",
+      "condition": "fixed scope; granted directory replaced (identity mismatch at pre-launch recheck)",
+      "expect": {
+        "decision": "deny",
+        "code": "scope_denied"
+      }
+    },
+    {
+      "id": "scope.wsprimary-valid",
+      "family": "scope",
+      "requirement": "HA-9",
+      "condition": "workspace-primary; exactly one primary root whose current identity equals the grant's project",
+      "expect": {
+        "decision": "allow"
+      }
+    },
+    {
+      "id": "scope.wsprimary-absent",
+      "family": "scope",
+      "requirement": "HA-9",
+      "condition": "workspace-primary; workspace has no configured primary root",
+      "expect": {
+        "decision": "deny",
+        "code": "scope_denied"
+      }
+    },
+    {
+      "id": "scope.wsprimary-ambiguous",
+      "family": "scope",
+      "requirement": "HA-9",
+      "condition": "workspace-primary; more than one candidate primary root",
+      "expect": {
+        "decision": "deny",
+        "code": "scope_denied"
+      }
+    },
+    {
+      "id": "scope.wsprimary-replaced",
+      "family": "scope",
+      "requirement": "HA-9",
+      "condition": "workspace-primary; primary root replaced since grant (identity mismatch)",
+      "expect": {
+        "decision": "deny",
+        "code": "scope_denied"
+      }
+    },
+    {
+      "id": "scope.wsprimary-foreign-project",
+      "family": "scope",
+      "requirement": "HA-9",
+      "condition": "workspace-primary; primary root belongs to a different project identity",
+      "expect": {
+        "decision": "deny",
+        "code": "scope_denied"
+      }
+    },
+    {
+      "id": "scope.pane-same-project",
+      "family": "scope",
+      "requirement": "HA-9",
+      "condition": "pane scope; target pane resolves to the grant's project identity",
+      "expect": {
+        "decision": "allow"
+      }
+    },
+    {
+      "id": "scope.pane-cross-project",
+      "family": "scope",
+      "requirement": "HA-9",
+      "condition": "pane scope; target pane resolves to a different project identity",
+      "expect": {
+        "decision": "deny",
+        "code": "scope_denied"
+      }
+    },
+    {
+      "id": "scope.pane-unregistered",
+      "family": "scope",
+      "requirement": "HA-9",
+      "condition": "pane scope; target pane has no registered project",
+      "expect": {
+        "decision": "deny",
+        "code": "scope_denied"
+      }
+    },
+    {
+      "id": "scope.event-not-granted",
+      "family": "scope",
+      "requirement": "HA-9",
+      "condition": "activation event outside the grant's allowed event set",
+      "expect": {
+        "decision": "deny",
+        "code": "scope_denied"
+      }
+    },
+    {
+      "id": "bounds.timeout-default",
+      "family": "bounds",
+      "requirement": "HA-8",
+      "condition": "no timeout configured; 2000 ms default applies",
+      "expect": {
+        "decision": "allow",
+        "enforcement": "kill_at_timeout"
+      }
+    },
+    {
+      "id": "bounds.timeout-max",
+      "family": "bounds",
+      "requirement": "HA-8",
+      "condition": "timeout granted at the 30000 ms maximum",
+      "expect": {
+        "decision": "allow",
+        "enforcement": "kill_at_timeout"
+      }
+    },
+    {
+      "id": "bounds.timeout-exceeds-max",
+      "family": "bounds",
+      "requirement": "HA-8",
+      "condition": "grant/config requests a timeout above 30000 ms; never clamped silently",
+      "expect": {
+        "decision": "deny",
+        "code": "invalid_argument"
+      }
+    },
+    {
+      "id": "bounds.output-within-cap",
+      "family": "bounds",
+      "requirement": "HA-8",
+      "condition": "output below 1 MiB cap",
+      "expect": {
+        "decision": "allow"
+      }
+    },
+    {
+      "id": "bounds.output-cap-exceeds-max",
+      "family": "bounds",
+      "requirement": "HA-8",
+      "condition": "grant/config requests an output cap above 1 MiB",
+      "expect": {
+        "decision": "deny",
+        "code": "invalid_argument"
+      }
+    },
+    {
+      "id": "bounds.output-cap-enforced",
+      "family": "bounds",
+      "requirement": "HA-8, RED-5",
+      "condition": "running hook exceeds the cap; truncated redaction-safely and audited",
+      "expect": {
+        "decision": "allow",
+        "enforcement": "truncate_at_output_cap"
+      }
+    },
+    {
+      "id": "bounds.exec-not-regular-file",
+      "family": "bounds",
+      "requirement": "HA-12",
+      "condition": "granted executable path resolves to a FIFO/device/directory at open",
+      "expect": {
+        "decision": "deny",
+        "code": "invalid_argument"
+      }
+    },
+    {
+      "id": "env.empty-allowlist",
+      "family": "env",
+      "requirement": "HA-8",
+      "condition": "empty allowlist, hook input requests no environment",
+      "expect": {
+        "decision": "allow",
+        "enforcement": "no_ambient_env"
+      }
+    },
+    {
+      "id": "env.allowlisted-keys-only",
+      "family": "env",
+      "requirement": "HA-8",
+      "condition": "only allowlisted keys are injected, values from the explicit non-secret store",
+      "expect": {
+        "decision": "allow",
+        "enforcement": "no_ambient_env"
+      }
+    },
+    {
+      "id": "env.non-allowlisted-requested",
+      "family": "env",
+      "requirement": "HA-8",
+      "condition": "activation requires a key outside the grant's allowlist",
+      "expect": {
+        "decision": "deny",
+        "code": "scope_denied"
+      }
+    },
+    {
+      "id": "load.queue-exhausted",
+      "family": "load",
+      "requirement": "STR-8",
+      "condition": "activation queue at bound; excess submissions rejected, never unbounded buffering",
+      "expect": {
+        "decision": "deny",
+        "code": "resource_exhausted"
+      }
+    },
+    {
+      "id": "internal.invariant-violation",
+      "family": "internal",
+      "requirement": "hook-authorization.md §8",
+      "condition": "trust-engine invariant violated during evaluation; deny and audit, never allow",
+      "expect": {
+        "decision": "deny",
+        "code": "internal"
+      }
+    }
+  ]
+}

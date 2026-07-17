@@ -1,0 +1,17 @@
+# Reusable fail-closed owner-only TMPDIR step (T3 devops).
+#
+# STR-3 rejects any daemon socket path with a group/other-writable ancestor, so
+# the default TMPDIR=/tmp (mode 1777) makes every socket-binding test fail. Every
+# Linux job that runs `go test`, a daemon, or the soak MUST run this BEFORE those
+# commands. It creates a 0700 owner-only dir, verifies the whole ancestor chain
+# is not group/other-writable, proves a unix socket binds under it, and exports
+# TMPDIR to $GITHUB_ENV for all following steps. It fails closed — it never falls
+# back to a world-writable tree.
+name: owner-tmpdir
+description: Export a verified 0700 owner-only TMPDIR for Linux test/daemon/soak steps (STR-3).
+runs:
+  using: composite
+  steps:
+    - name: Set up owner-only TMPDIR (STR-3 fail-closed)
+      shell: bash
+      run: scripts/ci/owner-tmpdir.sh

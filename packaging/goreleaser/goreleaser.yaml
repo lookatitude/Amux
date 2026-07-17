@@ -1,0 +1,121 @@
+# Amux release pipeline (T3 devops, work package D3).
+#
+# ADR-0007 Decision 1 selected GoReleaser over a hand-rolled make+go build matrix
+# (rejected: re-implements checksums/archives/reproducibility GoReleaser
+# standardises). This config produces the MVP artifacts: reproducible
+# CGO_ENABLED=0 linux amd64/arm64 tarballs for `amux` and `amuxd`, SHA-256
+# checksums, and per-archive SBOMs. Provenance/attestation and the reproducible
+# build-input record are produced alongside by the release workflow
+# (.github/workflows/release.yml) and scripts/release/record-provenance.sh — see
+# docs/release/artifact-verification.md for the full artifact set + how to verify.
+#
+# Publishing is intentionally NOT wired here: `release.disable: true` plus the
+# workflow's `--snapshot` mean this file can BUILD a candidate but can never push
+# a public release. External publication is a separate, explicitly user-authorized
+# operation (autonomy policy: publishing externally requires confirmation).
+#
+# The AUR binary package is hand-authored (packaging/aur/PKGBUILD) and consumes
+# these released tarballs; GoReleaser does NOT generate AUR metadata (ADR-0007).
+#
+# Invoke via `make release-snapshot` / `make release-check` so the pinned
+# GoReleaser version (scripts/tools.env, currently v2.12.7) is used. The archive
+# `ids`/`formats` keys below require GoReleaser >= 2.6, so config + pin move
+# together (see scripts/tools.env for the coherence note).
+version: 2
+
+project_name: amux
+
+# Reproducibility: pin the source date to the commit so identical inputs yield
+# identical archives regardless of when/where the build runs.
+metadata:
+  mod_timestamp: '{{ .CommitTimestamp }}'
+
+before:
+  hooks:
+    - go mod verify
+    - go mod download
+    # Stage generated completions OUTSIDE dist/: `release --clean` wipes dist/
+    # at setup, so a before-hook that wrote into dist/completions would either
+    # be erased or trip GoReleaser's non-empty-dist guard. build/completions is
+    # a clean staging tree the archive `files` block references below.
+    - bash scripts/gen-completions.sh build/completions
+
+builds:
+  - id: amux
+    main: ./cmd/amux
+    binary: amux
+    env:
+      - CGO_ENABLED=0            # ADR-0007 Decision 4 — cgo prohibited
+    goos: [linux]
+    goarch: [amd64, arm64]
+    flags:
+      - -trimpath               # strip local paths → reproducible binaries
+    mod_timestamp: '{{ .CommitTimestamp }}'
+    ldflags:
+      - -s -w
+      - -X github.com/amux-run/amux/internal/version.Version={{ .Version }}
+      - -X github.com/amux-run/amux/internal/version.Commit={{ .FullCommit }}
+      - -X github.com/amux-run/amux/internal/version.Date={{ .CommitDate }}
+
+  - id: amuxd
+    main: ./cmd/amuxd
+    binary: amuxd
+    env:
+      - CGO_ENABLED=0
+    goos: [linux]
+    goarch: [amd64, arm64]
+    flags:
+      - -trimpath
+    mod_timestamp: '{{ .CommitTimestamp }}'
+    ldflags:
+      - -s -w
+      - -X github.com/amux-run/amux/internal/version.Version={{ .Version }}
+      - -X github.com/amux-run/amux/internal/version.Commit={{ .FullCommit }}
+      - -X github.com/amux-run/amux/internal/version.Date={{ .CommitDate }}
+
+archives:
+  - id: amux
+    ids: [amux, amuxd]        # both binaries ship in one tarball per arch
+    formats: [tar.gz]
+    name_template: >-
+      amux_{{ .Version }}_linux_{{ .Arch }}
+    files:
+      - src: build/completions/*
+        dst: completions
+      - LICENSE*               # optional: included only if a LICENSE file exists
+      - README*
+      - src: docs/release/*.md
+        dst: docs
+        info: { mode: 0644 }   # per-file archive metadata key is `info` (not default_file_info)
+      - src: packaging/systemd/*.service
+        dst: systemd
+        info: { mode: 0644 }
+
+checksum:
+  name_template: checksums.txt
+  algorithm: sha256
+
+sboms:
+  - id: archive-sbom
+    artifacts: archive          # one CycloneDX SBOM per released tarball (syft)
+    documents:
+      - '{{ .ArtifactName }}.sbom.cdx.json'
+
+changelog:
+  use: git
+  sort: asc
+  groups:
+    - { title: Features,       regexp: '^.*feat(\(.+\))??!?:.+$',  order: 0 }
+    - { title: Bug fixes,      regexp: '^.*fix(\(.+\))??!?:.+$',   order: 1 }
+    - { title: Security,       regexp: '^.*sec(\(.+\))??!?:.+$',   order: 2 }
+    - { title: Others,         order: 999 }
+  filters:
+    exclude: ['^docs:', '^test:', '^chore:', '^ci:', 'merge conflict']
+
+# Never publish from this config. Even a non-snapshot run produces only a local,
+# draft-marked release (belt-and-braces against accidental publication).
+release:
+  disable: true
+
+snapshot:
+  version_template: '{{ incpatch .Version }}-snapshot-{{ .ShortCommit }}'

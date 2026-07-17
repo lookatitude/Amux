@@ -1,0 +1,110 @@
+# Amux release candidate pipeline (T3 devops, work package D3).
+#
+# Builds a reproducible, UNPUBLISHED release candidate: tarballs + checksums +
+# SBOMs + build-input record, uploaded as workflow artifacts for QA (Q8) to
+# verify against the integrated candidate. It NEVER creates a public GitHub
+# Release and NEVER pushes to AUR — external publication and credential-backed
+# signing are separate, explicitly user-authorized operations (autonomy policy).
+#
+# The 30-minute soak is a BLOCKING release gate: it boots the production daemon
+# assembly, drives the real PTY workload, and must pass before a candidate is
+# considered releasable. See docs/release/versioning-and-release.md for the
+# human procedure.
+
+name: release
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      publish_attestation:
+        description: 'Generate a GitHub provenance attestation (user-authorized)'
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  gate:
+    name: pre-release gate
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }         # full history for changelog + describe
+      - run: cat scripts/tools.env >> "$GITHUB_ENV"
+      - uses: actions/setup-go@v5
+        with: { go-version: '${{ env.GO_VERSION }}', cache: true }
+      - uses: ./.github/actions/owner-tmpdir     # STR-3 owner-only TMPDIR (before make test)
+      - run: make tools
+      - run: make verify
+      - run: make test
+
+  soak-30m:
+    name: 30-minute blocking soak (release gate)
+    needs: gate
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - run: cat scripts/tools.env >> "$GITHUB_ENV"
+      - uses: actions/setup-go@v5
+        with: { go-version: '${{ env.GO_VERSION }}', cache: true }
+      - uses: ./.github/actions/owner-tmpdir     # STR-3 owner-only TMPDIR (before the daemon soak)
+      - name: 30-minute soak with evidence capture
+        run: AMUX_SOAK_DURATION=30m scripts/soak/run-soak.sh
+      - name: Upload soak evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: soak-30m-evidence
+          path: .amux-artifacts/soak/**
+          if-no-files-found: warn
+
+  build:
+    name: build candidate (tarballs + checksums + SBOM + provenance record)
+    needs: [gate, soak-30m]
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      # id-token/attestations only requested when the operator opts in below.
+      id-token: ${{ inputs.publish_attestation && 'write' || 'none' }}
+      attestations: ${{ inputs.publish_attestation && 'write' || 'none' }}
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - run: cat scripts/tools.env >> "$GITHUB_ENV"
+      - uses: actions/setup-go@v5
+        with: { go-version: '${{ env.GO_VERSION }}', cache: true }
+      - name: Install pinned GoReleaser
+        uses: goreleaser/goreleaser-action@v6
+        with:
+          version: '${{ env.GORELEASER_VERSION }}'
+          install-only: true
+      - name: Install pinned syft (SBOM generator invoked by GoReleaser)
+        uses: anchore/sbom-action/download-syft@v0
+        with:
+          syft-version: '${{ env.SYFT_VERSION }}'
+      - name: Validate release config (fails closed unless goreleaser == pinned)
+        run: make release-check
+      - name: Build unpublished snapshot (tarballs + checksums + SBOM)
+        run: make release-snapshot
+      - name: Record reproducible build inputs
+        run: scripts/release/record-provenance.sh dist
+      - name: Verify artifact integrity
+        run: make release-verify
+      - name: Generate provenance attestation (opt-in, user-authorized)
+        if: ${{ inputs.publish_attestation }}
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: 'dist/amux_*_linux_*.tar.gz'
+      - name: Upload release candidate
+        uses: actions/upload-artifact@v4
+        with:
+          name: amux-release-candidate
+          path: |
+            dist/amux_*_linux_*.tar.gz
+            dist/checksums.txt
+            dist/*.sbom.cdx.json
+            dist/build-metadata.json
+          if-no-files-found: error

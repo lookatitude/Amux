@@ -1,0 +1,29 @@
+{
+  "project": {
+    "key": "9f86d081884c7d65",
+    "root": "/repo",
+    "state": "approved",
+    "epoch": 3
+  },
+  "grants": [
+    {
+      "id": "grt-000001",
+      "hook_id": "on-save",
+      "exec_path": "/repo/.amux/hooks/on-save",
+      "exec_sha256": "aa11bb22cc33dd44",
+      "config_sha256": "ee55ff6677889900",
+      "events": [
+        "surface_exit"
+      ],
+      "scope": "workspace-primary",
+      "env_keys": [
+        "PATH",
+        "HOME"
+      ],
+      "timeout_ms": 2000,
+      "output_cap_bytes": 1048576,
+      "bound_epoch": 3,
+      "active": true
+    }
+  ]
+}

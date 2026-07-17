@@ -1,0 +1,24 @@
+{
+  "schema_version": "review_result.v1",
+  "packet_id": "G-plan-amux-go-linux-runtime-r2",
+  "artifact_sha256_reviewed": "108d45f5c0f16e587a81e51d863015ee4832e548d37a21780699393e09451c93",
+  "verdict": "issues",
+  "findings": [
+    {
+      "severity": "blocking",
+      "title": "T2-to-T3 security handoff has no dependency edge",
+      "detail": "T2 security and T3 devops run concurrently, but T2 incorrectly names T3 as a consumer of the S6 release gates.",
+      "evidence": ".guild/plan/amux-go-linux-runtime.md:25-31,209-215,219-248"
+    }
+  ],
+  "blocking_findings": [
+    {
+      "severity": "blocking",
+      "title": "T2-to-T3 security handoff has no dependency edge",
+      "detail": "A same-wave handoff is declared without a dependency edge.",
+      "evidence": ".guild/plan/amux-go-linux-runtime.md"
+    }
+  ],
+  "round": 2,
+  "reviewer_host": "codex"
+}

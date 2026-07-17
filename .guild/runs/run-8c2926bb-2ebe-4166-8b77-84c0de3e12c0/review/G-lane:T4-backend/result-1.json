@@ -1,0 +1,26 @@
+{
+  "schema_version": "review_result.v1",
+  "packet_id": "G-lane-T4-backend-r1",
+  "artifact_sha256_reviewed": "13003652210bacb8d838e6194ad44feeb2d22fea7f8cc2b4b5f2d992436b25ce",
+  "verdict": "issues",
+  "findings": [
+    {
+      "id": "F1",
+      "severity": "blocking",
+      "title": "B8 is still missing the required in-daemon live-reconcile restore path",
+      "detail": "The approved T4 contract requires snapshot/restore to pass clean-daemon restore, in-daemon live reconcile, stopped/restarted reason, and stale-security-generation behavior before B8 can be called complete. The live implementation exposes only one production restore entry point, and it hard-codes FreshDaemon: true, which structurally forbids the live classification branch. There is no alternate runtime path that restores with FreshDaemon: false or supplies SamePTYIdentityOwned evidence, and the shipped tests/E2E only prove the fresh-daemon never-live case. The receipt nevertheless marks B8 and the overall lane done while explicitly admitting that in-daemon live reconcile is not implemented. That is a direct acceptance-contract miss.",
+      "evidence": ".guild/plan/amux-go-linux-runtime.md:96-103,145-148; .guild/spec/amux-go-linux-runtime.md:158-160; docs/adr/0005-persistence-and-restore.md:75-90; internal/daemon/snapshot.go:109-157; internal/persist/contract.go:40-46,55-57,72-88; internal/snapshot/classify_test.go:9-18,31-39,59-69; internal/daemon/engine_test.go:171-208; cmd/amux/e2e_test.go:341-367; .guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/handoffs/backend-T4-backend.md:25,92,111-112,137-140"
+    }
+  ],
+  "blocking_findings": [
+    {
+      "id": "F1",
+      "severity": "blocking",
+      "title": "B8 is still missing the required in-daemon live-reconcile restore path",
+      "detail": "The only production restore path always runs as a fresh-daemon restore and therefore can never satisfy the approved in-daemon live-reconcile acceptance behavior that T4 marked complete.",
+      "evidence": ".guild/plan/amux-go-linux-runtime.md:102; internal/daemon/snapshot.go:109-157; internal/persist/contract.go:42-46,55-57,76-77; .guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/handoffs/backend-T4-backend.md:25,92,111-112,137-140"
+    }
+  ],
+  "round": 1,
+  "reviewer_host": "codex"
+}

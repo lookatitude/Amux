@@ -1,0 +1,40 @@
+{
+  "schema_version": "review_result.v1",
+  "packet_id": "G-lane-T4-backend-r5",
+  "artifact_sha256_reviewed": "3e0bed05936a77a588a99cd12766dbe41e3341ed102246325a96fd9844947f5c",
+  "verdict": "issues",
+  "findings": [
+    {
+      "id": "F5",
+      "severity": "blocking",
+      "title": "ReplayRead can silently skip the first newly appended sequence on an empty-page race",
+      "detail": "The new flow-14 contract says that when a page is empty the caller is current and `next_seq = latest_seq + 1`, with continuation remaining contiguous and never silently skipping data. The implementation does not take `Chunks`, `LatestSeq`, and the empty-page decision from one ring snapshot. `ReplayLimitBytes` decides emptiness under the ring lock and returns `nil` when `from_seq > latest` at that instant; `ReplayRead` then separately samples `sr.ring.LatestSeq()` and, if `len(chunks)==0`, returns `next_seq = latest_seq + 1`. If one output chunk is appended between those two calls, the response becomes `chunks=[]`, `latest_seq=<new seq>`, `next_seq=<new seq + 1>`, so a client continuing from `next_seq` skips the newly appended first unseen chunk with no `replay_gap` and no duplicate to reveal the loss. All new replay tests quiesce output before reading, so this concurrency hole is untested.",
+      "evidence": "internal/terminal/ring.go:185-224; internal/daemon/surface.go:216-250; internal/rpcapi/rpcapi.go:368-374; .guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/handoffs/backend-T4-backend.md:32-36"
+    },
+    {
+      "id": "F6",
+      "severity": "blocking",
+      "title": "The replay-gap acceptance test is genuinely flaky under full-suite race load",
+      "detail": "The independently observed `TestEngineReplayReadGapStructuredDetails` failure is explained by the helper, not disproved by reruns. `spawnAndQuiesce` returns after only three 20 ms polls with unchanged `InspectPane.LatestSeq`. But the fake PTY handle used by these tests reports `Wait()` complete immediately, while the supervisor drains output asynchronously in 32 KiB reads. Under slow or `-race` scheduling, the read loop can pause long enough for `LatestSeq` to appear stable for 60 ms before the full 17 MiB payload has been appended into the 16 MiB ring. In that state, `ReplayRead(from_seq=1)` correctly returns no gap yet, producing exactly the recorded `evicted cursor: got <nil>` failure. The security lane handoff independently recorded one such full-suite `-race` failure and explicitly left it to T4. A nondeterministic acceptance test remains a blocking review finding here.",
+      "evidence": "internal/daemon/engine_test.go:24-55; internal/daemon/engine_test.go:264-303; internal/daemon/engine_test.go:423-431; internal/daemon/graph.go:145-182; internal/pty/supervisor.go:227-277; .guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/handoffs/security-T2-security.md:142-145; .guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/handoffs/security-T2-security.md:241-243"
+    }
+  ],
+  "blocking_findings": [
+    {
+      "id": "F5",
+      "severity": "blocking",
+      "title": "ReplayRead can silently skip the first newly appended sequence on an empty-page race",
+      "detail": "`ReplayRead` computes page emptiness and `LatestSeq` from different ring snapshots; an append between them can make an empty response advertise `next_seq` one past an unseen chunk, violating the no-silent-skip continuation contract.",
+      "evidence": "internal/terminal/ring.go:185-224; internal/daemon/surface.go:216-250; internal/rpcapi/rpcapi.go:368-374"
+    },
+    {
+      "id": "F6",
+      "severity": "blocking",
+      "title": "The replay-gap acceptance test is genuinely flaky under full-suite race load",
+      "detail": "`spawnAndQuiesce` treats 60 ms of unchanged `LatestSeq` as full drain even though the fake PTY's output is still being read asynchronously in 32 KiB chunks, so the 17 MiB gap test can return before eviction is guaranteed and fail non-deterministically.",
+      "evidence": "internal/daemon/engine_test.go:24-55; internal/daemon/engine_test.go:264-303; internal/pty/supervisor.go:227-277; .guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/handoffs/security-T2-security.md:142-145; .guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/handoffs/security-T2-security.md:241-243"
+    }
+  ],
+  "round": 5,
+  "reviewer_host": "codex"
+}

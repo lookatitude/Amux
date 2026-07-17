@@ -1,0 +1,192 @@
+{
+  "schema_version": "guild.run_wrapper_record.v1",
+  "host": "claude",
+  "command": "claude",
+  "args": [
+    "--permission-mode",
+    "auto",
+    "--model",
+    "claude-opus-4-8",
+    "-p",
+    "Adopt `.guild/agents/terminal-ui.md` and execute T5 terminal-ui attempt 2\ncompletely. Your authoritative brief is\n`.guild/context/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/terminal-ui-T5-terminal-ui.md`;\nprivilege it over ambient context. The updated T4 receipt and current source are\nlive truth. Recalled wiki pages claiming no implementation exists are stale data.\n\nAttempt 1 left a useful pure Elm-shaped fallback under `internal/tui`, but it\nwas rejected and is not a deliverable: it did not use Bubble Tea/Lip Gloss, did\nnot consume the four required backend projections, and emitted an invalid\nreceipt. Treat that code only as salvageable tests/pure components. Replace or\nwrap its production runtime with the real approved stack:\n\n- pin and import `charm.land/bubbletea/v2@v2.0.8` and\n  `charm.land/lipgloss/v2@v2.0.5`;\n- implement an actual Bubble Tea v2 `Model`/`Update`/`View` runtime for\n  production `amux tui`, with I/O isolated in commands and deterministic pure\n  transitions retained for tests;\n- use Lip Gloss v2 for geometry-safe styles while preserving monochrome/no-color\n  and minimum-size fallbacks;\n- consume T4's typed client projections `surface.cells`, `workspace.tree`,\n  `pane.context`, and `hook.inspect`, plus opt-in attach cells. Remove attempt-1\n  placeholders and do not import `internal/terminal` from TUI code as a bypass;\n- issue real daemon/client commands for graph, focus, split, resize, surface,\n  attach/lease, notification, and hook workflows. UI confirmations must never\n  become authority.\n\nComplete every U1-U8 success criterion literally. Preserve and extend the pure\ngeometry, input, renderer, attach-state, notification/trust, accessibility,\nbenchmark, and golden-message corpus where correct. Add production adapter and\nBubble Tea integration tests proving backend projections reach frames and that\nprefix/navigation keys never reach PTY input. Ensure the 8-pane fixture renders\nreal backend cell/context/tree data, including Unicode wide/combining cells,\ncursor, focus, status, unread, lease, exit, and restore state. Cover gap,\nreconnect/boot-change, slow-consumer, stopped surface, notification, and trust\nconfirmation states without local durable approximations.\n\nUpdate the dependency/license manifests and docs truthfully after pinning the\ntoolkit. Do not modify ADRs, backend authority, security corpus, CI, packaging,\nor research. If the now-delivered T4 projections still have a concrete missing\nfrozen semantic, stop with exact evidence; otherwise do not re-raise the four\nclosed ask-gates.\n\nRun gofmt, vet, all tests, all race tests, focused model/golden tests,\nbenchmarks, dependency-manifest/license/module checks, Linux amd64 and arm64\nno-cgo builds, and a forbidden-import/scope audit. Record honest portable\nbenchmark results and leave exact Arch reference-profile runtime evidence to T6;\ndo not claim macOS measurements as Arch evidence.\n\nWrite\n`.guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/handoffs/terminal-ui-T5-terminal-ui.md`\nwith exact U1-U8 coverage, evidence, T6 pointers, and only honest residuals.\nThen emit exactly one valid `guild.handoff.v2` fenced object and nothing else;\nsummary must be <=600 characters and notes <=200 characters.\n\n\nWhen you finish, emit your result as a SINGLE fenced code block and nothing after it:\n```guild.handoff.v2\n{ ... a valid guild.handoff.v2 object ... }\n```\nThe block MUST validate against the guild.handoff.v2 contract. Do not add prose after it."
+  ],
+  "cwd": "/Users/miguelp/Projects/Amux",
+  "launch_mode": {
+    "requested": "auto",
+    "effective": "auto",
+    "args": [
+      "--permission-mode",
+      "auto"
+    ],
+    "degraded": false
+  },
+  "bootstrap_method": "hookSpecificOutput.additionalContext",
+  "host_adapter": {
+    "schema_version": "guild.run_host_adapter_receipt.v1",
+    "requested_host": "claude",
+    "host": "claude-code-cli",
+    "host_id": "claude-code-cli",
+    "provenance": "verified",
+    "preflight": {
+      "schema_version": "guild.host_adapter_result.v1",
+      "host": "claude-code-cli",
+      "operation": "preflight",
+      "status": "ok",
+      "value": {
+        "request": {
+          "cwd": "/Users/miguelp/Projects/Amux",
+          "runId": "T5-terminal-ui-attempt-2"
+        },
+        "verified_by": "HOST_REGISTRY_ROWS[claude-code-cli].capabilities.hooks",
+        "session_start_registry_value": true,
+        "hook_file": "hooks/hooks.json",
+        "native_events": [
+          "session_start",
+          "user_prompt_submit",
+          "pre_tool_use",
+          "post_tool_use",
+          "stop",
+          "pre_compact",
+          "subagent_stop",
+          "task_created",
+          "task_completed",
+          "teammate_idle"
+        ],
+        "session_start_commands": [
+          "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/bootstrap.sh\"",
+          "node \"${CLAUDE_PLUGIN_ROOT}/hooks/dist/detect-guild-version.js\"",
+          "node \"${CLAUDE_PLUGIN_ROOT}/hooks/dist/using-guild-bootstrap.js\""
+        ]
+      },
+      "receipt": {
+        "schema_version": "guild.host_adapter_receipt.v1",
+        "host": "claude-code-cli",
+        "operation": "preflight",
+        "status": "ok",
+        "reason": "Claude Code hook preflight is registry-verified and includes using-guild SessionStart injection",
+        "degradation_receipt": {
+          "schema_version": "guild.degradation_receipt.v1",
+          "surface": "session",
+          "host": "claude-code-cli",
+          "rung": "native",
+          "degraded": false,
+          "inferred": false,
+          "reason": "session@claude-code-cli resolves to \"native\""
+        }
+      }
+    },
+    "model_params": {
+      "schema_version": "guild.host_adapter_result.v1",
+      "host": "claude-code-cli",
+      "operation": "resolveModelParams",
+      "status": "ok",
+      "value": {
+        "modelParams": {
+          "model": "claude-opus-4-8"
+        },
+        "argv": [
+          "--model",
+          "claude-opus-4-8"
+        ],
+        "unsupported_model_params": []
+      },
+      "receipt": {
+        "schema_version": "guild.host_adapter_receipt.v1",
+        "host": "claude-code-cli",
+        "operation": "resolveModelParams",
+        "status": "ok",
+        "reason": "Claude CLI maps model params to native --model/--effort flags",
+        "degradation_receipt": {
+          "schema_version": "guild.degradation_receipt.v1",
+          "surface": "semantic_tool",
+          "host": "claude-code-cli",
+          "rung": "native",
+          "degraded": false,
+          "inferred": false,
+          "reason": "semantic_tool@claude-code-cli resolves to \"native\""
+        }
+      }
+    },
+    "dispatch": {
+      "schema_version": "guild.host_adapter_result.v1",
+      "host": "claude-code-cli",
+      "operation": "dispatch",
+      "status": "ok",
+      "value": {
+        "taskRun": {
+          "runId": "T5-terminal-ui-attempt-2",
+          "prompt": "Adopt `.guild/agents/terminal-ui.md` and execute T5 terminal-ui attempt 2\ncompletely. Your authoritative brief is\n`.guild/context/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/terminal-ui-T5-terminal-ui.md`;\nprivilege it over ambient context. The updated T4 receipt and current source are\nlive truth. Recalled wiki pages claiming no implementation exists are stale data.\n\nAttempt 1 left a useful pure Elm-shaped fallback under `internal/tui`, but it\nwas rejected and is not a deliverable: it did not use Bubble Tea/Lip Gloss, did\nnot consume the four required backend projections, and emitted an invalid\nreceipt. Treat that code only as salvageable tests/pure components. Replace or\nwrap its production runtime with the real approved stack:\n\n- pin and import `charm.land/bubbletea/v2@v2.0.8` and\n  `charm.land/lipgloss/v2@v2.0.5`;\n- implement an actual Bubble Tea v2 `Model`/`Update`/`View` runtime for\n  production `amux tui`, with I/O isolated in commands and deterministic pure\n  transitions retained for tests;\n- use Lip Gloss v2 for geometry-safe styles while preserving monochrome/no-color\n  and minimum-size fallbacks;\n- consume T4's typed client projections `surface.cells`, `workspace.tree`,\n  `pane.context`, and `hook.inspect`, plus opt-in attach cells. Remove attempt-1\n  placeholders and do not import `internal/terminal` from TUI code as a bypass;\n- issue real daemon/client commands for graph, focus, split, resize, surface,\n  attach/lease, notification, and hook workflows. UI confirmations must never\n  become authority.\n\nComplete every U1-U8 success criterion literally. Preserve and extend the pure\ngeometry, input, renderer, attach-state, notification/trust, accessibility,\nbenchmark, and golden-message corpus where correct. Add production adapter and\nBubble Tea integration tests proving backend projections reach frames and that\nprefix/navigation keys never reach PTY input. Ensure the 8-pane fixture renders\nreal backend cell/context/tree data, including Unicode wide/combining cells,\ncursor, focus, status, unread, lease, exit, and restore state. Cover gap,\nreconnect/boot-change, slow-consumer, stopped surface, notification, and trust\nconfirmation states without local durable approximations.\n\nUpdate the dependency/license manifests and docs truthfully after pinning the\ntoolkit. Do not modify ADRs, backend authority, security corpus, CI, packaging,\nor research. If the now-delivered T4 projections still have a concrete missing\nfrozen semantic, stop with exact evidence; otherwise do not re-raise the four\nclosed ask-gates.\n\nRun gofmt, vet, all tests, all race tests, focused model/golden tests,\nbenchmarks, dependency-manifest/license/module checks, Linux amd64 and arm64\nno-cgo builds, and a forbidden-import/scope audit. Record honest portable\nbenchmark results and leave exact Arch reference-profile runtime evidence to T6;\ndo not claim macOS measurements as Arch evidence.\n\nWrite\n`.guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/handoffs/terminal-ui-T5-terminal-ui.md`\nwith exact U1-U8 coverage, evidence, T6 pointers, and only honest residuals.\nThen emit exactly one valid `guild.handoff.v2` fenced object and nothing else;\nsummary must be <=600 characters and notes <=200 characters.\n",
+          "host": "claude",
+          "cwd": "/Users/miguelp/Projects/Amux",
+          "modelParams": {
+            "model": "claude-opus-4-8"
+          },
+          "command": "claude",
+          "args": [
+            "--permission-mode",
+            "auto",
+            "--model",
+            "claude-opus-4-8",
+            "-p",
+            "Adopt `.guild/agents/terminal-ui.md` and execute T5 terminal-ui attempt 2\ncompletely. Your authoritative brief is\n`.guild/context/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/terminal-ui-T5-terminal-ui.md`;\nprivilege it over ambient context. The updated T4 receipt and current source are\nlive truth. Recalled wiki pages claiming no implementation exists are stale data.\n\nAttempt 1 left a useful pure Elm-shaped fallback under `internal/tui`, but it\nwas rejected and is not a deliverable: it did not use Bubble Tea/Lip Gloss, did\nnot consume the four required backend projections, and emitted an invalid\nreceipt. Treat that code only as salvageable tests/pure components. Replace or\nwrap its production runtime with the real approved stack:\n\n- pin and import `charm.land/bubbletea/v2@v2.0.8` and\n  `charm.land/lipgloss/v2@v2.0.5`;\n- implement an actual Bubble Tea v2 `Model`/`Update`/`View` runtime for\n  production `amux tui`, with I/O isolated in commands and deterministic pure\n  transitions retained for tests;\n- use Lip Gloss v2 for geometry-safe styles while preserving monochrome/no-color\n  and minimum-size fallbacks;\n- consume T4's typed client projections `surface.cells`, `workspace.tree`,\n  `pane.context`, and `hook.inspect`, plus opt-in attach cells. Remove attempt-1\n  placeholders and do not import `internal/terminal` from TUI code as a bypass;\n- issue real daemon/client commands for graph, focus, split, resize, surface,\n  attach/lease, notification, and hook workflows. UI confirmations must never\n  become authority.\n\nComplete every U1-U8 success criterion literally. Preserve and extend the pure\ngeometry, input, renderer, attach-state, notification/trust, accessibility,\nbenchmark, and golden-message corpus where correct. Add production adapter and\nBubble Tea integration tests proving backend projections reach frames and that\nprefix/navigation keys never reach PTY input. Ensure the 8-pane fixture renders\nreal backend cell/context/tree data, including Unicode wide/combining cells,\ncursor, focus, status, unread, lease, exit, and restore state. Cover gap,\nreconnect/boot-change, slow-consumer, stopped surface, notification, and trust\nconfirmation states without local durable approximations.\n\nUpdate the dependency/license manifests and docs truthfully after pinning the\ntoolkit. Do not modify ADRs, backend authority, security corpus, CI, packaging,\nor research. If the now-delivered T4 projections still have a concrete missing\nfrozen semantic, stop with exact evidence; otherwise do not re-raise the four\nclosed ask-gates.\n\nRun gofmt, vet, all tests, all race tests, focused model/golden tests,\nbenchmarks, dependency-manifest/license/module checks, Linux amd64 and arm64\nno-cgo builds, and a forbidden-import/scope audit. Record honest portable\nbenchmark results and leave exact Arch reference-profile runtime evidence to T6;\ndo not claim macOS measurements as Arch evidence.\n\nWrite\n`.guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/handoffs/terminal-ui-T5-terminal-ui.md`\nwith exact U1-U8 coverage, evidence, T6 pointers, and only honest residuals.\nThen emit exactly one valid `guild.handoff.v2` fenced object and nothing else;\nsummary must be <=600 characters and notes <=200 characters.\n\n\nWhen you finish, emit your result as a SINGLE fenced code block and nothing after it:\n```guild.handoff.v2\n{ ... a valid guild.handoff.v2 object ... }\n```\nThe block MUST validate against the guild.handoff.v2 contract. Do not add prose after it."
+          ],
+          "env": {},
+          "launch_mode": {
+            "requested": "auto",
+            "effective": "auto",
+            "args": [
+              "--permission-mode",
+              "auto"
+            ],
+            "degraded": false
+          }
+        },
+        "dispatch_kind": "wrapper_launch",
+        "command": "claude",
+        "args": [
+          "--permission-mode",
+          "auto",
+          "--model",
+          "claude-opus-4-8",
+          "-p",
+          "Adopt `.guild/agents/terminal-ui.md` and execute T5 terminal-ui attempt 2\ncompletely. Your authoritative brief is\n`.guild/context/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/terminal-ui-T5-terminal-ui.md`;\nprivilege it over ambient context. The updated T4 receipt and current source are\nlive truth. Recalled wiki pages claiming no implementation exists are stale data.\n\nAttempt 1 left a useful pure Elm-shaped fallback under `internal/tui`, but it\nwas rejected and is not a deliverable: it did not use Bubble Tea/Lip Gloss, did\nnot consume the four required backend projections, and emitted an invalid\nreceipt. Treat that code only as salvageable tests/pure components. Replace or\nwrap its production runtime with the real approved stack:\n\n- pin and import `charm.land/bubbletea/v2@v2.0.8` and\n  `charm.land/lipgloss/v2@v2.0.5`;\n- implement an actual Bubble Tea v2 `Model`/`Update`/`View` runtime for\n  production `amux tui`, with I/O isolated in commands and deterministic pure\n  transitions retained for tests;\n- use Lip Gloss v2 for geometry-safe styles while preserving monochrome/no-color\n  and minimum-size fallbacks;\n- consume T4's typed client projections `surface.cells`, `workspace.tree`,\n  `pane.context`, and `hook.inspect`, plus opt-in attach cells. Remove attempt-1\n  placeholders and do not import `internal/terminal` from TUI code as a bypass;\n- issue real daemon/client commands for graph, focus, split, resize, surface,\n  attach/lease, notification, and hook workflows. UI confirmations must never\n  become authority.\n\nComplete every U1-U8 success criterion literally. Preserve and extend the pure\ngeometry, input, renderer, attach-state, notification/trust, accessibility,\nbenchmark, and golden-message corpus where correct. Add production adapter and\nBubble Tea integration tests proving backend projections reach frames and that\nprefix/navigation keys never reach PTY input. Ensure the 8-pane fixture renders\nreal backend cell/context/tree data, including Unicode wide/combining cells,\ncursor, focus, status, unread, lease, exit, and restore state. Cover gap,\nreconnect/boot-change, slow-consumer, stopped surface, notification, and trust\nconfirmation states without local durable approximations.\n\nUpdate the dependency/license manifests and docs truthfully after pinning the\ntoolkit. Do not modify ADRs, backend authority, security corpus, CI, packaging,\nor research. If the now-delivered T4 projections still have a concrete missing\nfrozen semantic, stop with exact evidence; otherwise do not re-raise the four\nclosed ask-gates.\n\nRun gofmt, vet, all tests, all race tests, focused model/golden tests,\nbenchmarks, dependency-manifest/license/module checks, Linux amd64 and arm64\nno-cgo builds, and a forbidden-import/scope audit. Record honest portable\nbenchmark results and leave exact Arch reference-profile runtime evidence to T6;\ndo not claim macOS measurements as Arch evidence.\n\nWrite\n`.guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/handoffs/terminal-ui-T5-terminal-ui.md`\nwith exact U1-U8 coverage, evidence, T6 pointers, and only honest residuals.\nThen emit exactly one valid `guild.handoff.v2` fenced object and nothing else;\nsummary must be <=600 characters and notes <=200 characters.\n\n\nWhen you finish, emit your result as a SINGLE fenced code block and nothing after it:\n```guild.handoff.v2\n{ ... a valid guild.handoff.v2 object ... }\n```\nThe block MUST validate against the guild.handoff.v2 contract. Do not add prose after it."
+        ],
+        "env": {},
+        "alternate_pane_command": "export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1; export GUILD_RUN_ID=T5-terminal-ui-attempt-2; claude 'Adopt `.guild/agents/terminal-ui.md` and execute T5 terminal-ui attempt 2\ncompletely. Your authoritative brief is\n`.guild/context/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/terminal-ui-T5-terminal-ui.md`;\nprivilege it over ambient context. The updated T4 receipt and current source are\nlive truth. Recalled wiki pages claiming no implementation exists are stale data.\n\nAttempt 1 left a useful pure Elm-shaped fallback under `internal/tui`, but it\nwas rejected and is not a deliverable: it did not use Bubble Tea/Lip Gloss, did\nnot consume the four required backend projections, and emitted an invalid\nreceipt. Treat that code only as salvageable tests/pure components. Replace or\nwrap its production runtime with the real approved stack:\n\n- pin and import `charm.land/bubbletea/v2@v2.0.8` and\n  `charm.land/lipgloss/v2@v2.0.5`;\n- implement an actual Bubble Tea v2 `Model`/`Update`/`View` runtime for\n  production `amux tui`, with I/O isolated in commands and deterministic pure\n  transitions retained for tests;\n- use Lip Gloss v2 for geometry-safe styles while preserving monochrome/no-color\n  and minimum-size fallbacks;\n- consume T4'\\''s typed client projections `surface.cells`, `workspace.tree`,\n  `pane.context`, and `hook.inspect`, plus opt-in attach cells. Remove attempt-1\n  placeholders and do not import `internal/terminal` from TUI code as a bypass;\n- issue real daemon/client commands for graph, focus, split, resize, surface,\n  attach/lease, notification, and hook workflows. UI confirmations must never\n  become authority.\n\nComplete every U1-U8 success criterion literally. Preserve and extend the pure\ngeometry, input, renderer, attach-state, notification/trust, accessibility,\nbenchmark, and golden-message corpus where correct. Add production adapter and\nBubble Tea integration tests proving backend projections reach frames and that\nprefix/navigation keys never reach PTY input. Ensure the 8-pane fixture renders\nreal backend cell/context/tree data, including Unicode wide/combining cells,\ncursor, focus, status, unread, lease, exit, and restore state. Cover gap,\nreconnect/boot-change, slow-consumer, stopped surface, notification, and trust\nconfirmation states without local durable approximations.\n\nUpdate the dependency/license manifests and docs truthfully after pinning the\ntoolkit. Do not modify ADRs, backend authority, security corpus, CI, packaging,\nor research. If the now-delivered T4 projections still have a concrete missing\nfrozen semantic, stop with exact evidence; otherwise do not re-raise the four\nclosed ask-gates.\n\nRun gofmt, vet, all tests, all race tests, focused model/golden tests,\nbenchmarks, dependency-manifest/license/module checks, Linux amd64 and arm64\nno-cgo builds, and a forbidden-import/scope audit. Record honest portable\nbenchmark results and leave exact Arch reference-profile runtime evidence to T6;\ndo not claim macOS measurements as Arch evidence.\n\nWrite\n`.guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/handoffs/terminal-ui-T5-terminal-ui.md`\nwith exact U1-U8 coverage, evidence, T6 pointers, and only honest residuals.\nThen emit exactly one valid `guild.handoff.v2` fenced object and nothing else;\nsummary must be <=600 characters and notes <=200 characters.\n'",
+        "alternate_pane_env": {
+          "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1",
+          "GUILD_RUN_ID": "T5-terminal-ui-attempt-2"
+        }
+      },
+      "receipt": {
+        "schema_version": "guild.host_adapter_receipt.v1",
+        "host": "claude-code-cli",
+        "operation": "dispatch",
+        "status": "ok",
+        "reason": "Claude dispatch receipt follows the wrapper launch plan and keeps pane dispatch as an alternate host surface",
+        "degradation_receipt": {
+          "schema_version": "guild.degradation_receipt.v1",
+          "surface": "session",
+          "host": "claude-code-cli",
+          "rung": "native",
+          "degraded": false,
+          "inferred": false,
+          "reason": "session@claude-code-cli resolves to \"native\""
+        }
+      }
+    }
+  },
+  "session_id": "8c2926bb-2ebe-4166-8b77-84c0de3e12c0",
+  "exit": 0,
+  "receipt_paths": [
+    ".guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/handoffs/terminal-ui-T5-terminal-ui.md"
+  ],
+  "contract": "guild.handoff.v2",
+  "normalized": {
+    "ok": true,
+    "wire_schema_version": "guild.handoff.v2",
+    "rounds_used": 0,
+    "failed_closed": false,
+    "errors": []
+  }
+}

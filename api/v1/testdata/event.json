@@ -1,0 +1,14 @@
+{
+  "type": "event",
+  "boot_id": "boot-01HZ",
+  "session": "ses-000001",
+  "seq": 42,
+  "event": "pane_split",
+  "time_ms": 1737000000000,
+  "payload": {
+    "target": "pan-000001",
+    "new_pane": "pan-000002",
+    "orientation": "horizontal",
+    "ratio": 0.5
+  }
+}

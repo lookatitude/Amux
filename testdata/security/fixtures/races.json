@@ -1,0 +1,30 @@
+{
+  "schema": "amux.security.fixtures.v1",
+  "fixtures": [
+    {
+      "id": "races.symlink-swap",
+      "requirement": "HA-10, HA-11 (threat-model AB-2)",
+      "mutation": "symlink-swap"
+    },
+    {
+      "id": "races.rename-swap",
+      "requirement": "HA-10, HA-11 (threat-model AB-2)",
+      "mutation": "rename-swap"
+    },
+    {
+      "id": "races.exec-byte-replace",
+      "requirement": "HA-7, HA-11 (threat-model AB-2)",
+      "mutation": "exec-byte-replace"
+    },
+    {
+      "id": "races.config-byte-replace",
+      "requirement": "HA-7, HA-11 (threat-model AB-2)",
+      "mutation": "config-byte-replace"
+    },
+    {
+      "id": "races.project-root-replace",
+      "requirement": "HA-2c, HA-11, HA-13 (threat-model AB-2)",
+      "mutation": "project-root-replace"
+    }
+  ]
+}

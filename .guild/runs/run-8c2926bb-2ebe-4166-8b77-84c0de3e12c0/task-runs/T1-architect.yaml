@@ -1,0 +1,37 @@
+task_run:
+  schema_version: guild.task_run.v1
+  ids:
+    initiative_id: null
+    run_id: run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0
+    task_id: T1-architect
+    task_run_id: trun-003
+  specialist: architect
+  objective: "Close mandatory G-lane round-1 blocker by materializing the missing PTY, local-transport, and notification platform seams with focused tests, full verification, and a replacement receipt."
+  context_bundle: .guild/context/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/architect-T1-architect.md
+  inputs: []
+  expected_outputs: []
+  depends_on: []
+  permissions:
+    read:
+      - repo
+    write:
+      - assigned_worktree
+    network: disabled_by_default
+    shell: approval_required
+    destructive: approval_required
+  budget:
+    max_turns: 20
+    max_tokens: 80000
+  autonomy_policy: autonomous_after_plan_approval
+  loops_applicable: both
+  host:
+    requested: claude
+    selected: null
+    capability_requirements:
+      needs_pr: false
+      needs_parallel: false
+      needs_network: true
+      isolation: none
+    model_params: null
+  trace:
+    events_ref: .guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/logs/v1.4-events.jsonl

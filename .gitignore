@@ -1,0 +1,47 @@
+# Amux repository hygiene (T3 devops). NARROW by design: ignore generated and
+# local-only artifacts, never canonical Guild evidence. `.guild/` holds the
+# approved spec, plan, contexts, and receipts — it is DELIBERATELY NOT ignored.
+# Volatile Guild indexes and event/log streams are local runtime artifacts;
+# canonical plans, contexts, handoffs, run state, and receipts remain versioned.
+/.guild/index.sqlite
+/.guild/runs/current-run-id
+/.guild/runs/**/logs/
+/.guild/runs/**/events.ndjson
+/.guild/runs/**/agent-bus/
+/.guild/runs/**/evidence/
+/.guild/team/*.current
+
+# Built binaries left at the repo root by `go build -o amux ./cmd/amux` (and the
+# amuxd companion). Release binaries live inside dist/ tarballs, never here.
+/amux
+/amuxd
+
+# GoReleaser output tree and the completions staging tree it consumes.
+/dist/
+/build/
+
+# Locally-installed pinned build-time tools (staticcheck, goreleaser, syft).
+/.tools/
+
+# Generated QA/security/soak/release evidence. `make clean` removes these; they
+# are regenerated per run and must never enter git history. Both the repo-root
+# tree and any package-relative tree (e.g. a nested harness run) are covered.
+/.amux-artifacts/
+**/.amux-artifacts/
+
+# Coverage output (`make cover`).
+/coverage.out
+
+# Interrupted module/license integrity gates may leave these exact temporary
+# snapshots behind. They are never source files.
+/go.mod.bak
+/go.sum.bak
+/go.mod.lic-bak
+/go.sum.lic-bak
+
+# OS / editor residue.
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~

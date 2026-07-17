@@ -1,0 +1,12 @@
+{
+  "should_trigger": [
+    "Present the approved replay-to-live pane attachment contract in the TUI.",
+    "Show input-lease acquisition and deliberate takeover for two attached clients.",
+    "Handle event gaps, daemon reboot identity, and reconnect in the terminal client."
+  ],
+  "should_not_trigger": [
+    "Define pane attach transport, lifecycle semantics, and replay sequencing.",
+    "Implement PTY terminate and kill escalation in the daemon.",
+    "Review hook trust revocation for race conditions."
+  ]
+}

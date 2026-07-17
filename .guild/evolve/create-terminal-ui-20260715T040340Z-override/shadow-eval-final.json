@@ -1,0 +1,24 @@
+{
+  "schema_version": "guild.specialist_shadow_eval.v1",
+  "role": "terminal-ui",
+  "reviewer_host": "codex",
+  "artifacts_scanned": {
+    "historical_run_files": 40,
+    "live_roster_files": 8,
+    "proposed_terminal_ui_files": 9,
+    "total": 57
+  },
+  "true_positive_examples": [
+    "Bubble Tea split-tree navigation and terminal attach presentation",
+    "Cell-snapshot frame rendering, split/focus/resize, and input interaction",
+    "Approved attachment and input-lease UX",
+    "Notification inbox, read/unread presentation, and latest-unread navigation",
+    "Redraw latency, terminal capability fallback, and keyboard-only accessibility"
+  ],
+  "false_positive_examples": [],
+  "missed_terminal_ui_examples": [],
+  "collision_count": 0,
+  "missed_count": 0,
+  "verdict": "pass",
+  "rationale": "Client presentation is owned by terminal-ui while raw VT/cell state, attach contract semantics, and notification authority remain with backend/architect."
+}

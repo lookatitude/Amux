@@ -1,0 +1,20 @@
+{
+  "schema_version": "guild.scope.v1",
+  "run_id": "run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0",
+  "task_id": "T2-security",
+  "specialist": "security",
+  "write_globs": [
+    "docs/security/**",
+    "internal/securitytest/**",
+    "testdata/security/**",
+    ".gitleaks.toml",
+    ".guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/handoffs/security-T2-security.md"
+  ],
+  "forbidden_globs": [
+    ".github/workflows/**",
+    "packaging/**",
+    "internal/platform/**",
+    "api/v1/**",
+    "docs/adr/**"
+  ]
+}

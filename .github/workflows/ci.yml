@@ -1,0 +1,206 @@
+# Amux Linux CI matrix (T3 devops, work package D2).
+#
+# Design contract (spec / ADR-0007):
+#   * Supported release targets are glibc Linux amd64 + arm64, verified on Arch
+#     rolling (reference) and Ubuntu 24.04 LTS (stability lane).
+#   * NATIVE runtime evidence and CROSS-COMPILE evidence are kept in separate,
+#     clearly-labelled jobs. Cross-compilation is a compile check, never a
+#     runtime-support claim (autonomy policy: forbidden to treat it as such).
+#   * Supported-target failures are NEVER masked: no `continue-on-error` on any
+#     Arch/Ubuntu amd64/arm64 job. The full supported matrix is wired and
+#     blocking — Ubuntu {amd64,arm64} and Arch {amd64,arm64}. Arch-on-arm64 runs
+#     on the GitHub-hosted `ubuntu-24.04-arm` runner inside an Arch Linux ARM
+#     (aarch64) container; a self-hosted `[self-hosted, arch, aarch64]` host is
+#     the documented drop-in alternative (see the job comment). No cell is a
+#     prose deferral or a soft skip.
+#   * Long-running soak/8h jobs live in nightly-soak.yml; the 30-minute blocking
+#     soak is a release gate (release.yml), not a per-PR tax.
+#
+# Retry policy: tests never auto-retry (that masks flakiness — a red test is a
+# real signal). Only network module download is retried; see the fetch step.
+
+name: ci
+
+on:
+  push:
+    branches: [main, next]
+  pull_request:
+    branches: [main, next]
+  workflow_dispatch: {}
+
+# Cancel superseded runs on the same ref to save capacity.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  # --- Stable-channel promotion contract ------------------------------------
+  # Feature work lands on next. A PR to main must be the explicit next -> main
+  # promotion and must carry release-facing notes under CHANGELOG [Unreleased].
+  release-policy:
+    name: release policy (next to main + changelog)
+    if: github.event_name == 'pull_request' && github.base_ref == 'main'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - name: Enforce stable-channel promotion policy
+        run: scripts/check-main-promotion.sh "${{ github.event.pull_request.base.sha }}" "${{ github.head_ref }}"
+
+  # --- D1 deterministic gate (distro-agnostic; runs once) -------------------
+  gate:
+    name: gate (fmt/vet/staticcheck/mod/manifest/license/generate)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Load pinned tool versions
+        run: cat scripts/tools.env >> "$GITHUB_ENV"
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: true
+      - name: Download modules (retry network only)
+        run: for i in 1 2 3; do go mod download && break || sleep 5; done
+      # STR-3: every Linux job exports a verified 0700 owner-only TMPDIR before
+      # any go/test/daemon command (default /tmp is 1777 and is rejected).
+      - uses: ./.github/actions/owner-tmpdir
+      - run: make tools
+      - run: make verify
+      - run: make build
+
+  # --- Native runtime evidence: Ubuntu 24.04, amd64 -------------------------
+  test-ubuntu-amd64:
+    name: test · ubuntu-24.04 · amd64 (native)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Load pinned tool versions
+        run: cat scripts/tools.env >> "$GITHUB_ENV"
+      - uses: actions/setup-go@v5
+        with: { go-version: '${{ env.GO_VERSION }}', cache: true }
+      - name: Download modules (retry network only)
+        run: for i in 1 2 3; do go mod download && break || sleep 5; done
+      - uses: ./.github/actions/owner-tmpdir     # STR-3 owner-only TMPDIR (before any test/daemon)
+      - name: Blocking unit/integration suite
+        run: make test
+      - name: Race detector (amd64 lane)
+        run: make race
+      - name: Fuzz smoke
+        run: make fuzz-smoke
+      - name: Benchmark smoke (perf trend, not the reference-profile gate)
+        run: make bench
+      - name: Descriptor-bound launch spike (ADR-0006 runtime evidence)
+        run: make spike-launch
+      - name: Daemon-death containment spike (ADR-0006 runtime evidence, cgroup v2)
+        run: |
+          if [ ! -d /sys/fs/cgroup/cgroup.controllers ] && ! grep -q cgroup2 /proc/filesystems; then
+            echo "::error::cgroup v2 unavailable on this runner — containment evidence cannot be produced here."
+            echo "This is a supported-target runtime gate; it must run on a cgroup-v2 host (Arch/Ubuntu reference or self-hosted)."
+            exit 1
+          fi
+          sudo mkdir -p /sys/fs/cgroup/amux-spike
+          sudo AMUX_CGROUP_ROOT=/sys/fs/cgroup/amux-spike env "PATH=$PATH" "GOTOOLCHAIN=$GOTOOLCHAIN" go run ./spikes/containment
+
+  # --- Native runtime evidence: Ubuntu 24.04, arm64 -------------------------
+  # arm64 runs the documented feasible subset: the full blocking suite + build.
+  # Race/fuzz/perf are the amd64 lane's job (spec success-criteria split).
+  test-ubuntu-arm64:
+    name: test · ubuntu-24.04 · arm64 (native)
+    runs-on: ubuntu-24.04-arm
+    steps:
+      - uses: actions/checkout@v4
+      - name: Load pinned tool versions
+        run: cat scripts/tools.env >> "$GITHUB_ENV"
+      - uses: actions/setup-go@v5
+        with: { go-version: '${{ env.GO_VERSION }}', cache: true }
+      - name: Download modules (retry network only)
+        run: for i in 1 2 3; do go mod download && break || sleep 5; done
+      - uses: ./.github/actions/owner-tmpdir     # STR-3 owner-only TMPDIR (before any test/daemon)
+      - name: Blocking unit/integration suite (arm64 feasible subset)
+        run: make test
+      - name: Native arm64 build
+        run: make build
+      - name: Descriptor-bound launch spike (arm64 runtime evidence)
+        run: make spike-launch
+
+  # --- Native runtime evidence: Arch rolling, amd64 (reference distro) -------
+  test-arch-amd64:
+    name: test · arch-rolling · amd64 (native, reference)
+    runs-on: ubuntu-24.04
+    container:
+      image: archlinux:latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Arch prerequisites (git for actions, gcc for the race lane, PTY device)
+        run: |
+          # gcc: the Go race detector (make race, below) links the C runtime, so
+          # this amd64 reference lane needs a C compiler even though product
+          # builds stay CGO_ENABLED=0. ubuntu-hosted lanes already ship gcc.
+          pacman -Sy --noconfirm --needed git ca-certificates gcc
+          test -c /dev/ptmx && echo "native PTY device present"
+      - name: Load pinned tool versions
+        run: cat scripts/tools.env >> "$GITHUB_ENV"
+      - uses: actions/setup-go@v5
+        with: { go-version: '${{ env.GO_VERSION }}', cache: true }
+      - name: Download modules (retry network only)
+        run: for i in 1 2 3; do go mod download && break || sleep 5; done
+      - uses: ./.github/actions/owner-tmpdir     # STR-3 owner-only TMPDIR (before any test/daemon)
+      - name: Blocking unit/integration suite (Arch reference)
+        run: make test
+      - name: Race detector (Arch amd64)
+        run: make race
+
+  # --- Native runtime evidence: Arch rolling, arm64 (reference distro) -------
+  # Closes the supported matrix (Arch + Ubuntu across amd64 + arm64). Runs on the
+  # GitHub-hosted `ubuntu-24.04-arm` runner inside an Arch Linux ARM (aarch64)
+  # container. Blocking — NO `continue-on-error`. arm64 runs the documented
+  # feasible subset (blocking suite + native build + launch spike); race/fuzz/
+  # perf remain the amd64 lane's job per the spec success-criteria split.
+  #
+  # Self-hosted alternative (drop-in): remove `runs-on`/`container` below and set
+  #   runs-on: [self-hosted, arch, aarch64]
+  # on a real Arch/aarch64 host with the pinned Go toolchain and native /dev/ptmx.
+  test-arch-arm64:
+    name: test · arch-rolling · arm64 (native, reference)
+    runs-on: ubuntu-24.04-arm
+    container:
+      image: menci/archlinuxarm:base-devel
+    steps:
+      - uses: actions/checkout@v4
+      - name: Arch prerequisites (git for actions, PTY device present in container)
+        run: |
+          pacman -Sy --noconfirm --needed git ca-certificates
+          test -c /dev/ptmx && echo "native PTY device present"
+      - name: Load pinned tool versions
+        run: cat scripts/tools.env >> "$GITHUB_ENV"
+      - uses: actions/setup-go@v5
+        with: { go-version: '${{ env.GO_VERSION }}', cache: true }
+      - name: Download modules (retry network only)
+        run: for i in 1 2 3; do go mod download && break || sleep 5; done
+      - uses: ./.github/actions/owner-tmpdir     # STR-3 owner-only TMPDIR (before any test/daemon)
+      - name: Blocking unit/integration suite (Arch reference, arm64 feasible subset)
+        run: make test
+      - name: Native arm64 build
+        run: make build
+      - name: Descriptor-bound launch spike (arm64 runtime evidence)
+        run: make spike-launch
+
+  # --- Cross-compile evidence ONLY (NOT a runtime-support claim) -------------
+  cross-build:
+    name: cross-build · linux amd64+arm64 (compile evidence only)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Load pinned tool versions
+        run: cat scripts/tools.env >> "$GITHUB_ENV"
+      - uses: actions/setup-go@v5
+        with: { go-version: '${{ env.GO_VERSION }}', cache: true }
+      - name: Cross-compile both release arches (CGO disabled)
+        run: make build-linux
+      - name: Restate boundary
+        run: echo "Compile-only. Runtime support is asserted by the native test-* jobs, not this one."

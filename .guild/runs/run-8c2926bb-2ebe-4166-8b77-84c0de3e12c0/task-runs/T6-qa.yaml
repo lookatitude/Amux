@@ -1,0 +1,47 @@
+task_run:
+  schema_version: guild.task_run.v1
+  ids:
+    initiative_id: null
+    run_id: run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0
+    task_id: T6-qa
+    task_run_id: trun-021
+  specialist: qa
+  objective: Execute Q1-Q8 and produce a truthful release-candidate evidence dossier for the Linux-first Amux runtime.
+  context_bundle: .guild/context/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/qa-T6-qa.md
+  inputs:
+    - .guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/handoffs/security-T2-security.md
+    - .guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/handoffs/devops-T3-devops.md
+    - .guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/handoffs/backend-T4-backend.md
+    - .guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/handoffs/terminal-ui-T5-terminal-ui.md
+  expected_outputs:
+    - docs/testing/strategy.md
+    - deterministic Q1-Q8 test and evidence harnesses
+    - .amux-artifacts/qa release-candidate dossier
+    - docs/security/reviews/release-candidate.md
+    - .guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/handoffs/qa-T6-qa.md
+  depends_on:
+    - T2-security
+    - T3-devops
+    - T4-backend
+    - T5-terminal-ui
+  permissions:
+    read: [repo]
+    write: [assigned_worktree]
+    network: dependency_resolution_and_scanners
+    shell: approval_required
+    destructive: approval_required
+  budget:
+    max_turns: 60
+    max_tokens: 180000
+  autonomy_policy: autonomous_within_frozen_contracts
+  loops_applicable: full
+  host:
+    requested: claude-code
+    selected: claude-code-cli
+    capability_requirements:
+      needs_pr: false
+      needs_parallel: false
+      needs_network: true
+      isolation: none
+    model_params:
+      model: claude-fable-5

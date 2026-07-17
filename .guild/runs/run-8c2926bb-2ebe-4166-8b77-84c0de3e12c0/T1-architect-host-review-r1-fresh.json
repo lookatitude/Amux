@@ -1,0 +1,196 @@
+{
+  "schema_version": "guild.run_wrapper_record.v1",
+  "host": "claude",
+  "command": "claude",
+  "args": [
+    "--permission-mode",
+    "auto",
+    "--model",
+    "claude-fable-5",
+    "-p",
+    "Adopt .guild/agents/architect.md and execute the mandatory T1-architect G-lane rework from the updated context bundle .guild/context/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/architect-T1-architect.md. The round-1 result at .guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/review/G-lane:T1-architect/result-1.json is the exact fix brief. Close only its missing PTY, local-transport, and notification interface blocker with focused tests and full verification; do not absorb downstream implementation. Replace the architect receipt as the final filesystem action.\n\nWhen you finish, emit your result as a SINGLE fenced code block and nothing after it:\n```guild.handoff.v2\n{ ... a valid guild.handoff.v2 object ... }\n```\nThe block MUST validate against the guild.handoff.v2 contract. Do not add prose after it."
+  ],
+  "cwd": "/Users/miguelp/Projects/Amux",
+  "launch_mode": {
+    "requested": "auto",
+    "effective": "auto",
+    "args": [
+      "--permission-mode",
+      "auto"
+    ],
+    "degraded": false
+  },
+  "bootstrap_method": "hookSpecificOutput.additionalContext",
+  "host_adapter": {
+    "schema_version": "guild.run_host_adapter_receipt.v1",
+    "requested_host": "claude",
+    "host": "claude-code-cli",
+    "host_id": "claude-code-cli",
+    "provenance": "verified",
+    "preflight": {
+      "schema_version": "guild.host_adapter_result.v1",
+      "host": "claude-code-cli",
+      "operation": "preflight",
+      "status": "ok",
+      "value": {
+        "request": {
+          "cwd": "/Users/miguelp/Projects/Amux",
+          "runId": "T1-architect-host-review-r1-fresh"
+        },
+        "verified_by": "HOST_REGISTRY_ROWS[claude-code-cli].capabilities.hooks",
+        "session_start_registry_value": true,
+        "hook_file": "hooks/hooks.json",
+        "native_events": [
+          "session_start",
+          "user_prompt_submit",
+          "pre_tool_use",
+          "post_tool_use",
+          "stop",
+          "pre_compact",
+          "subagent_stop",
+          "task_created",
+          "task_completed",
+          "teammate_idle"
+        ],
+        "session_start_commands": [
+          "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/bootstrap.sh\"",
+          "node \"${CLAUDE_PLUGIN_ROOT}/hooks/dist/detect-guild-version.js\"",
+          "node \"${CLAUDE_PLUGIN_ROOT}/hooks/dist/using-guild-bootstrap.js\""
+        ]
+      },
+      "receipt": {
+        "schema_version": "guild.host_adapter_receipt.v1",
+        "host": "claude-code-cli",
+        "operation": "preflight",
+        "status": "ok",
+        "reason": "Claude Code hook preflight is registry-verified and includes using-guild SessionStart injection",
+        "degradation_receipt": {
+          "schema_version": "guild.degradation_receipt.v1",
+          "surface": "session",
+          "host": "claude-code-cli",
+          "rung": "native",
+          "degraded": false,
+          "inferred": false,
+          "reason": "session@claude-code-cli resolves to \"native\""
+        }
+      }
+    },
+    "model_params": {
+      "schema_version": "guild.host_adapter_result.v1",
+      "host": "claude-code-cli",
+      "operation": "resolveModelParams",
+      "status": "ok",
+      "value": {
+        "modelParams": {
+          "model": "claude-fable-5"
+        },
+        "argv": [
+          "--model",
+          "claude-fable-5"
+        ],
+        "unsupported_model_params": []
+      },
+      "receipt": {
+        "schema_version": "guild.host_adapter_receipt.v1",
+        "host": "claude-code-cli",
+        "operation": "resolveModelParams",
+        "status": "ok",
+        "reason": "Claude CLI maps model params to native --model/--effort flags",
+        "degradation_receipt": {
+          "schema_version": "guild.degradation_receipt.v1",
+          "surface": "semantic_tool",
+          "host": "claude-code-cli",
+          "rung": "native",
+          "degraded": false,
+          "inferred": false,
+          "reason": "semantic_tool@claude-code-cli resolves to \"native\""
+        }
+      }
+    },
+    "dispatch": {
+      "schema_version": "guild.host_adapter_result.v1",
+      "host": "claude-code-cli",
+      "operation": "dispatch",
+      "status": "ok",
+      "value": {
+        "taskRun": {
+          "runId": "T1-architect-host-review-r1-fresh",
+          "prompt": "Adopt .guild/agents/architect.md and execute the mandatory T1-architect G-lane rework from the updated context bundle .guild/context/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/architect-T1-architect.md. The round-1 result at .guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/review/G-lane:T1-architect/result-1.json is the exact fix brief. Close only its missing PTY, local-transport, and notification interface blocker with focused tests and full verification; do not absorb downstream implementation. Replace the architect receipt as the final filesystem action.",
+          "host": "claude",
+          "cwd": "/Users/miguelp/Projects/Amux",
+          "modelParams": {
+            "model": "claude-fable-5"
+          },
+          "command": "claude",
+          "args": [
+            "--permission-mode",
+            "auto",
+            "--model",
+            "claude-fable-5",
+            "-p",
+            "Adopt .guild/agents/architect.md and execute the mandatory T1-architect G-lane rework from the updated context bundle .guild/context/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/architect-T1-architect.md. The round-1 result at .guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/review/G-lane:T1-architect/result-1.json is the exact fix brief. Close only its missing PTY, local-transport, and notification interface blocker with focused tests and full verification; do not absorb downstream implementation. Replace the architect receipt as the final filesystem action.\n\nWhen you finish, emit your result as a SINGLE fenced code block and nothing after it:\n```guild.handoff.v2\n{ ... a valid guild.handoff.v2 object ... }\n```\nThe block MUST validate against the guild.handoff.v2 contract. Do not add prose after it."
+          ],
+          "env": {
+            "GUILD_WRITABLE_ROOTS": "/Users/miguelp/Projects/Amux"
+          },
+          "launch_mode": {
+            "requested": "auto",
+            "effective": "auto",
+            "args": [
+              "--permission-mode",
+              "auto"
+            ],
+            "degraded": false
+          }
+        },
+        "dispatch_kind": "wrapper_launch",
+        "command": "claude",
+        "args": [
+          "--permission-mode",
+          "auto",
+          "--model",
+          "claude-fable-5",
+          "-p",
+          "Adopt .guild/agents/architect.md and execute the mandatory T1-architect G-lane rework from the updated context bundle .guild/context/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/architect-T1-architect.md. The round-1 result at .guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/review/G-lane:T1-architect/result-1.json is the exact fix brief. Close only its missing PTY, local-transport, and notification interface blocker with focused tests and full verification; do not absorb downstream implementation. Replace the architect receipt as the final filesystem action.\n\nWhen you finish, emit your result as a SINGLE fenced code block and nothing after it:\n```guild.handoff.v2\n{ ... a valid guild.handoff.v2 object ... }\n```\nThe block MUST validate against the guild.handoff.v2 contract. Do not add prose after it."
+        ],
+        "env": {
+          "GUILD_WRITABLE_ROOTS": "/Users/miguelp/Projects/Amux"
+        },
+        "alternate_pane_command": "export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1; export GUILD_RUN_ID=T1-architect-host-review-r1-fresh; claude 'Adopt .guild/agents/architect.md and execute the mandatory T1-architect G-lane rework from the updated context bundle .guild/context/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/architect-T1-architect.md. The round-1 result at .guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/review/G-lane:T1-architect/result-1.json is the exact fix brief. Close only its missing PTY, local-transport, and notification interface blocker with focused tests and full verification; do not absorb downstream implementation. Replace the architect receipt as the final filesystem action.'; exec $SHELL",
+        "alternate_pane_env": {
+          "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1",
+          "GUILD_RUN_ID": "T1-architect-host-review-r1-fresh"
+        }
+      },
+      "receipt": {
+        "schema_version": "guild.host_adapter_receipt.v1",
+        "host": "claude-code-cli",
+        "operation": "dispatch",
+        "status": "ok",
+        "reason": "Claude dispatch receipt follows the wrapper launch plan and keeps pane dispatch as an alternate host surface",
+        "degradation_receipt": {
+          "schema_version": "guild.degradation_receipt.v1",
+          "surface": "session",
+          "host": "claude-code-cli",
+          "rung": "native",
+          "degraded": false,
+          "inferred": false,
+          "reason": "session@claude-code-cli resolves to \"native\""
+        }
+      }
+    }
+  },
+  "session_id": "8c2926bb-2ebe-4166-8b77-84c0de3e12c0",
+  "exit": 0,
+  "receipt_paths": [
+    ".guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/handoffs/architect-T1-architect.md"
+  ],
+  "contract": "guild.handoff.v2",
+  "normalized": {
+    "ok": true,
+    "wire_schema_version": "guild.handoff.v2",
+    "rounds_used": 2,
+    "failed_closed": false,
+    "errors": []
+  }
+}

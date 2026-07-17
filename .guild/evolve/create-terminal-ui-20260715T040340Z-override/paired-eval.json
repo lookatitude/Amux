@@ -1,0 +1,35 @@
+{
+  "schema_version": "guild.specialist_paired_eval.v1",
+  "role": "terminal-ui",
+  "reviewer_host": "codex",
+  "baseline": {
+    "total": 11,
+    "correct": 6,
+    "accuracy": 0.5455,
+    "positive_correct": 0,
+    "negative_correct": 6,
+    "observation": "All five terminal-native prompts were uncovered; all six non-terminal prompts routed correctly."
+  },
+  "candidate": {
+    "total": 11,
+    "correct": 11,
+    "accuracy": 1.0,
+    "positive_correct": 5,
+    "negative_correct": 6,
+    "routes": {
+      "Implement the Bubble Tea multiplexer interface.": "terminal-ui",
+      "Build the VT cell renderer and split-pane layout.": "terminal-ui",
+      "Design keyboard focus and pane navigation.": "terminal-ui",
+      "Implement pane attachment and input-lease UX.": "terminal-ui",
+      "Profile terminal redraw and resize behavior.": "terminal-ui",
+      "Implement PTY process supervision in the daemon.": "backend",
+      "Design the versioned IPC protocol and event persistence model.": "architect",
+      "Create the Arch Linux AUR release workflow.": "devops",
+      "Run a threat model for hook trust revocation.": "security",
+      "Define the repository-wide test and soak strategy.": "qa",
+      "Build a React dashboard for workspace state.": "frontend"
+    }
+  },
+  "delta_correct": 5,
+  "verdict": "pass"
+}

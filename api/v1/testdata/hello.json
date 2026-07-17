@@ -1,0 +1,10 @@
+{
+  "type": "hello",
+  "major": 1,
+  "minor": 0,
+  "client": "amux/0.0.0-dev",
+  "capabilities": [
+    "events",
+    "attach"
+  ]
+}

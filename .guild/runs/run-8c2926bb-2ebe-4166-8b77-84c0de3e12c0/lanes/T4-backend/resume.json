@@ -1,0 +1,9 @@
+{
+  "schema_version": "guild.lane_resume.v1",
+  "lane_id": "T4-backend",
+  "run_id": "run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0",
+  "attempts": 3,
+  "last_attempt_at": "2026-07-16T04:21:57.802Z",
+  "resumable_at": "2026-07-16T04:21:57.803Z",
+  "last_error": "Attempt 3 made verified scoped progress (attach fix plus RPC/daemon lifecycle and amuxd wiring; 577 tests, vet, and module verification green) but the Codex app wait interruption terminated the Claude wrapper before host record or T4 receipt creation. Checkpoint preserved for immediate continuation."
+}

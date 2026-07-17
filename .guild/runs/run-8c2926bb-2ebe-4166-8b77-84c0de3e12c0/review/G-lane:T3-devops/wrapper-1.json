@@ -1,0 +1,176 @@
+{
+  "schema_version": "guild.run_wrapper_record.v1",
+  "host": "codex",
+  "command": "codex",
+  "args": [
+    "exec",
+    "--model",
+    "gpt-5.4",
+    "-c",
+    "model_reasoning_effort=\"high\"",
+    "Act as the mandatory independent Guild G-lane reviewer. Read .guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/review/G-lane:T3-devops/packet-1.md and every artifact needed to verify it from disk. Perform a skeptical blocking-defect pass with the concurrent T2 boundary respected exactly. Return only one valid review_result.v1 JSON object; no markdown, explanation, or code fence.\n\nWhen you finish, emit your result as a SINGLE fenced code block and nothing after it:\n```review_result.v1\n{ ... a valid review_result.v1 object ... }\n```\nThe block MUST validate against the review_result.v1 contract. Do not add prose after it."
+  ],
+  "cwd": "/Users/miguelp/Projects/Amux",
+  "launch_mode": {
+    "requested": "read_only",
+    "effective": "read_only",
+    "args": [],
+    "degraded": true,
+    "host_default": true,
+    "reason": "host \"codex\" advertises no launch recipe at or below \"read_only\"; running with the host's OWN default (no autonomy flags, effective mode is nominal) — will NOT escalate to a higher mode."
+  },
+  "bootstrap_method": "instruction_file",
+  "host_adapter": {
+    "schema_version": "guild.run_host_adapter_receipt.v1",
+    "requested_host": "codex",
+    "host": "codex-cli",
+    "host_id": "codex-cli",
+    "provenance": "verified",
+    "preflight": {
+      "schema_version": "guild.host_adapter_result.v1",
+      "host": "codex-cli",
+      "operation": "preflight",
+      "status": "degraded",
+      "value": {
+        "request": {
+          "cwd": "/Users/miguelp/Projects/Amux",
+          "runId": "wrapper-1"
+        },
+        "native_hooks": false,
+        "bootstrap_file": "AGENTS.md",
+        "commands": [
+          "codex --version",
+          "codex login status"
+        ],
+        "degradation": "no SessionStart/UserPromptSubmit hook surface"
+      },
+      "receipt": {
+        "schema_version": "guild.host_adapter_receipt.v1",
+        "host": "codex-cli",
+        "operation": "preflight",
+        "status": "degraded",
+        "reason": "Codex CLI has no native Guild hooks; preflight is wrapper/instruction-file based",
+        "degradation_receipt": {
+          "schema_version": "guild.degradation_receipt.v1",
+          "surface": "session",
+          "host": "codex-cli",
+          "rung": "wrapped",
+          "degraded": true,
+          "inferred": false,
+          "reason": "session@codex-cli resolves to \"wrapped\""
+        }
+      }
+    },
+    "model_params": {
+      "schema_version": "guild.host_adapter_result.v1",
+      "host": "codex-cli",
+      "operation": "resolveModelParams",
+      "status": "ok",
+      "value": {
+        "modelParams": {
+          "model": "gpt-5.4",
+          "reasoning": "high"
+        },
+        "argv": [
+          "--model",
+          "gpt-5.4",
+          "-c",
+          "model_reasoning_effort=\"high\""
+        ],
+        "unsupported_model_params": []
+      },
+      "receipt": {
+        "schema_version": "guild.host_adapter_receipt.v1",
+        "host": "codex-cli",
+        "operation": "resolveModelParams",
+        "status": "ok",
+        "reason": "Codex CLI maps model params to --model and model_reasoning_effort config",
+        "degradation_receipt": {
+          "schema_version": "guild.degradation_receipt.v1",
+          "surface": "semantic_tool",
+          "host": "codex-cli",
+          "rung": "bridged",
+          "degraded": true,
+          "inferred": false,
+          "reason": "semantic_tool@codex-cli resolves to \"bridged\""
+        }
+      }
+    },
+    "dispatch": {
+      "schema_version": "guild.host_adapter_result.v1",
+      "host": "codex-cli",
+      "operation": "dispatch",
+      "status": "ok",
+      "value": {
+        "taskRun": {
+          "runId": "wrapper-1",
+          "prompt": "Act as the mandatory independent Guild G-lane reviewer. Read .guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/review/G-lane:T3-devops/packet-1.md and every artifact needed to verify it from disk. Perform a skeptical blocking-defect pass with the concurrent T2 boundary respected exactly. Return only one valid review_result.v1 JSON object; no markdown, explanation, or code fence.",
+          "host": "codex",
+          "cwd": "/Users/miguelp/Projects/Amux",
+          "modelParams": {
+            "model": "gpt-5.4",
+            "reasoning": "high"
+          },
+          "command": "codex",
+          "args": [
+            "exec",
+            "--model",
+            "gpt-5.4",
+            "-c",
+            "model_reasoning_effort=\"high\"",
+            "Act as the mandatory independent Guild G-lane reviewer. Read .guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/review/G-lane:T3-devops/packet-1.md and every artifact needed to verify it from disk. Perform a skeptical blocking-defect pass with the concurrent T2 boundary respected exactly. Return only one valid review_result.v1 JSON object; no markdown, explanation, or code fence.\n\nWhen you finish, emit your result as a SINGLE fenced code block and nothing after it:\n```review_result.v1\n{ ... a valid review_result.v1 object ... }\n```\nThe block MUST validate against the review_result.v1 contract. Do not add prose after it."
+          ],
+          "env": {},
+          "launch_mode": {
+            "requested": "read_only",
+            "effective": "read_only",
+            "args": [],
+            "degraded": true,
+            "host_default": true,
+            "reason": "host \"codex\" advertises no launch recipe at or below \"read_only\"; running with the host's OWN default (no autonomy flags, effective mode is nominal) — will NOT escalate to a higher mode."
+          }
+        },
+        "dispatch_kind": "wrapper_launch",
+        "command": "codex",
+        "args": [
+          "exec",
+          "--model",
+          "gpt-5.4",
+          "-c",
+          "model_reasoning_effort=\"high\"",
+          "Act as the mandatory independent Guild G-lane reviewer. Read .guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/review/G-lane:T3-devops/packet-1.md and every artifact needed to verify it from disk. Perform a skeptical blocking-defect pass with the concurrent T2 boundary respected exactly. Return only one valid review_result.v1 JSON object; no markdown, explanation, or code fence.\n\nWhen you finish, emit your result as a SINGLE fenced code block and nothing after it:\n```review_result.v1\n{ ... a valid review_result.v1 object ... }\n```\nThe block MUST validate against the review_result.v1 contract. Do not add prose after it."
+        ],
+        "env": {}
+      },
+      "receipt": {
+        "schema_version": "guild.host_adapter_receipt.v1",
+        "host": "codex-cli",
+        "operation": "dispatch",
+        "status": "ok",
+        "reason": "Codex CLI dispatch receipt follows the wrapper launch plan",
+        "degradation_receipt": {
+          "schema_version": "guild.degradation_receipt.v1",
+          "surface": "session",
+          "host": "codex-cli",
+          "rung": "wrapped",
+          "degraded": true,
+          "inferred": false,
+          "reason": "session@codex-cli resolves to \"wrapped\""
+        }
+      }
+    }
+  },
+  "session_id": "8c2926bb-2ebe-4166-8b77-84c0de3e12c0",
+  "exit": 0,
+  "receipt_paths": [
+    ".guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/handoffs/devops-T3-devops.md"
+  ],
+  "contract": "review_result.v1",
+  "normalized": {
+    "ok": true,
+    "wire_schema_version": "review_result.v1",
+    "rounds_used": 0,
+    "failed_closed": false,
+    "errors": []
+  }
+}

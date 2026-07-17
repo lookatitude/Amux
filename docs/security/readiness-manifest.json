@@ -1,0 +1,187 @@
+{
+  "schema": "amux.security.readiness-manifest.v1",
+  "run_id": "run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0",
+  "frozen_at": "2026-07-15",
+  "gates": {
+    "absent_trust_ms": 250,
+    "revoke_cancel_ms": 250,
+    "kill_escalation_ms": 2000,
+    "default_timeout_ms": 2000,
+    "max_timeout_ms": 30000,
+    "output_cap_bytes": 1048576
+  },
+  "receipt_schema": {
+    "name": "amux.security.check-receipt.v1",
+    "required_fields": [
+      "check_id",
+      "command",
+      "exit_code",
+      "outcome",
+      "started_at",
+      "host_os",
+      "host_arch",
+      "tool_version",
+      "evidence_path",
+      "notes"
+    ],
+    "outcomes": ["pass", "fail", "deferred_prerequisite"]
+  },
+  "checks": [
+    {
+      "id": "security-contract-self-gates",
+      "description": "The T2 contract gates itself: trust-matrix golden is current and covered, fixture vectors are well-formed, no raw candidate secret exists in durable artifacts, gate constants match this manifest, and every -run expression below binds to at least one real test function under its build tags on the Linux target (TestManifestRunPatternsBindToRealTests) so no check can pass on zero matches.",
+      "owner": "security",
+      "severity": "high",
+      "blocking": true,
+      "command": "go test -count=1 ./internal/securitytest/",
+      "prerequisites": [],
+      "evidence_path": ".amux-artifacts/security/security-contract-self-gates.txt",
+      "requirements": ["HA-22", "RED-1", "matrix coverage", "gate binding (F5)"]
+    },
+    {
+      "id": "security-conformance",
+      "description": "Full adversarial fixture suite (timing.*, races.*, restore.*, redaction.*) executed via securitytest.RunConformance against a real trust engine with a spy launcher and fake clock. Skips (never passes) until T4 registers a Factory.",
+      "owner": "T4-backend",
+      "severity": "high",
+      "blocking": true,
+      "command": "go test -count=1 -run 'SecurityConformance' ./...",
+      "prerequisites": [
+        "T4 backend test package calls securitytest.RunConformance with a real Factory (real trust engine, spy DescriptorLaunch, fake Clock)"
+      ],
+      "evidence_path": ".amux-artifacts/security/security-conformance.txt",
+      "requirements": ["HA-2..HA-22", "AUD-1..AUD-7", "RED-1..RED-8"]
+    },
+    {
+      "id": "trust-matrix-replay",
+      "description": "Every row of testdata/security/trust-matrix.json replayed against the real integrated trust engine (TestTrustMatrixReplayIntegrated: production control actor + SQLite trust store + hook runtime with real project directories; rows whose condition needs privileged mounts or not-yet-integrated product surface drive the real AuthorizeLaunch linearization point with the single deviated fact injected, recorded per row in the test). Complements, never replaces, the unit-level TestDecideReplaysTrustMatrix. A pass receipt must show 41 substantive row executions and zero skips.",
+      "owner": "T6-qa",
+      "severity": "high",
+      "blocking": true,
+      "command": "go test -count=1 -tags integration -run 'TrustMatrixReplay' ./...",
+      "prerequisites": ["Linux host for the release receipt (the replay itself also runs on the author host)"],
+      "evidence_path": ".amux-artifacts/security/trust-matrix-replay.txt",
+      "requirements": ["HA-3..HA-13", "hook-authorization.md §8"]
+    },
+    {
+      "id": "integration-second-uid",
+      "description": "A second local UID exercises the socket surface: connect attempt closed pre-protocol and audited, hostile runtime dir/socket objects refuse bind, diagnostics refuse foreign peers.",
+      "owner": "T6-qa",
+      "severity": "high",
+      "blocking": true,
+      "command": "go test -count=1 -tags integration -run 'SecondUID' ./...",
+      "prerequisites": ["Linux host", "test harness with a second unprivileged UID"],
+      "evidence_path": ".amux-artifacts/security/integration-second-uid.txt",
+      "requirements": ["STR-1", "STR-2", "STR-3", "STR-4", "STR-10"]
+    },
+    {
+      "id": "integration-resource-exhaustion",
+      "description": "Hostile frame lengths allocate nothing beyond the fixed header buffer; silent peers are disconnected at the deadline; greedy subscribers are disconnected rather than buffered unboundedly; the connection cap yields resource_exhausted.",
+      "owner": "T6-qa",
+      "severity": "high",
+      "blocking": true,
+      "command": "go test -count=1 -tags integration -run 'ResourceExhaustion' ./...",
+      "prerequisites": ["Linux host", "integrated amuxd candidate"],
+      "evidence_path": ".amux-artifacts/security/integration-resource-exhaustion.txt",
+      "requirements": ["STR-5", "STR-6", "STR-7", "STR-8"]
+    },
+    {
+      "id": "race-full-suite",
+      "description": "Entire test suite under the Go race detector on the Linux CI matrix.",
+      "owner": "T6-qa",
+      "severity": "high",
+      "blocking": true,
+      "command": "go test -race -count=1 ./...",
+      "prerequisites": ["Linux CI runners (T3 lane)"],
+      "evidence_path": ".amux-artifacts/security/race-full-suite.txt",
+      "requirements": ["HA-4b", "HA-14", "HA-15"]
+    },
+    {
+      "id": "archtest-dependency-gate",
+      "description": "Architectural dependency rules hold: domain import rules, forbidden inbound edges, and the no-cgo gate.",
+      "owner": "T4-backend",
+      "severity": "high",
+      "blocking": true,
+      "command": "go test -count=1 ./internal/archtest/",
+      "prerequisites": [],
+      "evidence_path": ".amux-artifacts/security/archtest-dependency-gate.txt",
+      "requirements": ["ADR-0007", "threat-model B8"]
+    },
+    {
+      "id": "seam-freeze",
+      "description": "The 13 frozen platform interfaces retain their exact shapes; drift routes through an ADR-0006 amendment, not silent edits.",
+      "owner": "T4-backend",
+      "severity": "high",
+      "blocking": true,
+      "command": "go test -count=1 ./internal/platform/",
+      "prerequisites": [],
+      "evidence_path": ".amux-artifacts/security/seam-freeze.txt",
+      "requirements": ["ADR-0006", "HA-10", "STR-2"]
+    },
+    {
+      "id": "dep-integrity",
+      "description": "Module checksums verify against go.sum for the entire pinned dependency graph.",
+      "owner": "T3-devops",
+      "severity": "high",
+      "blocking": true,
+      "command": "go mod verify",
+      "prerequisites": [],
+      "evidence_path": ".amux-artifacts/security/dep-integrity.txt",
+      "requirements": ["ADR-0007", "threat-model B8"]
+    },
+    {
+      "id": "dep-tidy-drift",
+      "description": "go.mod/go.sum carry no undeclared or stale requirements.",
+      "owner": "T3-devops",
+      "severity": "medium",
+      "blocking": true,
+      "command": "go mod tidy -diff",
+      "prerequisites": [],
+      "evidence_path": ".amux-artifacts/security/dep-tidy-drift.txt",
+      "requirements": ["ADR-0007"]
+    },
+    {
+      "id": "vuln-scan",
+      "description": "Known-vulnerability scan over the module graph and reachable call paths; any HIGH/CRITICAL reachable finding blocks until fixed or explicitly triaged unreachable with recorded rationale.",
+      "owner": "T3-devops",
+      "severity": "high",
+      "blocking": true,
+      "command": "govulncheck ./...",
+      "prerequisites": ["golang.org/x/vuln/cmd/govulncheck installed (pinned in CI by T3)"],
+      "evidence_path": ".amux-artifacts/security/vuln-scan.txt",
+      "requirements": ["threat-model B8", "P8"]
+    },
+    {
+      "id": "license-audit",
+      "description": "License inventory of the full dependency graph against the allowlist in docs/security/security-readiness.md §4; a disallowed or unknown license blocks.",
+      "owner": "T3-devops",
+      "severity": "medium",
+      "blocking": true,
+      "command": "go-licenses report ./... --ignore github.com/amux-run/amux",
+      "prerequisites": ["github.com/google/go-licenses installed (pinned in CI by T3)"],
+      "evidence_path": ".amux-artifacts/security/license-audit.txt",
+      "requirements": ["ADR-0007", "docs/dependencies.md"]
+    },
+    {
+      "id": "secrets-scan-history",
+      "description": "Secrets scan over the full working tree and complete git history with the frozen policy file; any non-allowlisted finding blocks and triggers the rotation protocol in security-readiness.md §5.",
+      "owner": "T3-devops",
+      "severity": "high",
+      "blocking": true,
+      "command": "gitleaks detect --source . --config .gitleaks.toml --redact",
+      "prerequisites": ["gitleaks >= 8.x installed (pinned in CI by T3)"],
+      "evidence_path": ".amux-artifacts/security/secrets-scan-history.txt",
+      "requirements": ["RED-2", "threat-model B8", "secrets.go AMUXTEST_ rule"]
+    },
+    {
+      "id": "manual-misuse-review",
+      "description": "Manual red-team walk of every abuse case AB-1..AB-12 in threat-model.md §5 against the release candidate, one recorded outcome per row.",
+      "owner": "T6-qa",
+      "severity": "high",
+      "blocking": true,
+      "command": "manual: execute threat-model.md §5 rows AB-1..AB-12 against the candidate; record per-row outcome and evidence in the receipt",
+      "prerequisites": ["integrated amuxd candidate", "Linux host"],
+      "evidence_path": ".amux-artifacts/security/manual-misuse-review.md",
+      "requirements": ["threat-model.md §5"]
+    }
+  ]
+}

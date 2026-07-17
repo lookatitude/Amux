@@ -1,0 +1,54 @@
+# Amux nightly 8-hour soak (T3 devops, work package D5).
+#
+# The spec's nightly reliability gate: 8 hours, 20 concurrent PTYs, asserting no
+# crash, unrecovered event gap, orphan process, or unbounded queue/replay/
+# goroutine/FD growth. It runs on the documented reference profile and retains
+# full evidence (logs, pprof, metrics, orphan scan, event-gap status,
+# memory/goroutine profiles) as build artifacts.
+#
+# The workload boots the production daemon assembly, drives 20 concurrent PTYs,
+# and fails closed if it cannot produce real duration and resource evidence.
+#
+# Reference profile: the spec names an Arch x86_64 workstation as the reference.
+# GitHub-hosted runners are 4-vCPU/16-GiB (see docs/operations/reference-profile.md
+# for the exact profiles and how to point this at a self-hosted Arch reference).
+
+name: nightly-soak
+
+on:
+  schedule:
+    - cron: '0 3 * * *'      # 03:00 UTC daily
+  workflow_dispatch:
+    inputs:
+      duration:
+        description: 'Soak duration (Go duration, e.g. 8h, 30m)'
+        type: string
+        default: '8h'
+
+permissions:
+  contents: read
+
+jobs:
+  soak-8h:
+    name: 8-hour nightly soak
+    runs-on: ubuntu-24.04            # swap to a self-hosted Arch reference label for release-grade numbers
+    timeout-minutes: 540             # 9h: 8h soak + setup/teardown headroom
+    steps:
+      - uses: actions/checkout@v4
+      - run: cat scripts/tools.env >> "$GITHUB_ENV"
+      - uses: actions/setup-go@v5
+        with: { go-version: '${{ env.GO_VERSION }}', cache: true }
+      - uses: ./.github/actions/owner-tmpdir     # STR-3 owner-only TMPDIR (before the daemon soak)
+      - name: 8-hour soak with full evidence capture
+        run: |
+          AMUX_SOAK_DURATION="${{ inputs.duration || '8h' }}" \
+          AMUX_SOAK_PTYS=20 \
+          scripts/soak/run-soak.sh
+      - name: Upload soak evidence (logs, pprof, metrics, summary)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nightly-soak-evidence
+          path: .amux-artifacts/soak/**
+          retention-days: 14
+          if-no-files-found: warn

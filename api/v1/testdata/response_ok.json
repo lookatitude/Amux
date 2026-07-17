@@ -1,0 +1,9 @@
+{
+  "type": "response",
+  "id": "req-1",
+  "result": {
+    "rev": 2,
+    "new_pane": "pan-000002",
+    "new_surface": "sur-000002"
+  }
+}

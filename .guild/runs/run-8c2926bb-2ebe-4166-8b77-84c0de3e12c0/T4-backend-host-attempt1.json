@@ -1,0 +1,193 @@
+{
+  "schema_version": "guild.run_wrapper_record.v1",
+  "host": "claude",
+  "command": "claude",
+  "args": [
+    "--permission-mode",
+    "auto",
+    "--model",
+    "claude-fable-5",
+    "-p",
+    "Adopt the project-local backend specialist definition at `.guild/agents/backend.md` and implement `T4-backend` from the authoritative formal bundle `.guild/context/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/backend-T4-backend.md`.\n\nThis is the first T4 implementation attempt. T1 architect, T2 security, and T3 DevOps are complete and independently reviewed. Consume their exact envelopes from the bundle and inspect their referenced live artifacts as needed. Privilege the bundle over ambient context. Do not redefine frozen ADR, protocol, persistence, trust, cgo, supported-platform, or acceptance contracts; if a real contradiction requires such a change, honor the bundle's ask-gate and return blocked rather than assuming approval.\n\nImplement the full B1–B12 Go backend lane with TDD-first, bounded, fail-closed behavior. Work incrementally from failing tests to the smallest production code that satisfies them. The daemon and CLI must be real, not interface-only scaffolding. Register the T2 `securitytest` Factory from a T4-owned test package without modifying `internal/securitytest/**`; execute the implementation-neutral conformance corpus against real backend enforcement. Keep all writes inside `.guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/scope/T4-backend.json`. Do not touch CI, packaging, release/operations docs, security policy, ADRs, research, or TUI surfaces.\n\nPrune the known stale `go.sum` hashes when the module graph is touched. Maintain the no-cgo policy. On this macOS author host, distinguish portable tests and Linux compile checks from Linux-only runtime evidence; do not claim Linux process/socket containment behavior without executing it. Run gofmt, vet, all repository tests, race tests, targeted security conformance, fuzz smoke where safe, Linux amd64/arm64 compile checks, module verification/tidy, and a scope audit. Record any genuinely Linux-only runtime check as a precise T6 prerequisite with its reproducible command.\n\nWrite the durable receipt at `.guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/handoffs/backend-T4-backend.md` as the final product write. It must identify B1–B12 coverage, changed files, tests/evidence, risks, exact deferrals, T5/T6 handoffs, and scope compliance, with exactly one valid `guild.handoff.v2` block. Keep the v2 summary at most 600 characters and notes at most 200 characters.\n\nWhen you finish, emit your result as a SINGLE fenced code block and nothing after it:\n```guild.handoff.v2\n{ ... a valid guild.handoff.v2 object ... }\n```\nThe block MUST validate against the `guild.handoff.v2` contract. Do not add prose after it.\n\n\nWhen you finish, emit your result as a SINGLE fenced code block and nothing after it:\n```guild.handoff.v2\n{ ... a valid guild.handoff.v2 object ... }\n```\nThe block MUST validate against the guild.handoff.v2 contract. Do not add prose after it."
+  ],
+  "cwd": "/Users/miguelp/Projects/Amux",
+  "launch_mode": {
+    "requested": "auto",
+    "effective": "auto",
+    "args": [
+      "--permission-mode",
+      "auto"
+    ],
+    "degraded": false
+  },
+  "bootstrap_method": "hookSpecificOutput.additionalContext",
+  "host_adapter": {
+    "schema_version": "guild.run_host_adapter_receipt.v1",
+    "requested_host": "claude",
+    "host": "claude-code-cli",
+    "host_id": "claude-code-cli",
+    "provenance": "verified",
+    "preflight": {
+      "schema_version": "guild.host_adapter_result.v1",
+      "host": "claude-code-cli",
+      "operation": "preflight",
+      "status": "ok",
+      "value": {
+        "request": {
+          "cwd": "/Users/miguelp/Projects/Amux",
+          "runId": "T4-backend-host-attempt1"
+        },
+        "verified_by": "HOST_REGISTRY_ROWS[claude-code-cli].capabilities.hooks",
+        "session_start_registry_value": true,
+        "hook_file": "hooks/hooks.json",
+        "native_events": [
+          "session_start",
+          "user_prompt_submit",
+          "pre_tool_use",
+          "post_tool_use",
+          "stop",
+          "pre_compact",
+          "subagent_stop",
+          "task_created",
+          "task_completed",
+          "teammate_idle"
+        ],
+        "session_start_commands": [
+          "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/bootstrap.sh\"",
+          "node \"${CLAUDE_PLUGIN_ROOT}/hooks/dist/detect-guild-version.js\"",
+          "node \"${CLAUDE_PLUGIN_ROOT}/hooks/dist/using-guild-bootstrap.js\""
+        ]
+      },
+      "receipt": {
+        "schema_version": "guild.host_adapter_receipt.v1",
+        "host": "claude-code-cli",
+        "operation": "preflight",
+        "status": "ok",
+        "reason": "Claude Code hook preflight is registry-verified and includes using-guild SessionStart injection",
+        "degradation_receipt": {
+          "schema_version": "guild.degradation_receipt.v1",
+          "surface": "session",
+          "host": "claude-code-cli",
+          "rung": "native",
+          "degraded": false,
+          "inferred": false,
+          "reason": "session@claude-code-cli resolves to \"native\""
+        }
+      }
+    },
+    "model_params": {
+      "schema_version": "guild.host_adapter_result.v1",
+      "host": "claude-code-cli",
+      "operation": "resolveModelParams",
+      "status": "ok",
+      "value": {
+        "modelParams": {
+          "model": "claude-fable-5"
+        },
+        "argv": [
+          "--model",
+          "claude-fable-5"
+        ],
+        "unsupported_model_params": []
+      },
+      "receipt": {
+        "schema_version": "guild.host_adapter_receipt.v1",
+        "host": "claude-code-cli",
+        "operation": "resolveModelParams",
+        "status": "ok",
+        "reason": "Claude CLI maps model params to native --model/--effort flags",
+        "degradation_receipt": {
+          "schema_version": "guild.degradation_receipt.v1",
+          "surface": "semantic_tool",
+          "host": "claude-code-cli",
+          "rung": "native",
+          "degraded": false,
+          "inferred": false,
+          "reason": "semantic_tool@claude-code-cli resolves to \"native\""
+        }
+      }
+    },
+    "dispatch": {
+      "schema_version": "guild.host_adapter_result.v1",
+      "host": "claude-code-cli",
+      "operation": "dispatch",
+      "status": "ok",
+      "value": {
+        "taskRun": {
+          "runId": "T4-backend-host-attempt1",
+          "prompt": "Adopt the project-local backend specialist definition at `.guild/agents/backend.md` and implement `T4-backend` from the authoritative formal bundle `.guild/context/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/backend-T4-backend.md`.\n\nThis is the first T4 implementation attempt. T1 architect, T2 security, and T3 DevOps are complete and independently reviewed. Consume their exact envelopes from the bundle and inspect their referenced live artifacts as needed. Privilege the bundle over ambient context. Do not redefine frozen ADR, protocol, persistence, trust, cgo, supported-platform, or acceptance contracts; if a real contradiction requires such a change, honor the bundle's ask-gate and return blocked rather than assuming approval.\n\nImplement the full B1–B12 Go backend lane with TDD-first, bounded, fail-closed behavior. Work incrementally from failing tests to the smallest production code that satisfies them. The daemon and CLI must be real, not interface-only scaffolding. Register the T2 `securitytest` Factory from a T4-owned test package without modifying `internal/securitytest/**`; execute the implementation-neutral conformance corpus against real backend enforcement. Keep all writes inside `.guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/scope/T4-backend.json`. Do not touch CI, packaging, release/operations docs, security policy, ADRs, research, or TUI surfaces.\n\nPrune the known stale `go.sum` hashes when the module graph is touched. Maintain the no-cgo policy. On this macOS author host, distinguish portable tests and Linux compile checks from Linux-only runtime evidence; do not claim Linux process/socket containment behavior without executing it. Run gofmt, vet, all repository tests, race tests, targeted security conformance, fuzz smoke where safe, Linux amd64/arm64 compile checks, module verification/tidy, and a scope audit. Record any genuinely Linux-only runtime check as a precise T6 prerequisite with its reproducible command.\n\nWrite the durable receipt at `.guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/handoffs/backend-T4-backend.md` as the final product write. It must identify B1–B12 coverage, changed files, tests/evidence, risks, exact deferrals, T5/T6 handoffs, and scope compliance, with exactly one valid `guild.handoff.v2` block. Keep the v2 summary at most 600 characters and notes at most 200 characters.\n\nWhen you finish, emit your result as a SINGLE fenced code block and nothing after it:\n```guild.handoff.v2\n{ ... a valid guild.handoff.v2 object ... }\n```\nThe block MUST validate against the `guild.handoff.v2` contract. Do not add prose after it.\n",
+          "host": "claude",
+          "cwd": "/Users/miguelp/Projects/Amux",
+          "modelParams": {
+            "model": "claude-fable-5"
+          },
+          "command": "claude",
+          "args": [
+            "--permission-mode",
+            "auto",
+            "--model",
+            "claude-fable-5",
+            "-p",
+            "Adopt the project-local backend specialist definition at `.guild/agents/backend.md` and implement `T4-backend` from the authoritative formal bundle `.guild/context/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/backend-T4-backend.md`.\n\nThis is the first T4 implementation attempt. T1 architect, T2 security, and T3 DevOps are complete and independently reviewed. Consume their exact envelopes from the bundle and inspect their referenced live artifacts as needed. Privilege the bundle over ambient context. Do not redefine frozen ADR, protocol, persistence, trust, cgo, supported-platform, or acceptance contracts; if a real contradiction requires such a change, honor the bundle's ask-gate and return blocked rather than assuming approval.\n\nImplement the full B1–B12 Go backend lane with TDD-first, bounded, fail-closed behavior. Work incrementally from failing tests to the smallest production code that satisfies them. The daemon and CLI must be real, not interface-only scaffolding. Register the T2 `securitytest` Factory from a T4-owned test package without modifying `internal/securitytest/**`; execute the implementation-neutral conformance corpus against real backend enforcement. Keep all writes inside `.guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/scope/T4-backend.json`. Do not touch CI, packaging, release/operations docs, security policy, ADRs, research, or TUI surfaces.\n\nPrune the known stale `go.sum` hashes when the module graph is touched. Maintain the no-cgo policy. On this macOS author host, distinguish portable tests and Linux compile checks from Linux-only runtime evidence; do not claim Linux process/socket containment behavior without executing it. Run gofmt, vet, all repository tests, race tests, targeted security conformance, fuzz smoke where safe, Linux amd64/arm64 compile checks, module verification/tidy, and a scope audit. Record any genuinely Linux-only runtime check as a precise T6 prerequisite with its reproducible command.\n\nWrite the durable receipt at `.guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/handoffs/backend-T4-backend.md` as the final product write. It must identify B1–B12 coverage, changed files, tests/evidence, risks, exact deferrals, T5/T6 handoffs, and scope compliance, with exactly one valid `guild.handoff.v2` block. Keep the v2 summary at most 600 characters and notes at most 200 characters.\n\nWhen you finish, emit your result as a SINGLE fenced code block and nothing after it:\n```guild.handoff.v2\n{ ... a valid guild.handoff.v2 object ... }\n```\nThe block MUST validate against the `guild.handoff.v2` contract. Do not add prose after it.\n\n\nWhen you finish, emit your result as a SINGLE fenced code block and nothing after it:\n```guild.handoff.v2\n{ ... a valid guild.handoff.v2 object ... }\n```\nThe block MUST validate against the guild.handoff.v2 contract. Do not add prose after it."
+          ],
+          "env": {},
+          "launch_mode": {
+            "requested": "auto",
+            "effective": "auto",
+            "args": [
+              "--permission-mode",
+              "auto"
+            ],
+            "degraded": false
+          }
+        },
+        "dispatch_kind": "wrapper_launch",
+        "command": "claude",
+        "args": [
+          "--permission-mode",
+          "auto",
+          "--model",
+          "claude-fable-5",
+          "-p",
+          "Adopt the project-local backend specialist definition at `.guild/agents/backend.md` and implement `T4-backend` from the authoritative formal bundle `.guild/context/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/backend-T4-backend.md`.\n\nThis is the first T4 implementation attempt. T1 architect, T2 security, and T3 DevOps are complete and independently reviewed. Consume their exact envelopes from the bundle and inspect their referenced live artifacts as needed. Privilege the bundle over ambient context. Do not redefine frozen ADR, protocol, persistence, trust, cgo, supported-platform, or acceptance contracts; if a real contradiction requires such a change, honor the bundle's ask-gate and return blocked rather than assuming approval.\n\nImplement the full B1–B12 Go backend lane with TDD-first, bounded, fail-closed behavior. Work incrementally from failing tests to the smallest production code that satisfies them. The daemon and CLI must be real, not interface-only scaffolding. Register the T2 `securitytest` Factory from a T4-owned test package without modifying `internal/securitytest/**`; execute the implementation-neutral conformance corpus against real backend enforcement. Keep all writes inside `.guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/scope/T4-backend.json`. Do not touch CI, packaging, release/operations docs, security policy, ADRs, research, or TUI surfaces.\n\nPrune the known stale `go.sum` hashes when the module graph is touched. Maintain the no-cgo policy. On this macOS author host, distinguish portable tests and Linux compile checks from Linux-only runtime evidence; do not claim Linux process/socket containment behavior without executing it. Run gofmt, vet, all repository tests, race tests, targeted security conformance, fuzz smoke where safe, Linux amd64/arm64 compile checks, module verification/tidy, and a scope audit. Record any genuinely Linux-only runtime check as a precise T6 prerequisite with its reproducible command.\n\nWrite the durable receipt at `.guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/handoffs/backend-T4-backend.md` as the final product write. It must identify B1–B12 coverage, changed files, tests/evidence, risks, exact deferrals, T5/T6 handoffs, and scope compliance, with exactly one valid `guild.handoff.v2` block. Keep the v2 summary at most 600 characters and notes at most 200 characters.\n\nWhen you finish, emit your result as a SINGLE fenced code block and nothing after it:\n```guild.handoff.v2\n{ ... a valid guild.handoff.v2 object ... }\n```\nThe block MUST validate against the `guild.handoff.v2` contract. Do not add prose after it.\n\n\nWhen you finish, emit your result as a SINGLE fenced code block and nothing after it:\n```guild.handoff.v2\n{ ... a valid guild.handoff.v2 object ... }\n```\nThe block MUST validate against the guild.handoff.v2 contract. Do not add prose after it."
+        ],
+        "env": {},
+        "alternate_pane_command": "export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1; export GUILD_RUN_ID=T4-backend-host-attempt1; claude 'Adopt the project-local backend specialist definition at `.guild/agents/backend.md` and implement `T4-backend` from the authoritative formal bundle `.guild/context/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/backend-T4-backend.md`.\n\nThis is the first T4 implementation attempt. T1 architect, T2 security, and T3 DevOps are complete and independently reviewed. Consume their exact envelopes from the bundle and inspect their referenced live artifacts as needed. Privilege the bundle over ambient context. Do not redefine frozen ADR, protocol, persistence, trust, cgo, supported-platform, or acceptance contracts; if a real contradiction requires such a change, honor the bundle'\\''s ask-gate and return blocked rather than assuming approval.\n\nImplement the full B1–B12 Go backend lane with TDD-first, bounded, fail-closed behavior. Work incrementally from failing tests to the smallest production code that satisfies them. The daemon and CLI must be real, not interface-only scaffolding. Register the T2 `securitytest` Factory from a T4-owned test package without modifying `internal/securitytest/**`; execute the implementation-neutral conformance corpus against real backend enforcement. Keep all writes inside `.guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/scope/T4-backend.json`. Do not touch CI, packaging, release/operations docs, security policy, ADRs, research, or TUI surfaces.\n\nPrune the known stale `go.sum` hashes when the module graph is touched. Maintain the no-cgo policy. On this macOS author host, distinguish portable tests and Linux compile checks from Linux-only runtime evidence; do not claim Linux process/socket containment behavior without executing it. Run gofmt, vet, all repository tests, race tests, targeted security conformance, fuzz smoke where safe, Linux amd64/arm64 compile checks, module verification/tidy, and a scope audit. Record any genuinely Linux-only runtime check as a precise T6 prerequisite with its reproducible command.\n\nWrite the durable receipt at `.guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/handoffs/backend-T4-backend.md` as the final product write. It must identify B1–B12 coverage, changed files, tests/evidence, risks, exact deferrals, T5/T6 handoffs, and scope compliance, with exactly one valid `guild.handoff.v2` block. Keep the v2 summary at most 600 characters and notes at most 200 characters.\n\nWhen you finish, emit your result as a SINGLE fenced code block and nothing after it:\n```guild.handoff.v2\n{ ... a valid guild.handoff.v2 object ... }\n```\nThe block MUST validate against the `guild.handoff.v2` contract. Do not add prose after it.\n'; exec $SHELL",
+        "alternate_pane_env": {
+          "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1",
+          "GUILD_RUN_ID": "T4-backend-host-attempt1"
+        }
+      },
+      "receipt": {
+        "schema_version": "guild.host_adapter_receipt.v1",
+        "host": "claude-code-cli",
+        "operation": "dispatch",
+        "status": "ok",
+        "reason": "Claude dispatch receipt follows the wrapper launch plan and keeps pane dispatch as an alternate host surface",
+        "degradation_receipt": {
+          "schema_version": "guild.degradation_receipt.v1",
+          "surface": "session",
+          "host": "claude-code-cli",
+          "rung": "native",
+          "degraded": false,
+          "inferred": false,
+          "reason": "session@claude-code-cli resolves to \"native\""
+        }
+      }
+    }
+  },
+  "session_id": null,
+  "exit": 1,
+  "receipt_paths": [],
+  "contract": "guild.handoff.v2",
+  "normalized": {
+    "ok": false,
+    "wire_schema_version": "guild.handoff.v2",
+    "rounds_used": 2,
+    "failed_closed": true,
+    "errors": [
+      "fail-closed after 2 bounded repair round(s): result never validated against \"guild.handoff.v2\".",
+      "no extractable JSON object for \"guild.handoff.v2\" in the host output (prose is not accepted)"
+    ]
+  }
+}

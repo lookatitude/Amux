@@ -1,0 +1,192 @@
+{
+  "schema_version": "guild.run_wrapper_record.v1",
+  "host": "claude",
+  "command": "claude",
+  "args": [
+    "--permission-mode",
+    "auto",
+    "--model",
+    "claude-fable-5",
+    "-p",
+    "Adopt `.guild/agents/backend.md` and execute the mandatory T4 G-lane round-1 rework. The exact independent finding is `.guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/review/G-lane:T4-backend/result-1.json`; the trail is beside it. Work autonomously and close only the real B8 blocker plus any tests/receipt facts required by that fix. Preserve the rest of the verified B1-B12 checkpoint.\n\nThe blocker is literal: the approved contract requires an in-daemon live-reconcile restore path, but `internal/daemon/snapshot.go` currently hard-codes `persist.RestoreContext{FreshDaemon: true}` in the only production restore entry point. This makes `ClassLive` unreachable even when the daemon still owns the same PTY/runtime. Unit-level classifier support for `FreshDaemon: false` is not sufficient; wire the actual production restore path to distinguish fresh-daemon restore from in-daemon reconcile, supply trustworthy `SamePTYIdentityOwned` evidence from current daemon runtime ownership, keep trust/security state excluded and monotonic, and preserve fail-closed stopped/restarted classification.\n\nImplement TDD-first. Add production-path and E2E tests proving at minimum:\n\n- in-daemon restore keeps a genuinely owned same-identity surface classified `live` without stopping/restarting it;\n- a surface lacking same-identity ownership cannot be classified `live`;\n- clean/fresh-daemon restore still never claims `live`;\n- stopped/restarted reasons and restart-policy validation remain exact;\n- stale security generation/grants remain excluded and fail closed;\n- restored replay/snapshot/notification state remains correct, with no process resurrection claim.\n\nDo not weaken ADR-0005, change persisted/protocol compatibility, or invent a fake live classification. If the frozen contract is genuinely impossible without an ADR change, stop at the ask-gate; otherwise implement it fully. Stay inside the existing T4 scope JSON and do not modify ADRs, securitytest sources, CI, packaging, research, or TUI.\n\nRun focused restore tests, the 20-flow CLI E2E, gofmt, vet, all tests, race tests, attach stress, security conformance, Linux amd64/arm64 no-cgo compile checks, module verify/tidy diff, and scope audit. Replace `.guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/handoffs/backend-T4-backend.md` as the final product write. Remove the former live-reconcile deferral, describe the real production behavior and new evidence, update counts, and emit exactly one valid `guild.handoff.v2` (summary <=600, notes <=200).\n\n\nWhen you finish, emit your result as a SINGLE fenced code block and nothing after it:\n```guild.handoff.v2\n{ ... a valid guild.handoff.v2 object ... }\n```\nThe block MUST validate against the guild.handoff.v2 contract. Do not add prose after it."
+  ],
+  "cwd": "/Users/miguelp/Projects/Amux",
+  "launch_mode": {
+    "requested": "auto",
+    "effective": "auto",
+    "args": [
+      "--permission-mode",
+      "auto"
+    ],
+    "degraded": false
+  },
+  "bootstrap_method": "hookSpecificOutput.additionalContext",
+  "host_adapter": {
+    "schema_version": "guild.run_host_adapter_receipt.v1",
+    "requested_host": "claude",
+    "host": "claude-code-cli",
+    "host_id": "claude-code-cli",
+    "provenance": "verified",
+    "preflight": {
+      "schema_version": "guild.host_adapter_result.v1",
+      "host": "claude-code-cli",
+      "operation": "preflight",
+      "status": "ok",
+      "value": {
+        "request": {
+          "cwd": "/Users/miguelp/Projects/Amux",
+          "runId": "T4-backend-g-lane-r1-rework"
+        },
+        "verified_by": "HOST_REGISTRY_ROWS[claude-code-cli].capabilities.hooks",
+        "session_start_registry_value": true,
+        "hook_file": "hooks/hooks.json",
+        "native_events": [
+          "session_start",
+          "user_prompt_submit",
+          "pre_tool_use",
+          "post_tool_use",
+          "stop",
+          "pre_compact",
+          "subagent_stop",
+          "task_created",
+          "task_completed",
+          "teammate_idle"
+        ],
+        "session_start_commands": [
+          "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/bootstrap.sh\"",
+          "node \"${CLAUDE_PLUGIN_ROOT}/hooks/dist/detect-guild-version.js\"",
+          "node \"${CLAUDE_PLUGIN_ROOT}/hooks/dist/using-guild-bootstrap.js\""
+        ]
+      },
+      "receipt": {
+        "schema_version": "guild.host_adapter_receipt.v1",
+        "host": "claude-code-cli",
+        "operation": "preflight",
+        "status": "ok",
+        "reason": "Claude Code hook preflight is registry-verified and includes using-guild SessionStart injection",
+        "degradation_receipt": {
+          "schema_version": "guild.degradation_receipt.v1",
+          "surface": "session",
+          "host": "claude-code-cli",
+          "rung": "native",
+          "degraded": false,
+          "inferred": false,
+          "reason": "session@claude-code-cli resolves to \"native\""
+        }
+      }
+    },
+    "model_params": {
+      "schema_version": "guild.host_adapter_result.v1",
+      "host": "claude-code-cli",
+      "operation": "resolveModelParams",
+      "status": "ok",
+      "value": {
+        "modelParams": {
+          "model": "claude-fable-5"
+        },
+        "argv": [
+          "--model",
+          "claude-fable-5"
+        ],
+        "unsupported_model_params": []
+      },
+      "receipt": {
+        "schema_version": "guild.host_adapter_receipt.v1",
+        "host": "claude-code-cli",
+        "operation": "resolveModelParams",
+        "status": "ok",
+        "reason": "Claude CLI maps model params to native --model/--effort flags",
+        "degradation_receipt": {
+          "schema_version": "guild.degradation_receipt.v1",
+          "surface": "semantic_tool",
+          "host": "claude-code-cli",
+          "rung": "native",
+          "degraded": false,
+          "inferred": false,
+          "reason": "semantic_tool@claude-code-cli resolves to \"native\""
+        }
+      }
+    },
+    "dispatch": {
+      "schema_version": "guild.host_adapter_result.v1",
+      "host": "claude-code-cli",
+      "operation": "dispatch",
+      "status": "ok",
+      "value": {
+        "taskRun": {
+          "runId": "T4-backend-g-lane-r1-rework",
+          "prompt": "Adopt `.guild/agents/backend.md` and execute the mandatory T4 G-lane round-1 rework. The exact independent finding is `.guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/review/G-lane:T4-backend/result-1.json`; the trail is beside it. Work autonomously and close only the real B8 blocker plus any tests/receipt facts required by that fix. Preserve the rest of the verified B1-B12 checkpoint.\n\nThe blocker is literal: the approved contract requires an in-daemon live-reconcile restore path, but `internal/daemon/snapshot.go` currently hard-codes `persist.RestoreContext{FreshDaemon: true}` in the only production restore entry point. This makes `ClassLive` unreachable even when the daemon still owns the same PTY/runtime. Unit-level classifier support for `FreshDaemon: false` is not sufficient; wire the actual production restore path to distinguish fresh-daemon restore from in-daemon reconcile, supply trustworthy `SamePTYIdentityOwned` evidence from current daemon runtime ownership, keep trust/security state excluded and monotonic, and preserve fail-closed stopped/restarted classification.\n\nImplement TDD-first. Add production-path and E2E tests proving at minimum:\n\n- in-daemon restore keeps a genuinely owned same-identity surface classified `live` without stopping/restarting it;\n- a surface lacking same-identity ownership cannot be classified `live`;\n- clean/fresh-daemon restore still never claims `live`;\n- stopped/restarted reasons and restart-policy validation remain exact;\n- stale security generation/grants remain excluded and fail closed;\n- restored replay/snapshot/notification state remains correct, with no process resurrection claim.\n\nDo not weaken ADR-0005, change persisted/protocol compatibility, or invent a fake live classification. If the frozen contract is genuinely impossible without an ADR change, stop at the ask-gate; otherwise implement it fully. Stay inside the existing T4 scope JSON and do not modify ADRs, securitytest sources, CI, packaging, research, or TUI.\n\nRun focused restore tests, the 20-flow CLI E2E, gofmt, vet, all tests, race tests, attach stress, security conformance, Linux amd64/arm64 no-cgo compile checks, module verify/tidy diff, and scope audit. Replace `.guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/handoffs/backend-T4-backend.md` as the final product write. Remove the former live-reconcile deferral, describe the real production behavior and new evidence, update counts, and emit exactly one valid `guild.handoff.v2` (summary <=600, notes <=200).\n",
+          "host": "claude",
+          "cwd": "/Users/miguelp/Projects/Amux",
+          "modelParams": {
+            "model": "claude-fable-5"
+          },
+          "command": "claude",
+          "args": [
+            "--permission-mode",
+            "auto",
+            "--model",
+            "claude-fable-5",
+            "-p",
+            "Adopt `.guild/agents/backend.md` and execute the mandatory T4 G-lane round-1 rework. The exact independent finding is `.guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/review/G-lane:T4-backend/result-1.json`; the trail is beside it. Work autonomously and close only the real B8 blocker plus any tests/receipt facts required by that fix. Preserve the rest of the verified B1-B12 checkpoint.\n\nThe blocker is literal: the approved contract requires an in-daemon live-reconcile restore path, but `internal/daemon/snapshot.go` currently hard-codes `persist.RestoreContext{FreshDaemon: true}` in the only production restore entry point. This makes `ClassLive` unreachable even when the daemon still owns the same PTY/runtime. Unit-level classifier support for `FreshDaemon: false` is not sufficient; wire the actual production restore path to distinguish fresh-daemon restore from in-daemon reconcile, supply trustworthy `SamePTYIdentityOwned` evidence from current daemon runtime ownership, keep trust/security state excluded and monotonic, and preserve fail-closed stopped/restarted classification.\n\nImplement TDD-first. Add production-path and E2E tests proving at minimum:\n\n- in-daemon restore keeps a genuinely owned same-identity surface classified `live` without stopping/restarting it;\n- a surface lacking same-identity ownership cannot be classified `live`;\n- clean/fresh-daemon restore still never claims `live`;\n- stopped/restarted reasons and restart-policy validation remain exact;\n- stale security generation/grants remain excluded and fail closed;\n- restored replay/snapshot/notification state remains correct, with no process resurrection claim.\n\nDo not weaken ADR-0005, change persisted/protocol compatibility, or invent a fake live classification. If the frozen contract is genuinely impossible without an ADR change, stop at the ask-gate; otherwise implement it fully. Stay inside the existing T4 scope JSON and do not modify ADRs, securitytest sources, CI, packaging, research, or TUI.\n\nRun focused restore tests, the 20-flow CLI E2E, gofmt, vet, all tests, race tests, attach stress, security conformance, Linux amd64/arm64 no-cgo compile checks, module verify/tidy diff, and scope audit. Replace `.guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/handoffs/backend-T4-backend.md` as the final product write. Remove the former live-reconcile deferral, describe the real production behavior and new evidence, update counts, and emit exactly one valid `guild.handoff.v2` (summary <=600, notes <=200).\n\n\nWhen you finish, emit your result as a SINGLE fenced code block and nothing after it:\n```guild.handoff.v2\n{ ... a valid guild.handoff.v2 object ... }\n```\nThe block MUST validate against the guild.handoff.v2 contract. Do not add prose after it."
+          ],
+          "env": {},
+          "launch_mode": {
+            "requested": "auto",
+            "effective": "auto",
+            "args": [
+              "--permission-mode",
+              "auto"
+            ],
+            "degraded": false
+          }
+        },
+        "dispatch_kind": "wrapper_launch",
+        "command": "claude",
+        "args": [
+          "--permission-mode",
+          "auto",
+          "--model",
+          "claude-fable-5",
+          "-p",
+          "Adopt `.guild/agents/backend.md` and execute the mandatory T4 G-lane round-1 rework. The exact independent finding is `.guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/review/G-lane:T4-backend/result-1.json`; the trail is beside it. Work autonomously and close only the real B8 blocker plus any tests/receipt facts required by that fix. Preserve the rest of the verified B1-B12 checkpoint.\n\nThe blocker is literal: the approved contract requires an in-daemon live-reconcile restore path, but `internal/daemon/snapshot.go` currently hard-codes `persist.RestoreContext{FreshDaemon: true}` in the only production restore entry point. This makes `ClassLive` unreachable even when the daemon still owns the same PTY/runtime. Unit-level classifier support for `FreshDaemon: false` is not sufficient; wire the actual production restore path to distinguish fresh-daemon restore from in-daemon reconcile, supply trustworthy `SamePTYIdentityOwned` evidence from current daemon runtime ownership, keep trust/security state excluded and monotonic, and preserve fail-closed stopped/restarted classification.\n\nImplement TDD-first. Add production-path and E2E tests proving at minimum:\n\n- in-daemon restore keeps a genuinely owned same-identity surface classified `live` without stopping/restarting it;\n- a surface lacking same-identity ownership cannot be classified `live`;\n- clean/fresh-daemon restore still never claims `live`;\n- stopped/restarted reasons and restart-policy validation remain exact;\n- stale security generation/grants remain excluded and fail closed;\n- restored replay/snapshot/notification state remains correct, with no process resurrection claim.\n\nDo not weaken ADR-0005, change persisted/protocol compatibility, or invent a fake live classification. If the frozen contract is genuinely impossible without an ADR change, stop at the ask-gate; otherwise implement it fully. Stay inside the existing T4 scope JSON and do not modify ADRs, securitytest sources, CI, packaging, research, or TUI.\n\nRun focused restore tests, the 20-flow CLI E2E, gofmt, vet, all tests, race tests, attach stress, security conformance, Linux amd64/arm64 no-cgo compile checks, module verify/tidy diff, and scope audit. Replace `.guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/handoffs/backend-T4-backend.md` as the final product write. Remove the former live-reconcile deferral, describe the real production behavior and new evidence, update counts, and emit exactly one valid `guild.handoff.v2` (summary <=600, notes <=200).\n\n\nWhen you finish, emit your result as a SINGLE fenced code block and nothing after it:\n```guild.handoff.v2\n{ ... a valid guild.handoff.v2 object ... }\n```\nThe block MUST validate against the guild.handoff.v2 contract. Do not add prose after it."
+        ],
+        "env": {},
+        "alternate_pane_command": "export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1; export GUILD_RUN_ID=T4-backend-g-lane-r1-rework; claude 'Adopt `.guild/agents/backend.md` and execute the mandatory T4 G-lane round-1 rework. The exact independent finding is `.guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/review/G-lane:T4-backend/result-1.json`; the trail is beside it. Work autonomously and close only the real B8 blocker plus any tests/receipt facts required by that fix. Preserve the rest of the verified B1-B12 checkpoint.\n\nThe blocker is literal: the approved contract requires an in-daemon live-reconcile restore path, but `internal/daemon/snapshot.go` currently hard-codes `persist.RestoreContext{FreshDaemon: true}` in the only production restore entry point. This makes `ClassLive` unreachable even when the daemon still owns the same PTY/runtime. Unit-level classifier support for `FreshDaemon: false` is not sufficient; wire the actual production restore path to distinguish fresh-daemon restore from in-daemon reconcile, supply trustworthy `SamePTYIdentityOwned` evidence from current daemon runtime ownership, keep trust/security state excluded and monotonic, and preserve fail-closed stopped/restarted classification.\n\nImplement TDD-first. Add production-path and E2E tests proving at minimum:\n\n- in-daemon restore keeps a genuinely owned same-identity surface classified `live` without stopping/restarting it;\n- a surface lacking same-identity ownership cannot be classified `live`;\n- clean/fresh-daemon restore still never claims `live`;\n- stopped/restarted reasons and restart-policy validation remain exact;\n- stale security generation/grants remain excluded and fail closed;\n- restored replay/snapshot/notification state remains correct, with no process resurrection claim.\n\nDo not weaken ADR-0005, change persisted/protocol compatibility, or invent a fake live classification. If the frozen contract is genuinely impossible without an ADR change, stop at the ask-gate; otherwise implement it fully. Stay inside the existing T4 scope JSON and do not modify ADRs, securitytest sources, CI, packaging, research, or TUI.\n\nRun focused restore tests, the 20-flow CLI E2E, gofmt, vet, all tests, race tests, attach stress, security conformance, Linux amd64/arm64 no-cgo compile checks, module verify/tidy diff, and scope audit. Replace `.guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/handoffs/backend-T4-backend.md` as the final product write. Remove the former live-reconcile deferral, describe the real production behavior and new evidence, update counts, and emit exactly one valid `guild.handoff.v2` (summary <=600, notes <=200).\n'; exec $SHELL",
+        "alternate_pane_env": {
+          "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1",
+          "GUILD_RUN_ID": "T4-backend-g-lane-r1-rework"
+        }
+      },
+      "receipt": {
+        "schema_version": "guild.host_adapter_receipt.v1",
+        "host": "claude-code-cli",
+        "operation": "dispatch",
+        "status": "ok",
+        "reason": "Claude dispatch receipt follows the wrapper launch plan and keeps pane dispatch as an alternate host surface",
+        "degradation_receipt": {
+          "schema_version": "guild.degradation_receipt.v1",
+          "surface": "session",
+          "host": "claude-code-cli",
+          "rung": "native",
+          "degraded": false,
+          "inferred": false,
+          "reason": "session@claude-code-cli resolves to \"native\""
+        }
+      }
+    }
+  },
+  "session_id": "8c2926bb-2ebe-4166-8b77-84c0de3e12c0",
+  "exit": 0,
+  "receipt_paths": [
+    ".guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/handoffs/backend-T4-backend.md"
+  ],
+  "contract": "guild.handoff.v2",
+  "normalized": {
+    "ok": true,
+    "wire_schema_version": "guild.handoff.v2",
+    "rounds_used": 0,
+    "failed_closed": false,
+    "errors": []
+  }
+}

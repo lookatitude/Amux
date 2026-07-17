@@ -1,0 +1,13 @@
+hello
+
+
+
+
+
+--
+cursor: row=0 col=5 visible=true wrapnext=false
+pen: fg=default bg=default attrs=none
+title: amux session
+modes: altscreen=false autowrap=true region=0..5 rows=6 cols=20
+bell=0 unsupported=0
+styles:

@@ -1,0 +1,51 @@
+{
+  "schema_version": "guild.specialist_extraction_check.v1",
+  "run_id": "create-terminal-ui-20260715T024645Z",
+  "role": "terminal-ui",
+  "overall": "failed",
+  "gate_failed": "extraction-signals",
+  "signals": {
+    "recurring_cluster_across_three_unrelated_tasks": {
+      "status": "failed",
+      "observed": 1,
+      "required": 3,
+      "evidence": "The init, ideation, and planning runs all belong to the same Amux product task; they are not unrelated task evidence."
+    },
+    "distinct_triggers_and_adjacent_boundary": {
+      "status": "failed",
+      "observed": "Distinct terminal-native triggers are defined, but the deterministic boundary scan found zero existing specialists at or above the 0.35 adjacency threshold.",
+      "required": "Distinct triggers plus at least one evidenced adjacent specialist needing a DO NOT TRIGGER clause."
+    },
+    "context_isolation_payoff": {
+      "status": "passed",
+      "observed": "The agent and four proposed skill bodies contain 1,897 domain-specific words, approximately more than 2,000 tokens, before loading the approved spec and research report.",
+      "required": "At least approximately 2,000 tokens of domain-specific context per task."
+    },
+    "three_reflections_or_team_gap_records": {
+      "status": "failed",
+      "observed": 0,
+      "required": 3,
+      "evidence": "No .guild/reflections entry or approved .guild/team gap record names terminal-ui."
+    },
+    "enough_eval_cases": {
+      "status": "passed",
+      "observed": {
+        "specialist_positive": 5,
+        "specialist_negative": 6,
+        "skill_positive": 12,
+        "skill_negative": 12
+      },
+      "required": {
+        "positive": 3,
+        "negative": 3
+      }
+    }
+  },
+  "next_steps_run": false,
+  "steps_not_run": [
+    "adjacent-boundary evolve gates",
+    "new-specialist paired evaluation",
+    "historical shadow mode",
+    "live registration"
+  ]
+}

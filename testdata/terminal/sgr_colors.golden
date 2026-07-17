@@ -1,0 +1,17 @@
+red ORG
+rgb mix
+
+
+
+
+--
+cursor: row=1 col=7 visible=true wrapnext=false
+pen: fg=default bg=default attrs=none
+title: 
+modes: altscreen=false autowrap=true region=0..5 rows=6 cols=20
+bell=0 unsupported=0
+styles:
+row=0 cols=0..2 fg=ansi(1) bg=default attrs=none
+row=0 cols=4..6 fg=256(208) bg=default attrs=bold+underline
+row=1 cols=0..2 fg=rgb(10,20,30) bg=256(17) attrs=none
+row=1 cols=4..6 fg=ansi(3) bg=ansi(4) attrs=faint+italic+blink+reverse+strike

@@ -1,0 +1,26 @@
+# Amux secrets-scan policy (T2-security, frozen 2026-07-15).
+# Consumed by the readiness-manifest check "secrets-scan-history":
+#   gitleaks detect --source . --config .gitleaks.toml --redact
+# Policy prose (rotation protocol, triage rules): docs/security/security-readiness.md §5.
+
+title = "amux gitleaks policy"
+
+[extend]
+# Keep the entire upstream default ruleset; rules below are additive.
+useDefault = true
+
+# Derived candidate secrets (internal/securitytest/secrets.go) are generated at
+# fixture run time and must NEVER land in a durable artifact. Their AMUXTEST_
+# prefix exists precisely so this rule makes any escape unmistakable.
+[[rules]]
+id = "amux-derived-candidate-secret"
+description = "securitytest derived candidate secret escaped into a committed artifact"
+regex = '''AMUXTEST_[0-9a-fA-F]{8,}'''
+keywords = ["AMUXTEST_"]
+
+[allowlist]
+description = "Placeholders and markers are the only sanctioned secret-shaped strings"
+regexes = [
+  '''\{\{SECRET:[a-z0-9-]+\}\}''',
+  '''\[REDACTED:[a-z0-9-]+\]''',
+]

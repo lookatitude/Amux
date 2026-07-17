@@ -1,0 +1,134 @@
+{
+  "schema_version": "guild.run_state.v1",
+  "run_id": "run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0",
+  "plan_slug": "amux-go-linux-runtime",
+  "program_id": null,
+  "wave_index": 1,
+  "lanes": {
+    "T1-architect": {
+      "status": "done",
+      "attempt": 3,
+      "depends_on": [],
+      "receipt_ref": ".guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/handoffs/architect-T1-architect.md",
+      "updated_at": "2026-07-15T14:47:25.480Z",
+      "tier": "powerful",
+      "host": {
+        "selected": "claude-code-cli",
+        "degraded": false,
+        "independence": "weak",
+        "tier": "powerful",
+        "model": "claude-fable-5",
+        "modelParams": {
+          "model": "claude-fable-5"
+        }
+      }
+    },
+    "T2-security": {
+      "status": "done",
+      "attempt": 3,
+      "depends_on": [
+        "T1-architect"
+      ],
+      "receipt_ref": ".guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/handoffs/security-T2-security.md",
+      "updated_at": "2026-07-15T18:03:39.766Z",
+      "tier": "powerful",
+      "host": {
+        "selected": "claude-code-cli",
+        "degraded": false,
+        "independence": "weak",
+        "tier": "powerful",
+        "model": "claude-fable-5",
+        "modelParams": {
+          "model": "claude-fable-5"
+        }
+      }
+    },
+    "T3-devops": {
+      "status": "done",
+      "attempt": 3,
+      "depends_on": [
+        "T1-architect"
+      ],
+      "receipt_ref": ".guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/handoffs/devops-T3-devops.md",
+      "updated_at": "2026-07-15T15:49:11.280Z",
+      "tier": "mid",
+      "host": {
+        "selected": "claude-code-cli",
+        "degraded": false,
+        "independence": "weak",
+        "tier": "mid",
+        "model": "claude-opus-4-8",
+        "modelParams": {
+          "model": "claude-opus-4-8"
+        }
+      }
+    },
+    "T4-backend": {
+      "status": "done",
+      "attempt": 7,
+      "depends_on": [
+        "T1-architect",
+        "T2-security",
+        "T3-devops"
+      ],
+      "receipt_ref": ".guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/handoffs/backend-T4-backend.md",
+      "updated_at": "2026-07-16T14:10:06Z",
+      "tier": "powerful",
+      "host": {
+        "selected": "claude-code-cli",
+        "degraded": false,
+        "independence": "weak",
+        "tier": "powerful",
+        "model": "claude-fable-5",
+        "modelParams": {
+          "model": "claude-fable-5"
+        }
+      }
+    },
+    "T5-terminal-ui": {
+      "status": "done",
+      "attempt": 4,
+      "depends_on": [
+        "T1-architect",
+        "T4-backend"
+      ],
+      "receipt_ref": ".guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/handoffs/terminal-ui-T5-terminal-ui.md",
+      "updated_at": "2026-07-16T23:29:19Z",
+      "tier": "powerful",
+      "host": {
+        "selected": "claude-code-cli",
+        "degraded": false,
+        "independence": "weak",
+        "tier": "powerful",
+        "model": "claude-fable-5",
+        "modelParams": {
+          "model": "claude-fable-5"
+        }
+      }
+    },
+    "T6-qa": {
+      "status": "in_progress",
+      "attempt": 1,
+      "depends_on": [
+        "T2-security",
+        "T3-devops",
+        "T4-backend",
+        "T5-terminal-ui"
+      ],
+      "receipt_ref": null,
+      "updated_at": "2026-07-16T23:29:19Z",
+      "tier": "powerful",
+      "host": {
+        "selected": "claude-code-cli",
+        "degraded": false,
+        "independence": "weak",
+        "tier": "powerful",
+        "model": "claude-fable-5",
+        "modelParams": {
+          "model": "claude-fable-5"
+        }
+      }
+    }
+  },
+  "last_checkpoint_at": "2026-07-16T23:29:19Z"
+}

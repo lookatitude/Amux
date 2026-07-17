@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <meta name="description" content="Amux Go implementation specification and plan">
+  <title>Amux Go implementation specification and plan · Amux Research</title>
+  <link rel="stylesheet" href="assets/research.css">
+</head>
+<body>
+  <div class="reading-progress" aria-hidden="true"><span></span></div>
+  <header class="topbar">
+    <a class="brand" href="index.html" aria-label="All Amux research">
+      <span class="brand-mark">A</span>
+      <span><strong>Amux</strong><small>Research library</small></span>
+    </a>
+    <div class="toolbar" role="group" aria-label="Reader controls">
+      <label class="search-control"><span>Find</span><input id="page-search" type="search" placeholder="Search this report" autocomplete="off"></label>
+      <button id="theme-toggle" type="button" aria-label="Toggle color theme">Theme</button>
+      <button type="button" onclick="window.print()">Print</button>
+    </div>
+  </header>
+  <div class="reader-layout">
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-heading">On this page</div>
+      <nav aria-label="Report sections"><a class="toc-link toc-level-2" href="#approved-specification">Approved specification</a>
+<a class="toc-link toc-level-3" href="#goal-amp-outcome">Goal &amp;amp; outcome</a>
+<a class="toc-link toc-level-3" href="#audience-operator">Audience / operator</a>
+<a class="toc-link toc-level-3" href="#product-boundary">Product boundary</a>
+<a class="toc-link toc-level-3" href="#mvp-feature-scope">MVP feature scope</a>
+<a class="toc-link toc-level-3" href="#success-criteria">Success criteria</a>
+<a class="toc-link toc-level-3" href="#non-goals">Non-goals</a>
+<a class="toc-link toc-level-3" href="#constraints">Constraints</a>
+<a class="toc-link toc-level-3" href="#autonomy-policy">Autonomy policy</a>
+<a class="toc-link toc-level-3" href="#risks-amp-rollback">Risks &amp;amp; rollback</a>
+<a class="toc-link toc-level-3" href="#release-sequence">Release sequence</a>
+<a class="toc-link toc-level-3" href="#assumptions-from-brainstorm">Assumptions (from brainstorm)</a>
+<a class="toc-link toc-level-2" href="#product-requirements">Product requirements</a>
+<a class="toc-link toc-level-3" href="#product-decision">Product decision</a>
+<a class="toc-link toc-level-3" href="#why-this-product-should-exist">Why this product should exist</a>
+<a class="toc-link toc-level-3" href="#primary-operator-and-jobs">Primary operator and jobs</a>
+<a class="toc-link toc-level-3" href="#product-principles">Product principles</a>
+<a class="toc-link toc-level-3" href="#mvp-feature-requirements">MVP feature requirements</a>
+<a class="toc-link toc-level-3" href="#tooling-decisions">Tooling decisions</a>
+<a class="toc-link toc-level-3" href="#repository-and-package-architecture">Repository and package architecture</a>
+<a class="toc-link toc-level-3" href="#command-and-event-contract">Command and event contract</a>
+<a class="toc-link toc-level-3" href="#data-ownership-and-durability">Data ownership and durability</a>
+<a class="toc-link toc-level-3" href="#delivery-waves-and-exit-gates">Delivery waves and exit gates</a>
+<a class="toc-link toc-level-3" href="#acceptance-traceability">Acceptance traceability</a>
+<a class="toc-link toc-level-3" href="#release-gates">Release gates</a>
+<a class="toc-link toc-level-3" href="#explicitly-deferred-roadmap">Explicitly deferred roadmap</a>
+<a class="toc-link toc-level-3" href="#rollback-and-kill-switches">Rollback and kill switches</a>
+<a class="toc-link toc-level-3" href="#open-implementation-spikes-that-do-not-reopen-product-scope">Open implementation spikes that do not reopen product scope</a>
+<a class="toc-link toc-level-2" href="#implementation-plan">Implementation plan</a>
+<a class="toc-link toc-level-3" href="#prd">PRD</a>
+<a class="toc-link toc-level-3" href="#lane-architect">Lane: architect</a>
+<a class="toc-link toc-level-3" href="#lane-backend">Lane: backend</a></nav>
+      <div class="source-links" aria-label="Canonical source files"><a class="source-link" href="../.guild/spec/amux-go-linux-runtime.md">Approved specification</a>
+<a class="source-link" href="../.guild/prd/amux-go-linux-runtime.md">Product requirements</a>
+<a class="source-link" href="../.guild/plan/amux-go-linux-runtime.md">Implementation plan</a></div>
+    </aside>
+    <main id="main-content">
+      <div class="report-meta">
+        <span>Planning review</span>
+        <span>Updated Jul 15, 2026</span>
+      </div>
+      <article class="research-article"><h1 id="amux-go-implementation-specification-and-plan">Amux Go implementation specification and plan<a class="heading-link" href="#amux-go-implementation-specification-and-plan" aria-label="Link to Amux Go implementation specification and plan">#</a></h1>
+<blockquote>
+<p>Review bundle generated from the approved Guild specification and the pending PRD/implementation plan. The linked source files remain authoritative.</p>
+</blockquote>
+<h2 id="approved-specification">Approved specification<a class="heading-link" href="#approved-specification" aria-label="Link to Approved specification">#</a></h2>
+<h3 id="goal-amp-outcome">Goal &amp; outcome<a class="heading-link" href="#goal-amp-outcome" aria-label="Link to Goal &amp;amp; outcome">#</a></h3>
+<p>Build a clean-room, Go-authoritative, local-first terminal workspace runtime inspired by cmux’s durable product concepts: an authoritative workspace graph, PTY-backed terminal surfaces, a complete CLI/control plane, sequence-numbered events, persistent layouts, attention routing, and bounded agent lifecycle integration.</p>
+<p>The MVP must feel like a programmable workspace runtime rather than a collection of terminal windows. An Arch Linux user can start one daemon, create and restore multi-pane workspaces, operate every core flow from the CLI, use an interactive terminal multiplexer TUI, observe agent/process/git context, and automate the runtime through one versioned command and event contract.</p>
+<h3 id="audience-operator">Audience / operator<a class="heading-link" href="#audience-operator" aria-label="Link to Audience / operator">#</a></h3>
+<ul>
+<li>Primary: Linux developers and AI-assisted engineering operators using Arch Linux as their daily environment.</li>
+<li>Secondary: operators on other glibc Linux distributions who want a self-contained daemon, CLI, and TUI.</li>
+<li>Future, not MVP: macOS and Windows desktop users, remote SSH operators, and embedded-browser workflows.</li>
+</ul>
+<h3 id="product-boundary">Product boundary<a class="heading-link" href="#product-boundary" aria-label="Link to Product boundary">#</a></h3>
+<h4 id="compatibility-target">Compatibility target<a class="heading-link" href="#compatibility-target" aria-label="Link to Compatibility target">#</a></h4>
+<p>Amux is a clean-room implementation of concepts. It does not copy cmux code, does not depend on <code>cmux-tui</code>, and does not promise cmux CLI, protocol, configuration, or pixel-level UX compatibility. The pinned cmux repository is evidence and inspiration, not a dependency.</p>
+<h4 id="authoritative-object-model">Authoritative object model<a class="heading-link" href="#authoritative-object-model" aria-label="Link to Authoritative object model">#</a></h4>
+<pre><code class="language-text">daemon
+  -&gt; sessions
+    -&gt; workspaces
+      -&gt; split-tree panes
+        -&gt; ordered surfaces
+</code></pre>
+<ul>
+<li>Each pane has exactly one active surface.</li>
+<li>MVP surfaces are terminals; the type boundary must permit later browser or viewer surfaces without changing graph identity.</li>
+<li>Desktop windows are future client views and are not daemon-owned core state.</li>
+<li>Workspaces are repository-agnostic with an optional primary root.</li>
+<li>Each pane has an independent cwd and per-pane git-root discovery.</li>
+<li>Session, workspace, pane, and surface IDs are opaque, stable, and preserved through snapshots.</li>
+</ul>
+<h4 id="project-identity-and-trust-boundary">Project identity and trust boundary<a class="heading-link" href="#project-identity-and-trust-boundary" aria-label="Link to Project identity and trust boundary">#</a></h4>
+<ul>
+<li>Hook trust is project-scoped, never workspace-scoped. A project is identified by the canonical <code>realpath</code> of an explicitly selected root plus the root filesystem identity (<code>st_dev</code>, <code>st_ino</code>); its durable key is the SHA-256 digest of that tuple. Moving, replacing, or remounting a root changes the identity and invalidates trust.</li>
+<li>A Git-backed pane selects the discovered Git worktree root. A non-Git pane has no project until the operator explicitly registers a root; cwd alone never silently creates a trust boundary.</li>
+<li>Project hook configuration is read only from the fixed project-relative path <code>.amux/hooks.jsonc</code>, after project opt-in. A workspace spanning multiple repositories therefore has independent trust, config, grants, audit history, and trust epochs for each project.</li>
+<li><code>workspace-primary</code> cwd scope resolves only when the workspace has one explicitly configured primary root and that root has the same project identity as the hook grant. It is denied before launch when the root is absent, ambiguous, replaced, or belongs to another project.</li>
+<li><code>pane</code> cwd scope is allowed only when the target pane resolves to the same project identity as the hook grant. Cross-project and unregistered panes fail closed; no grant implicitly crosses project boundaries.</li>
+</ul>
+<h3 id="mvp-feature-scope">MVP feature scope<a class="heading-link" href="#mvp-feature-scope" aria-label="Link to MVP feature scope">#</a></h3>
+<h4 id="runtime-and-state-authority">Runtime and state authority<a class="heading-link" href="#runtime-and-state-authority" aria-label="Link to Runtime and state authority">#</a></h4>
+<ul>
+<li><code>amuxd</code>, a long-lived Go daemon, owns all session, workspace, pane, surface, PTY, notification, hook, snapshot, and event state.</li>
+<li>Mutation is serialized through an event-loop goroutine per session; clients submit immutable command inputs.</li>
+<li><code>amux</code>, the CLI client, and the Bubble Tea TUI call the same versioned command surface. No TUI-only durable mutation exists.</li>
+<li>The daemon exposes inspectable health, process, pane, event-cursor, snapshot, and hook state.</li>
+</ul>
+<h4 id="pty-and-terminal-surfaces">PTY and terminal surfaces<a class="heading-link" href="#pty-and-terminal-surfaces" aria-label="Link to PTY and terminal surfaces">#</a></h4>
+<ul>
+<li>Unix PTYs use a narrow platform interface initially backed by <code>github.com/creack/pty</code>.</li>
+<li>PTY supervision covers spawn, resize, input, output, signal, reap, exit status, cancellation, and orphan cleanup.</li>
+<li>A Go VT parser and cell-state engine sits behind a renderer-neutral interface.</li>
+<li>Bubble Tea composes live terminal cell state across the visible split tree; the MVP is a real terminal multiplexer, not an external-terminal launcher.</li>
+<li>Raw PTY output remains protocol truth. Derived cell state must be reproducible from replay fixtures.</li>
+<li>Each surface retains at least the most recent 16 MiB of raw PTY output, configurable upward under a documented global storage budget.</li>
+</ul>
+<h4 id="layout-and-navigation">Layout and navigation<a class="heading-link" href="#layout-and-navigation" aria-label="Link to Layout and navigation">#</a></h4>
+<ul>
+<li>Multiple sessions and workspaces.</li>
+<li>Horizontal and vertical pane splits.</li>
+<li>Directional focus and explicit pane targeting by stable ID.</li>
+<li>Pane resizing and equalization.</li>
+<li>Multiple ordered terminal surfaces per pane with one active surface.</li>
+<li>Workspace and surface names, descriptions, status, and recent-focus metadata.</li>
+</ul>
+<h4 id="control-plane-and-events">Control plane and events<a class="heading-link" href="#control-plane-and-events" aria-label="Link to Control plane and events">#</a></h4>
+<ul>
+<li>Versioned JSON-RPC-like requests over a Unix socket beneath <code>$XDG_RUNTIME_DIR</code>.</li>
+<li>Sequence-numbered event stream with boot identity, bounded replay, slow-consumer handling, and snapshot-on-gap recovery.</li>
+<li>CLI commands cover lifecycle, graph mutation, PTY input/replay, inspection, snapshot/restore, hooks, notifications, and event subscription.</li>
+<li>Local socket access is restricted to the owning user. Remote/network API exposure is not part of MVP.</li>
+</ul>
+<h4 id="client-attach-and-detach-contract">Client attach and detach contract<a class="heading-link" href="#client-attach-and-detach-contract" aria-label="Link to Client attach and detach contract">#</a></h4>
+<ul>
+<li><code>attach</code> is an ephemeral client-view operation over the control socket, not durable graph state. The TUI and <code>amux attach &lt;pane-id&gt;</code> both use this operation and count as attached clients while their stream is open.</li>
+<li>Multiple clients may attach to the same pane concurrently. Each receives an atomic pane/surface metadata snapshot, bounded raw replay ending at a declared output sequence, then ordered live PTY output and pane lifecycle events strictly after that sequence.</li>
+<li>Output attachments are shared. Interactive input uses one explicit per-surface input lease; a client must acquire or deliberately take over that lease before sending bytes. Lease acquisition, takeover, release, and disconnect are evented, and input from non-owners is rejected without reaching the PTY.</li>
+<li>Detach closes the client&#39;s stream and releases any input lease it owns. Detach never stops, signals, restarts, or removes the pane or PTY process.</li>
+<li>Backpressure follows the event-stream slow-consumer policy: a lagging attachment is disconnected with its last delivered sequence and must reattach using bounded replay or snapshot-on-gap recovery.</li>
+</ul>
+<h4 id="persistence-and-restore">Persistence and restore<a class="heading-link" href="#persistence-and-restore" aria-label="Link to Persistence and restore">#</a></h4>
+<ul>
+<li>Atomic, versioned JSON snapshots preserve graph state and stable IDs.</li>
+<li>SQLite/WAL through <code>modernc.org/sqlite</code> stores indexed metadata, notifications, hook grants/audit, and event cursors without requiring cgo.</li>
+<li>Snapshots persist pane cwd, argv, explicit non-secret environment allowlist, restart policy, the 16 MiB replay floor, notification/read state, and event cursor.</li>
+<li>Restart policy defaults to <code>manual</code>.</li>
+<li>Snapshots never persist stdin boot input, arbitrary inherited environment, process memory, secrets outside the explicit allowlist, or browser state.</li>
+<li>Restore classifies every terminal surface as exactly one of <code>live</code>, <code>restarted</code>, or <code>stopped</code>. <code>live</code> is valid only for an in-daemon restore that reconciles the snapshot to the same still-owned PTY/process identity; a fresh daemon can never manufacture this state. <code>restarted</code> means a new process was launched under an explicit automatic policy. <code>stopped</code> is the default for manual policy, missing executables/cwds, or failed validation and includes an accurate reason.</li>
+<li>Client attachments are never persisted or recreated by restore. Restore is usable only when the tree and each surface classification are visible; clients attach separately through the attach contract.</li>
+</ul>
+<h4 id="context-and-attention">Context and attention<a class="heading-link" href="#context-and-attention" aria-label="Link to Context and attention">#</a></h4>
+<ul>
+<li>Per-pane cwd, detected git root, branch, dirty state, foreground command, PID, exit state, and timestamps.</li>
+<li>Daemon-owned notification inbox with read/unread state, pane/workspace routing, and latest-unread navigation.</li>
+<li>Optional Linux desktop notification delivery is an adapter; in-app state is authoritative.</li>
+<li>Agent adapters can publish typed lifecycle/session/attention events for an initial 2–3 explicitly selected providers without putting provider parsing in the core state model.</li>
+</ul>
+<h4 id="hook-trust-and-execution">Hook trust and execution<a class="heading-link" href="#hook-trust-and-execution" aria-label="Link to Hook trust and execution">#</a></h4>
+<ul>
+<li>Hooks are typed JSON executables, never interpolated shell strings.</li>
+<li>Project hook configuration is ignored until the operator opts that project into hook-config reading.</li>
+<li>Each hook additionally requires a grant bound to executable absolute path, executable/config digest, allowed event set, cwd scope, environment-key allowlist, timeout, and output cap.</li>
+<li>Cwd access is separately denied by default. Hooks otherwise run in an Amux-owned scratch directory. A grant selects exactly one scope: <code>fixed</code>, <code>workspace-primary</code>, or <code>pane</code>; the daemon validates the resolved path.</li>
+<li>Default timeout is 2 seconds, maximum configurable timeout is 30 seconds, and output is capped at 1 MiB.</li>
+<li>Inputs, outputs, and audit records pass secret redaction.</li>
+<li>CLI and TUI expose hook inspect, approve, deny, and revoke flows. Noninteractive missing/invalid trust fails closed with actionable instructions.</li>
+<li>A changed executable, digest, event set, cwd scope, environment allowlist, timeout, or cap invalidates the hook grant.</li>
+<li>Revoking project trust cancels queued invocations, marks retained hook grants inactive, and requires both project and per-hook reapproval.</li>
+</ul>
+<h4 id="linearizable-hook-launch-contract">Linearizable hook launch contract<a class="heading-link" href="#linearizable-hook-launch-contract" aria-label="Link to Linearizable hook launch contract">#</a></h4>
+<ul>
+<li>Launch authorization and revocation are serialized by the daemon and guarded by a monotonic project trust epoch.</li>
+<li>Launch linearizes at final successful grant and epoch validation immediately before process creation.</li>
+<li>If revocation linearizes first, no hook child is created.</li>
+<li>If launch linearizes first, the invocation is in-flight; revocation sends terminate and escalates to kill after 2 seconds.</li>
+<li>Some instructions may execute in the launch-first ordering. MVP guarantees no launch linearizes after revocation; it does not claim retroactive zero-execution, OS sandboxing, or network isolation.</li>
+</ul>
+<h4 id="configuration-observability-and-packaging">Configuration, observability, and packaging<a class="heading-link" href="#configuration-observability-and-packaging" aria-label="Link to Configuration, observability, and packaging">#</a></h4>
+<ul>
+<li>JSONC configuration with explicit schema version and generated shell completions through Cobra.</li>
+<li>XDG config, data, state, cache, and runtime paths.</li>
+<li>Structured <code>slog</code> logging, bounded local audit/event logs, <code>pprof</code>, and optional OpenTelemetry export.</li>
+<li>Prebuilt glibc tarballs for Linux <code>x86_64</code> and <code>aarch64</code>.</li>
+<li>AUR binary package for Arch Linux.</li>
+<li>Arch rolling CI/reference lane plus Ubuntu 24.04 LTS as the second glibc CI/support target.</li>
+<li>musl, AppImage, deb/rpm repositories, system GUI packaging, and automatic update channels are not MVP gates.</li>
+</ul>
+<h3 id="success-criteria">Success criteria<a class="heading-link" href="#success-criteria" aria-label="Link to Success criteria">#</a></h3>
+<h4 id="functional-acceptance">Functional acceptance<a class="heading-link" href="#functional-acceptance" aria-label="Link to Functional acceptance">#</a></h4>
+<ol>
+<li>The daemon creates, persists, restores, lists, and destroys sessions containing multiple workspaces.</li>
+<li>The TUI renders an 8-pane live split tree backed by concurrent PTY fixtures with correct focus, resize, redraw, input, and exit behavior.</li>
+<li>Each pane supports an independent cwd and git-root discovery without requiring a workspace-wide repository.</li>
+<li>Snapshot restore preserves stable IDs, tree shape, cwd, argv, allowed environment, restart policy, 16 MiB replay floor, notification state, and cursor.</li>
+<li>Every restored terminal surface is visibly <code>live</code>, <code>restarted</code>, or <code>stopped</code> under the restore classification contract; client attachments are absent until a client explicitly attaches, and no UI state implies process-memory resurrection.</li>
+<li>VT replay fixtures deterministically reproduce expected cell grids for the supported escape-sequence corpus.</li>
+<li>Normal daemon shutdown and forced daemon termination recovery leave zero unmanaged/orphaned PTYs in the integration harness.</li>
+<li>Hook timeout, output, schema, environment, cwd, trust, and digest failures fail closed and remain audit-visible.</li>
+<li>Snapshot-on-gap recovers a deliberately dropped event and resumes from a new valid cursor without silent state drift.</li>
+<li>Both Linux architectures compile and package; Arch and Ubuntu CI run the blocking functional suite.</li>
+<li>A multi-repository workspace proves that project opt-in, grants, trust epochs, and revocation remain isolated per canonical project identity; unregistered roots and invalid <code>workspace-primary</code>/<code>pane</code> scopes start zero hook processes.</li>
+<li>Two concurrent attached clients receive the same ordered output stream, input from the non-lease-holder is rejected, deliberate lease takeover is evented, and detaching either client leaves the pane process running.</li>
+</ol>
+<h4 id="required-cli-flow-contract">Required CLI flow contract<a class="heading-link" href="#required-cli-flow-contract" aria-label="Link to Required CLI flow contract">#</a></h4>
+<p>All 20 flows must exist and pass automated end-to-end tests:</p>
+<ol>
+<li>start daemon</li>
+<li>stop daemon</li>
+<li>create session</li>
+<li>list sessions</li>
+<li>create workspace</li>
+<li>list workspaces</li>
+<li>split pane horizontally</li>
+<li>split pane vertically</li>
+<li>focus pane</li>
+<li>resize pane</li>
+<li>spawn terminal surface</li>
+<li>attach to pane</li>
+<li>send input to pane</li>
+<li>read bounded replay</li>
+<li>inspect pane state</li>
+<li>save snapshot</li>
+<li>restore snapshot</li>
+<li>restart a stopped pane</li>
+<li>stop a pane process</li>
+<li>subscribe to events</li>
+</ol>
+<h4 id="performance-and-reliability">Performance and reliability<a class="heading-link" href="#performance-and-reliability" aria-label="Link to Performance and reliability">#</a></h4>
+<ul>
+<li>CI profile: documented 4-vCPU, 8-GiB glibc Linux runner.</li>
+<li>Reference profile: documented Arch Linux <code>x86_64</code> workstation kept stable for release comparisons.</li>
+<li>Blocking soak: 30 minutes with 20 concurrent PTYs, no daemon crash, unrecovered event gap, or orphan process.</li>
+<li>Nightly soak: 8 hours on the reference profile with the same pass conditions.</li>
+<li>Restore an 8-pane release fixture from a clean daemon to usable state in under 2 seconds on the reference profile.</li>
+<li>Split, focus, and resize appear in the active TUI frame and subscribed event stream at p95 under 75 ms on the reference profile.</li>
+<li>Event IDs remain monotonic and contiguous during normal operation; every injected gap must recover through a snapshot refresh or fail the test.</li>
+</ul>
+<h4 id="hook-trust-acceptance">Hook trust acceptance<a class="heading-link" href="#hook-trust-acceptance" aria-label="Link to Hook trust acceptance">#</a></h4>
+<ul>
+<li>With project trust absent, hook activation returns <code>project_trust_required</code> within 250 ms, starts zero processes, and does not place project hooks in the runnable set.</li>
+<li>After project and per-hook approval, execution audit references both active grants.</li>
+<li>Project trust revocation cancels queued work within 250 ms, prevents later launches, retains inactive grant history, and requires both grants to be freshly approved.</li>
+<li>Deterministic concurrency barriers force both orderings: revoke-first creates no child; launch-first follows the terminate/2-second-kill audit path.</li>
+<li>Cwd-containment tests deny a hook before launch when its resolved path falls outside the granted scope.</li>
+</ul>
+<h3 id="non-goals">Non-goals<a class="heading-link" href="#non-goals" aria-label="Link to Non-goals">#</a></h3>
+<ul>
+<li>Reusing or linking <code>cmux-tui</code>, <code>libghostty</code>, or any Rust mux authority.</li>
+<li>cmux CLI, socket, config, or exact UX compatibility.</li>
+<li>Full tmux command/config compatibility.</li>
+<li>Native GPU terminal rendering, Ghostty configuration parity, or cgo.</li>
+<li>Wails desktop shell or xterm.js frontend in MVP.</li>
+<li>Embedded browser parity, headless/headful CDP browser beta, browser import, profiles, or proxy UI in MVP.</li>
+<li>SSH remote daemon, cloud VMs, multi-user collaboration, mobile client, freeform canvas, or Agent Chat in MVP.</li>
+<li>macOS support in MVP.</li>
+<li>Windows, ConPTY, named pipes, or Windows packaging in MVP.</li>
+<li>musl/static-Linux support.</li>
+<li>OS-level hook sandboxing or network isolation guarantees.</li>
+</ul>
+<h3 id="constraints">Constraints<a class="heading-link" href="#constraints" aria-label="Link to Constraints">#</a></h3>
+<ul>
+<li>stack: Go is the sole authority for runtime, state, PTYs, IPC, persistence, and policy.</li>
+<li>platform: Arch Linux is the development/reference platform; MVP release support is glibc Linux <code>x86_64</code> and <code>aarch64</code>, verified on Arch and Ubuntu 24.04 LTS.</li>
+<li>legal: clean-room implementation; no reuse of the ambiguously licensed cmux portable subsystem without separate written legal clearance and explicit rescoping.</li>
+<li>security: single-user local socket, default-denied hooks, least-exposed environment/cwd, explicit trust, redaction, bounded execution, linearizable revocation.</li>
+<li>architecture: UI, CLI, hooks, and restore call one daemon command model; no second state authority and no Go/Rust mux split.</li>
+<li>delivery: daemon/control/state foundations precede feature-differentiator and platform-expansion work.</li>
+</ul>
+<h3 id="autonomy-policy">Autonomy policy<a class="heading-link" href="#autonomy-policy" aria-label="Link to Autonomy policy">#</a></h3>
+<ul>
+<li>may act without asking: choose internal Go package boundaries; select or write a Go VT parser behind the frozen interface; define versioned request envelopes; choose snapshot JSON versus SQLite indexing details; tune bounded queues/replay above the minimum; choose Bubble Tea components; choose Linux notification and git-discovery adapters; add tests, CI, benchmarks, and documentation inside the approved scope.</li>
+<li>requires confirmation: weakening any success criterion; changing the object model; introducing cgo/Rust; adding a network listener; changing hook trust semantics; adding a new supported OS or browser tier; adding dependencies with material licensing obligations; changing persisted public contracts after an alpha release.</li>
+<li>forbidden: copying cmux code; claiming cmux compatibility; storing inherited secrets by default; executing untrusted project hooks; bypassing the daemon as state authority; claiming OS/network sandboxing; implementing cloud/mobile/browser/desktop scope under the MVP plan.</li>
+</ul>
+<h3 id="risks-amp-rollback">Risks &amp; rollback<a class="heading-link" href="#risks-amp-rollback" aria-label="Link to Risks &amp;amp; rollback">#</a></h3>
+<ul>
+<li>Go VT correctness may lag mature terminal engines → keep raw PTY bytes authoritative, gate on replay corpus tests, and allow the VT implementation to be replaced behind its interface.</li>
+<li>Bubble Tea composition may not meet terminal fidelity/performance → preserve daemon/CLI protocol and ship a headless/attach alpha while the TUI remains release-gated; do not alter core state to accommodate renderer quirks.</li>
+<li>PTY/signal edge cases can leave children behind → centralize lifecycle ownership, add process-group cleanup tests, and keep daemon shutdown idempotent.</li>
+<li>Snapshot migration can corrupt recoverability → version every snapshot, write atomically, retain the previous known-good snapshot, and fail closed with an exportable diagnostic rather than partially loading.</li>
+<li>Hook execution expands attack surface → capability gates remain default-denied and independently disableable; the entire hook subsystem can be turned off without affecting terminal/session operations.</li>
+<li>Performance budgets may prove unrealistic on the measured profile → report evidence and seek explicit approval before changing budgets; do not silently weaken gates.</li>
+<li>Arch rolling changes can break packaging → pin CI images/toolchains where necessary, keep Ubuntu LTS as a stability lane, and publish tarballs independently of AUR metadata.</li>
+<li>Scope can expand toward full cmux parity → treat the Non-goals section as a release gate; new surfaces require a new spec/plan.</li>
+</ul>
+<h3 id="release-sequence">Release sequence<a class="heading-link" href="#release-sequence" aria-label="Link to Release sequence">#</a></h3>
+<ol>
+<li>Foundation: domain graph, commands/events, Unix socket, persistence schemas, IDs, config, observability.</li>
+<li>Terminal core: PTY supervisor, VT/replay engine, attach/input/resize, process cleanup.</li>
+<li>Operator surfaces: complete CLI contract, Bubble Tea split-tree TUI, context metadata.</li>
+<li>Reliability and trust: snapshots/restore, notifications, hooks and trust/audit, gap recovery.</li>
+<li>Linux release: Arch/Ubuntu CI, soak/bench gates, <code>x86_64</code>/<code>aarch64</code> tarballs, AUR binary package, user documentation.</li>
+</ol>
+<h3 id="assumptions-from-brainstorm">Assumptions (from brainstorm)<a class="heading-link" href="#assumptions-from-brainstorm" aria-label="Link to Assumptions (from brainstorm)">#</a></h3>
+<ul>
+<li>No blocking unknown was assumed through; L1 terminated after six architect/researcher rounds with a clean <code>## NO MORE QUESTIONS</code> sentinel.</li>
+<li>The draft intentionally chooses Go despite Rust remaining the stronger reuse-oriented option because this project is a clean-room Go implementation.</li>
+<li>Browser, macOS, and Windows are roadmap directions only; they do not influence MVP acceptance beyond preserving platform interfaces.</li>
+<li>The slug <code>amux-go-linux-runtime</code> and every proposed default in this draft remain subject to the explicit user spec-approval gate.</li>
+</ul>
+<h2 id="product-requirements">Product requirements<a class="heading-link" href="#product-requirements" aria-label="Link to Product requirements">#</a></h2>
+<h3 id="product-decision">Product decision<a class="heading-link" href="#product-decision" aria-label="Link to Product decision">#</a></h3>
+<p>Build Amux as a clean-room, Linux-first workspace runtime whose only durable authority is a Go daemon. The first release is a programmable terminal multiplexer with a complete CLI and a Bubble Tea client. It deliberately does not pursue cmux UI compatibility, browser embedding, desktop shells, macOS, or Windows in the MVP.</p>
+<p>The product is successful when an Arch Linux operator can run one daemon, control the same durable workspace graph from scripts or an interactive TUI, recover it after restart without false process-resurrection claims, and safely integrate selected agent hooks without granting project code ambient execution authority.</p>
+<h3 id="why-this-product-should-exist">Why this product should exist<a class="heading-link" href="#why-this-product-should-exist" aria-label="Link to Why this product should exist">#</a></h3>
+<p>Traditional multiplexers are excellent terminal session managers but generally do not expose a typed, replayable workspace command model with stable IDs, semantic notifications, agent lifecycle events, project-scoped hook trust, and snapshot-on-gap recovery. Desktop-first agent workspaces add those concepts but often make Linux secondary or bind durable state to one UI process.</p>
+<p>Amux occupies the middle:</p>
+<ul>
+<li>terminal-native and scriptable like a multiplexer;</li>
+<li>stateful and attention-aware like an agent workspace;</li>
+<li>local-first and inspectable like a developer tool;</li>
+<li>Linux-first without blocking later platform adapters;</li>
+<li>clean-room, with no runtime or source dependency on cmux.</li>
+</ul>
+<h3 id="primary-operator-and-jobs">Primary operator and jobs<a class="heading-link" href="#primary-operator-and-jobs" aria-label="Link to Primary operator and jobs">#</a></h3>
+<h4 id="primary-persona">Primary persona<a class="heading-link" href="#primary-persona" aria-label="Link to Primary persona">#</a></h4>
+<p>An Arch Linux developer running several repositories and AI-assisted coding sessions from one workstation. They expect shell-native automation, transparent process ownership, XDG paths, recoverable state, and predictable behavior under daemon crashes or terminal detachments.</p>
+<h4 id="core-jobs-to-be-done">Core jobs to be done<a class="heading-link" href="#core-jobs-to-be-done" aria-label="Link to Core jobs to be done">#</a></h4>
+<ol>
+<li>Create a durable session with multiple workspaces and panes without losing stable identities.</li>
+<li>Run and supervise shells or long-lived commands in PTYs while multiple clients observe them.</li>
+<li>Navigate a live split tree quickly with keyboard-first focus, resize, attach, and input controls.</li>
+<li>Script every durable action through a stable CLI and consume a reconnectable event stream.</li>
+<li>Restore layout and process intent truthfully after restart.</li>
+<li>See repository, process, notification, and selected agent state without giving adapters ownership of core state.</li>
+<li>Approve project hooks explicitly, understand their exact capability grant, and revoke them with deterministic launch ordering.</li>
+<li>Install and update Amux on Arch Linux from a binary package with reproducible release evidence.</li>
+</ol>
+<h3 id="product-principles">Product principles<a class="heading-link" href="#product-principles" aria-label="Link to Product principles">#</a></h3>
+<ol>
+<li><strong>One authority.</strong> The daemon owns graph, PTY, event, persistence, notification, and trust state. Clients never become shadow authorities.</li>
+<li><strong>Raw output is truth.</strong> Terminal cell grids are derived and replaceable; raw PTY output plus dimensions and ordering remain replay evidence.</li>
+<li><strong>Stable identity before presentation.</strong> Sessions, workspaces, panes, and surfaces use opaque stable IDs independent of names or client layout.</li>
+<li><strong>Detach is not stop.</strong> A client view may disappear without mutating the process lifecycle.</li>
+<li><strong>Recovery is explicit.</strong> Event gaps, restore classifications, failed launches, and stale trust never degrade silently.</li>
+<li><strong>Trust follows projects.</strong> Hook authority is bound to canonical filesystem identity and a monotonic epoch, not to a pane label or current directory string.</li>
+<li><strong>Linux is the product, not a port.</strong> XDG paths, Unix sockets, signals, process groups, Arch packaging, and glibc runners are first-class acceptance surfaces.</li>
+<li><strong>Portability lives behind narrow interfaces.</strong> PTY, local transport, notification delivery, process inspection, and filesystem identity may gain macOS or Windows implementations later without changing the domain model.</li>
+</ol>
+<h3 id="mvp-feature-requirements">MVP feature requirements<a class="heading-link" href="#mvp-feature-requirements" aria-label="Link to MVP feature requirements">#</a></h3>
+<h4 id="f1-daemon-graph-and-command-authority">F1. Daemon, graph, and command authority<a class="heading-link" href="#f1-daemon-graph-and-command-authority" aria-label="Link to F1. Daemon, graph, and command authority">#</a></h4>
+<ul>
+<li><code>amuxd</code> owns <code>session -&gt; workspace -&gt; split-tree pane -&gt; ordered surface</code> state.</li>
+<li>A pane has exactly one active surface; MVP surfaces are terminals.</li>
+<li>Per-session graph mutation is serialized through one event-loop goroutine. A separate daemon-global control actor owns the session registry, project identities, hook grants, trust epochs, launch authorization, and cross-session revocation. PTY readers, clients, timers, persistence, and hook workers submit immutable messages to the owning actor.</li>
+<li>Actor ordering is explicit: no session actor may synchronously hold mutable session state while waiting on the global control actor, and the global actor never waits on a session actor while a trust transition is open. Cross-session effects use messages plus revision/epoch checks rather than nested locks.</li>
+<li>Commands are validated before mutation and either commit exactly one deterministic state transition or return a typed error without partial state.</li>
+<li>Every durable mutation is available to the CLI and TUI through the same protocol method.</li>
+<li>Health inspection exposes boot ID, uptime, protocol version, queue pressure, active sessions, PTYs, attachments, persistence state, and event cursor.</li>
+</ul>
+<h4 id="f2-pty-and-terminal-state-engine">F2. PTY and terminal-state engine<a class="heading-link" href="#f2-pty-and-terminal-state-engine" aria-label="Link to F2. PTY and terminal-state engine">#</a></h4>
+<ul>
+<li>Unix PTYs are created through a narrow interface backed initially by <code>github.com/creack/pty</code>.</li>
+<li>The supervisor owns child process groups, resize, input, output, signal, wait/reap, cancellation, exit status, and shutdown cleanup.</li>
+<li>Each surface owns a bounded raw-output ring retaining at least 16 MiB and monotonically increasing output sequence offsets.</li>
+<li>ANSI/VT decoding uses <code>github.com/charmbracelet/x/ansi</code> for streaming control-sequence parsing where its behavior meets the corpus; Amux owns the renderer-neutral cell grid, modes, cursor, damage tracking, and replay contract.</li>
+<li>Unsupported sequences are recorded as bounded diagnostics and must not crash or desynchronize the parser.</li>
+<li>Parser replacement remains possible behind a frozen <code>TerminalEngine</code> interface.</li>
+</ul>
+<h4 id="f3-split-layout-and-navigation">F3. Split layout and navigation<a class="heading-link" href="#f3-split-layout-and-navigation" aria-label="Link to F3. Split layout and navigation">#</a></h4>
+<ul>
+<li>Create, list, rename, and destroy sessions and workspaces.</li>
+<li>Split panes horizontally or vertically, preserving a deterministic binary split tree.</li>
+<li>Focus by stable pane ID or direction; resize by bounded ratio; equalize subtrees.</li>
+<li>Spawn multiple ordered terminal surfaces in a pane and change its active surface.</li>
+<li>Preserve each pane&#39;s cwd, optional project identity, recent-focus metadata, and independent git-root discovery.</li>
+<li>Geometry calculation remains a pure function and handles minimum-size terminals without negative or overlapping rectangles.</li>
+</ul>
+<h4 id="f4-local-protocol-events-and-client-attachment">F4. Local protocol, events, and client attachment<a class="heading-link" href="#f4-local-protocol-events-and-client-attachment" aria-label="Link to F4. Local protocol, events, and client attachment">#</a></h4>
+<ul>
+<li>The local control endpoint is an owner-only Unix socket under <code>$XDG_RUNTIME_DIR/amux/</code>.</li>
+<li>On Linux every accepted connection must pass <code>SO_PEERCRED</code> ownership validation. Startup validates each runtime-path component with no symlink traversal, expected owner and safe mode; stale sockets are removed only after their ownership/type and lack of a live owner are proven.</li>
+<li>Protocol v1 uses bounded length-prefixed frames. Request/response/event headers are JSON; terminal-output frames carry sequenced raw byte bodies without base64 expansion.</li>
+<li>Every connection begins with protocol negotiation and rejects unsupported major versions before accepting commands.</li>
+<li>Events carry boot ID, session ID, monotonically increasing sequence, event type, timestamp, and typed payload.</li>
+<li>The daemon retains bounded event replay and detects subscriber lag. A gap returns a typed recovery boundary requiring a fresh snapshot plus a new cursor.</li>
+<li>Attach returns an atomic metadata snapshot, raw replay ending at a declared output sequence, and then ordered live output strictly after that boundary.</li>
+<li>Multiple observers may attach. Exactly one client may hold a surface input lease; takeover, release, disconnect, and rejected input are evented.</li>
+<li>Detach releases the client&#39;s lease and stream only. It never stops the PTY.</li>
+</ul>
+<h4 id="f5-complete-cli">F5. Complete CLI<a class="heading-link" href="#f5-complete-cli" aria-label="Link to F5. Complete CLI">#</a></h4>
+<ul>
+<li><code>amux</code> is built with Cobra and uses the same protocol client package as the TUI.</li>
+<li>Human output is stable enough for operators; automation uses <code>--json</code> with documented versioned schemas and meaningful exit codes.</li>
+<li>Shell completions are generated for Bash, Zsh, Fish, and PowerShell, although PowerShell completion does not imply Windows runtime support.</li>
+<li>The 20 required flows in the approved spec have automated end-to-end coverage.</li>
+<li>Destructive commands identify their target by stable ID and support explicit noninteractive confirmation semantics.</li>
+<li>A versioned confirmation matrix defines interactive prompts, required <code>--yes</code>/takeover flags, refusal codes, and no-TTY behavior for session/workspace destruction, process stop, input-lease takeover, hook approval, and project-trust revocation. Omitted confirmation always fails closed.</li>
+</ul>
+<h4 id="f6-bubble-tea-tui">F6. Bubble Tea TUI<a class="heading-link" href="#f6-bubble-tea-tui" aria-label="Link to F6. Bubble Tea TUI">#</a></h4>
+<ul>
+<li>Use Bubble Tea v2 (<code>charm.land/bubbletea/v2</code>) and Lip Gloss v2 for the Linux terminal client.</li>
+<li>The client consumes immutable graph, cell, notification, lease, and health snapshots from the daemon-facing client package.</li>
+<li>Rendering composes the visible split tree, pane borders/status, active surface content, focus, unread state, and stopped/restarted state.</li>
+<li>Input has explicit modes: terminal passthrough, command prefix, navigation, resize, surface selection, notification inbox, and confirmation.</li>
+<li>Key bindings are configurable, conflict-checked, discoverable in-app, and have keyboard-only fallbacks.</li>
+<li>The TUI owns no raw VT parser, authoritative cell state, attach sequencing, notification store, or durable mutation.</li>
+<li>Reduced-motion/no-animation behavior, monochrome-safe focus markers, narrow-terminal fallbacks, and screen-reader-friendly noninteractive CLI alternatives are documented.</li>
+</ul>
+<h4 id="f7-snapshots-sqlite-metadata-and-restore">F7. Snapshots, SQLite metadata, and restore<a class="heading-link" href="#f7-snapshots-sqlite-metadata-and-restore" aria-label="Link to F7. Snapshots, SQLite metadata, and restore">#</a></h4>
+<ul>
+<li>Atomic versioned JSON snapshot manifests store graph shape, stable IDs, cwd, argv, explicit non-secret environment allowlist, restart policy, replay configuration, notification/read checkpoint, and event cursor. Versioned binary replay sidecars carry raw bytes; no 16 MiB stream is base64-embedded in graph JSON.</li>
+<li>Writes use temp file, file sync, atomic rename, directory sync, and a retained previous-known-good snapshot.</li>
+<li>SQLite/WAL through <code>modernc.org/sqlite</code> stores indexed metadata, notification records, trust grants, hook audit, and cursor bookkeeping without cgo.</li>
+<li>Every snapshot generation has a unique checkpoint ID, checksummed component manifest, replay sidecars, and a logical notification/read export. Components are prepared and synced first; the manifest rename is the commit point. Partial generations are ignored and the prior committed generation remains usable.</li>
+<li>Live SQLite is canonical for notifications during normal crash recovery and is the sole authority for project trust epochs, grants, revocation, and audit. Explicit snapshot restore may import only its notification/read export; it can never restore, decrease, or reactivate security state.</li>
+<li>Schema migrations are ordered, transactional, forward-only at runtime, and accompanied by export/restore procedures.</li>
+<li>Restore classifies each surface as <code>live</code>, <code>restarted</code>, or <code>stopped</code> with a reason. A fresh daemon can never label a surface <code>live</code>.</li>
+<li>Attachments and input leases are ephemeral and never restored.</li>
+</ul>
+<h4 id="f8-context-notifications-and-agent-adapters">F8. Context, notifications, and agent adapters<a class="heading-link" href="#f8-context-notifications-and-agent-adapters" aria-label="Link to F8. Context, notifications, and agent adapters">#</a></h4>
+<ul>
+<li>Context collectors publish per-pane cwd, git root, branch, dirty state, foreground command, PID, exit state, and timestamps through typed updates.</li>
+<li>Git discovery runs per pane and never assumes one repository per workspace.</li>
+<li>The daemon owns notification creation, routing, unread/read state, latest-unread navigation, dismissal, retention, and persistence.</li>
+<li>Linux desktop delivery is optional and best-effort; failure never removes or marks the in-app notification.</li>
+<li>Initial agent support is limited to 2–3 providers selected during implementation from evidence-backed, structured lifecycle outputs. Before selection, each adapter must freeze its input transport, schema and byte limits, filesystem/environment/process capabilities, timeout/failure isolation, and secret classification.</li>
+<li>Provider adapters translate into core lifecycle/session/attention events; provider-specific payloads do not enter the domain graph.</li>
+<li>Adapters cannot spawn provider binaries, read project files, inherit ambient environment, mutate the graph, or trigger project execution unless that exact capability is separately declared in the approved adapter contract and routed through a daemon command or the hook trust system.</li>
+</ul>
+<h4 id="f9-hook-trust-and-execution">F9. Hook trust and execution<a class="heading-link" href="#f9-hook-trust-and-execution" aria-label="Link to F9. Hook trust and execution">#</a></h4>
+<ul>
+<li>Project identity is the SHA-256 digest of canonical realpath plus root <code>st_dev</code> and <code>st_ino</code>.</li>
+<li>Hook configuration is ignored until the project is opted into reading <code>.amux/hooks.jsonc</code>.</li>
+<li>Hooks are executable-plus-argument arrays, never interpolated shell strings.</li>
+<li>Every grant binds executable path and digest, configuration digest, event set, cwd scope, environment-key allowlist, timeout, output cap, project identity, and trust epoch.</li>
+<li>Default timeout is 2 seconds, configurable to at most 30 seconds; output is capped at 1 MiB.</li>
+<li>Inputs, outputs, diagnostics, and audit records pass centralized secret redaction.</li>
+<li>Launch authorization linearizes at final grant/epoch validation immediately before process creation.</li>
+<li>Approved executable/config bytes are bound to the object launched: the Linux implementation must use a descriptor/inode-bound <code>openat2</code> plus <code>execveat</code>/<code>fexecve</code> design or an equivalently race-safe mechanism. Path-only revalidation is insufficient; unsupported executable forms fail closed.</li>
+<li>Revoke-first creates no child. Launch-first terminates and escalates to kill after 2 seconds, with both orderings audit-visible.</li>
+<li>Missing project trust returns <code>project_trust_required</code> within 250 ms and creates no child. Revocation cancels queued same-project work across all sessions within 250 ms while preserving a monotonic epoch and inactive audit history.</li>
+<li>The subsystem can be disabled globally without affecting core terminal/session behavior.</li>
+</ul>
+<h4 id="f10-configuration-diagnostics-and-release">F10. Configuration, diagnostics, and release<a class="heading-link" href="#f10-configuration-diagnostics-and-release" aria-label="Link to F10. Configuration, diagnostics, and release">#</a></h4>
+<ul>
+<li>JSONC configuration has an explicit schema version, strict unknown-key handling at durable boundaries, actionable diagnostics, and XDG-compliant paths.</li>
+<li>Logging uses <code>log/slog</code>; stdout/stderr are never used for daemon diagnostics that would corrupt a TUI or machine protocol.</li>
+<li><code>pprof</code> is exposed only through an explicitly enabled owner-only local endpoint or diagnostic command.</li>
+<li>OpenTelemetry export is optional and disabled by default.</li>
+<li>Blocking CI runs on Arch and Ubuntu 24.04 for Linux amd64 and arm64 build/package targets.</li>
+<li>Releases provide checksumed, provenance-attested glibc tarballs and an AUR binary package definition.</li>
+</ul>
+<h3 id="tooling-decisions">Tooling decisions<a class="heading-link" href="#tooling-decisions" aria-label="Link to Tooling decisions">#</a></h3>
+<table>
+<thead>
+<tr>
+<th>Concern</th>
+<th>Selected tool</th>
+<th>Reason and boundary</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Language/runtime</td>
+<td>Go modules with a pinned stable toolchain</td>
+<td>One runtime authority, excellent process/concurrency tooling, straightforward Linux distribution. The repository pins the toolchain and dependency checksums; it does not rely on the host&#39;s rolling Go package.</td>
+</tr>
+<tr>
+<td>CLI</td>
+<td><code>github.com/spf13/cobra</code></td>
+<td>Mature nested commands, validation hooks, generated completions, and shared client code. Cobra owns presentation only; daemon commands remain independent.</td>
+</tr>
+<tr>
+<td>PTY</td>
+<td><code>github.com/creack/pty</code></td>
+<td>Narrow Unix PTY primitive with Linux support. Amux wraps it so future Darwin/ConPTY adapters do not leak platform types.</td>
+</tr>
+<tr>
+<td>VT decoding</td>
+<td><code>github.com/charmbracelet/x/ansi</code> parser plus Amux-owned cell engine</td>
+<td>Reuses a maintained streaming parser while retaining raw bytes and a replaceable renderer-neutral grid. Adoption is gated by the replay corpus, not assumed.</td>
+</tr>
+<tr>
+<td>TUI</td>
+<td>Bubble Tea v2 + Lip Gloss v2; Bubbles only for generic controls</td>
+<td>Declarative input/render loop and optimized terminal renderer. Domain state, terminal parsing, and protocol recovery stay outside the UI framework.</td>
+</tr>
+<tr>
+<td>Persistence</td>
+<td>Atomic JSON + <code>modernc.org/sqlite</code></td>
+<td>Human-exportable authoritative snapshots plus indexed WAL metadata, cgo-free Linux amd64/arm64 builds. Versions are pinned and tested under race/recovery suites.</td>
+</tr>
+<tr>
+<td>IPC</td>
+<td>Go standard library Unix sockets + Amux framing</td>
+<td>Avoids a network-facing server and unnecessary RPC framework. Typed schemas and golden vectors keep protocol evolution testable.</td>
+</tr>
+<tr>
+<td>Config</td>
+<td>Small JSONC lexer over <code>encoding/json</code> + JSON Schema artifact</td>
+<td>Preserves standard decoding semantics and source locations without a broad configuration framework. Unknown fields fail at contract boundaries.</td>
+</tr>
+<tr>
+<td>IDs</td>
+<td><code>github.com/google/uuid</code> UUIDv7 or an equivalent small audited generator</td>
+<td>Opaque sortable identifiers with no semantic coupling. The architect spike verifies monotonicity and clock-regression behavior before freezing.</td>
+</tr>
+<tr>
+<td>Logging/metrics</td>
+<td><code>log/slog</code>, <code>runtime/pprof</code>, OpenTelemetry Go SDK</td>
+<td>Standard structured logging and profiling first; vendor-neutral export remains optional.</td>
+</tr>
+<tr>
+<td>Tests</td>
+<td><code>testing</code>, fuzzing, <code>-race</code>, golden fixtures, fault-injection harness</td>
+<td>Prefer standard tooling. Add a property-test library only if stdlib fuzzing cannot express split-tree/state-machine invariants cleanly.</td>
+</tr>
+<tr>
+<td>Packaging</td>
+<td>GoReleaser or an equivalent reproducible release script, hand-reviewed PKGBUILD</td>
+<td>Multi-arch tarballs/checksums/provenance plus an Arch-native installation path. The final choice is made by a reproducibility spike, not by convenience alone.</td>
+</tr>
+</tbody></table>
+<h4 id="implementation-model-dispatch-policy">Implementation model dispatch policy<a class="heading-link" href="#implementation-model-dispatch-policy" aria-label="Link to Implementation model dispatch policy">#</a></h4>
+<p>Guild&#39;s project tier map is configured so <code>powerful</code> implementation lanes run on <strong>5.6 Sol</strong>, while <code>mid</code> and <code>cheap</code> implementation lanes run on <strong>Terra</strong>. The plan deliberately assigns <code>powerful</code> to architecture, daemon/process correctness, terminal UI performance, security, and release verification; bounded CI/packaging mechanics remain <code>mid</code> and therefore use Terra. Dispatch may escalate a simpler task to 5.6 Sol when the deterministic scorer detects security sensitivity, expanded blast radius, or prior failure, but it must not downgrade a plan-pinned powerful lane.</p>
+<h3 id="repository-and-package-architecture">Repository and package architecture<a class="heading-link" href="#repository-and-package-architecture" aria-label="Link to Repository and package architecture">#</a></h3>
+<pre><code class="language-text">cmd/amuxd/                 daemon entry point
+cmd/amux/                  CLI and TUI entry point
+api/v1/                    protocol schemas, golden vectors, compatibility notes
+internal/domain/           IDs, graph, commands, events, invariants
+internal/control/          daemon-global registry, trust epochs, launch serialization
+internal/session/          per-session graph actor/event loop
+internal/protocol/         framing, negotiation, codecs, typed errors
+internal/transport/local/  Unix socket listener, peer validation, permissions
+internal/client/           shared CLI/TUI protocol client and recovery
+internal/pty/              platform-neutral interface and Unix implementation
+internal/terminal/         raw replay ring, ANSI parser adapter, cell engine
+internal/attach/           replay/live cutover and input leases
+internal/snapshot/         versioned JSON, atomic I/O, migration/restore
+internal/store/            SQLite migrations and repositories
+internal/hooks/            identity, grants, trust epoch, execution, audit
+internal/notify/           semantic notification store and delivery adapters
+internal/context/          cwd/git/process/agent collectors
+internal/tui/              Bubble Tea models, geometry, rendering, keymaps
+internal/config/           JSONC, schema, XDG resolution
+internal/observability/    slog, metrics, profiling, diagnostics
+internal/testkit/          fake clocks, fake PTYs, barriers, fixtures, fault injection
+packaging/aur/             PKGBUILD template and install metadata
+docs/adr/                  frozen design decisions and migration policy
+</code></pre>
+<p>Imports must point inward toward contracts. In particular, <code>domain</code> imports no transport, persistence, PTY, TUI, or provider package; <code>tui</code> imports only client-facing immutable types; provider adapters import the adapter contract rather than domain internals.</p>
+<h3 id="command-and-event-contract">Command and event contract<a class="heading-link" href="#command-and-event-contract" aria-label="Link to Command and event contract">#</a></h3>
+<h4 id="request-lifecycle">Request lifecycle<a class="heading-link" href="#request-lifecycle" aria-label="Link to Request lifecycle">#</a></h4>
+<ol>
+<li>Client negotiates protocol major/minor and capabilities.</li>
+<li>Client sends a bounded request with request ID, method, deadline, and typed parameters.</li>
+<li>Transport validates frame limits and peer ownership.</li>
+<li>Command decoder rejects unknown durable fields and invalid IDs.</li>
+<li>The relevant session loop validates invariants, mutates state, allocates event sequence, and returns a typed result.</li>
+<li>Subscribers observe committed events only; responses and events reference the same resulting revision.</li>
+</ol>
+<h4 id="error-families">Error families<a class="heading-link" href="#error-families" aria-label="Link to Error families">#</a></h4>
+<ul>
+<li><code>invalid_argument</code></li>
+<li><code>not_found</code></li>
+<li><code>conflict</code></li>
+<li><code>unsupported_version</code></li>
+<li><code>not_input_lease_holder</code></li>
+<li><code>event_gap</code></li>
+<li><code>replay_gap</code></li>
+<li><code>project_trust_required</code></li>
+<li><code>hook_grant_required</code></li>
+<li><code>hook_grant_stale</code></li>
+<li><code>scope_denied</code></li>
+<li><code>resource_exhausted</code></li>
+<li><code>internal</code></li>
+</ul>
+<p>Errors include a stable code, human message, retryability, and structured details. Human strings are not automation contracts.</p>
+<h3 id="data-ownership-and-durability">Data ownership and durability<a class="heading-link" href="#data-ownership-and-durability" aria-label="Link to Data ownership and durability">#</a></h3>
+<table>
+<thead>
+<tr>
+<th>Data</th>
+<th>Authority</th>
+<th>Durability</th>
+<th>Recovery rule</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Session registry/project trust</td>
+<td>Daemon-global control actor</td>
+<td>SQLite</td>
+<td>Epochs never decrease; old snapshots cannot reactivate grants or audit history.</td>
+</tr>
+<tr>
+<td>Graph and stable IDs</td>
+<td>Session event loop</td>
+<td>Snapshot manifest</td>
+<td>Reject partial/corrupt generations; retain prior known-good manifest.</td>
+</tr>
+<tr>
+<td>PTY/process identity</td>
+<td>PTY supervisor</td>
+<td>Runtime only</td>
+<td>Fresh daemon classifies stopped/restarted; never reconstructs live.</td>
+</tr>
+<tr>
+<td>Raw terminal output</td>
+<td>Surface replay ring</td>
+<td>Checkpointed binary sidecars</td>
+<td>Manifest checksum/generation chooses valid bytes; replay gap is explicit; derived grid is rebuilt.</td>
+</tr>
+<tr>
+<td>Cell grid</td>
+<td>Terminal engine</td>
+<td>Derived/runtime</td>
+<td>Reproduce from raw fixture; replaceable implementation.</td>
+</tr>
+<tr>
+<td>Events</td>
+<td>Session loop</td>
+<td>Bounded ring plus cursor metadata</td>
+<td>Gap requires snapshot and cursor reset.</td>
+</tr>
+<tr>
+<td>Attachments/input leases</td>
+<td>Attach manager</td>
+<td>Ephemeral</td>
+<td>Disconnect releases lease; never snapshot.</td>
+</tr>
+<tr>
+<td>Notifications</td>
+<td>Daemon notification service</td>
+<td>Live SQLite; logical export in explicit snapshot</td>
+<td>Live DB wins crash recovery; explicit restore imports only the matching committed notification checkpoint.</td>
+</tr>
+<tr>
+<td>Hook grants/audit</td>
+<td>Global control actor/trust service</td>
+<td>SQLite only</td>
+<td>Never imported from layout snapshots; digest/epoch/config change invalidates active use and retains history.</td>
+</tr>
+<tr>
+<td>Client view state</td>
+<td>Client</td>
+<td>Ephemeral/local preference only</td>
+<td>Cannot mutate durable state without commands.</td>
+</tr>
+</tbody></table>
+<h3 id="delivery-waves-and-exit-gates">Delivery waves and exit gates<a class="heading-link" href="#delivery-waves-and-exit-gates" aria-label="Link to Delivery waves and exit gates">#</a></h3>
+<h4 id="wave-0-contracts-and-skeleton">Wave 0 — contracts and skeleton<a class="heading-link" href="#wave-0-contracts-and-skeleton" aria-label="Link to Wave 0 — contracts and skeleton">#</a></h4>
+<ul>
+<li>Freeze ADRs for authority, package imports, IDs, protocol framing/versioning, event ordering, snapshots, platform interfaces, dependency policy, Linux descendant containment, and race-safe executable launch.</li>
+<li>Land buildable <code>amuxd</code>/<code>amux</code> skeletons, security contracts, CI, lint, race, fuzz smoke, and generated protocol fixtures.</li>
+<li>Exit: graph model and protocol vectors pass without PTY or TUI code.</li>
+</ul>
+<h4 id="wave-1-headless-graph-and-control-plane">Wave 1 — headless graph and control plane<a class="heading-link" href="#wave-1-headless-graph-and-control-plane" aria-label="Link to Wave 1 — headless graph and control plane">#</a></h4>
+<ul>
+<li>Implement sessions, workspaces, split trees, surfaces, local socket, commands/events, client recovery, config, and health.</li>
+<li>Complete graph/CLI flows that do not require live PTYs.</li>
+<li>Exit: deterministic state-machine tests and multi-client event-gap recovery pass.</li>
+</ul>
+<h4 id="wave-2-pty-vt-replay-and-attach">Wave 2 — PTY, VT, replay, and attach<a class="heading-link" href="#wave-2-pty-vt-replay-and-attach" aria-label="Link to Wave 2 — PTY, VT, replay, and attach">#</a></h4>
+<ul>
+<li>Implement process groups, PTY supervision, raw replay, terminal cell engine, attach cutover, input leases, resize, and cleanup.</li>
+<li>Exit: two-client attach contract, VT corpus, and zero-orphan forced-shutdown harness pass.</li>
+</ul>
+<h4 id="wave-3-persistence-trust-and-backend-recovery">Wave 3 — persistence, trust, and backend recovery<a class="heading-link" href="#wave-3-persistence-trust-and-backend-recovery" aria-label="Link to Wave 3 — persistence, trust, and backend recovery">#</a></h4>
+<ul>
+<li>Complete atomic multi-component snapshots, SQLite metadata, restore classifications, hook opt-in/grants/epochs/audit, race-safe launch, redaction, semantic notifications, context collectors, selected agent adapters, and the full backend CLI contract.</li>
+<li>Exit: backend persistence, corruption recovery, multi-repository/cross-session trust isolation, 250 ms trust gates, revoke/launch barriers, confirmation semantics, and all backend protocol/CLI fixtures pass before terminal-ui begins.</li>
+</ul>
+<h4 id="wave-4-integrated-operator-surfaces">Wave 4 — integrated operator surfaces<a class="heading-link" href="#wave-4-integrated-operator-surfaces" aria-label="Link to Wave 4 — integrated operator surfaces">#</a></h4>
+<ul>
+<li>Implement the Bubble Tea 8-pane client, keymap modes, attach/lease recovery, context/status presentation, notification inbox, restore classifications, trust confirmations, and accessible fallbacks over the completed backend contracts.</li>
+<li>Exit: all 20 installed-binary CLI flows, notification UI, restore UI, full TUI acceptance, and the complete functional acceptance suite pass without fixture-only semantics.</li>
+</ul>
+<h4 id="wave-5-release-hardening">Wave 5 — release hardening<a class="heading-link" href="#wave-5-release-hardening" aria-label="Link to Wave 5 — release hardening">#</a></h4>
+<ul>
+<li>Meet latency, restore, soak, architecture, packaging, provenance, and operator-documentation gates.</li>
+<li>Exit: 30-minute blocking soak, 8-hour nightly evidence, both architectures, Arch/Ubuntu packages, and release checklist pass.</li>
+</ul>
+<h3 id="acceptance-traceability">Acceptance traceability<a class="heading-link" href="#acceptance-traceability" aria-label="Link to Acceptance traceability">#</a></h3>
+<table>
+<thead>
+<tr>
+<th>Requirement surface</th>
+<th>Primary evidence</th>
+<th>Owning lanes</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Session/workspace lifecycle and stable graph</td>
+<td>State-machine/property tests plus CLI E2E</td>
+<td>architect, backend, qa</td>
+</tr>
+<tr>
+<td>8-pane live TUI</td>
+<td>Concurrent fake/real PTY fixture and frame assertions</td>
+<td>terminal-ui, backend, qa</td>
+</tr>
+<tr>
+<td>Independent cwd/git roots</td>
+<td>Multi-repository integration fixture</td>
+<td>backend, qa</td>
+</tr>
+<tr>
+<td>Snapshot completeness and restore classes</td>
+<td>Golden snapshots, migration, clean/in-daemon restore tests</td>
+<td>backend, qa</td>
+</tr>
+<tr>
+<td>Deterministic VT cells</td>
+<td>Raw-byte corpus replay to golden grids</td>
+<td>backend, terminal-ui, qa</td>
+</tr>
+<tr>
+<td>Zero orphan PTYs</td>
+<td>PID/process-group fault-injection harness</td>
+<td>backend, qa</td>
+</tr>
+<tr>
+<td>Hook fail-closed behavior</td>
+<td>Trust matrix and audit assertions</td>
+<td>security, backend, qa</td>
+</tr>
+<tr>
+<td>Event-gap recovery</td>
+<td>Forced drop, snapshot refresh, cursor continuation</td>
+<td>architect, backend, qa</td>
+</tr>
+<tr>
+<td>Multi-arch Linux release</td>
+<td>Arch/Ubuntu amd64/arm64 build and package jobs</td>
+<td>devops, qa</td>
+</tr>
+<tr>
+<td>Project trust isolation</td>
+<td>Distinct realpath/device/inode fixtures and zero-child assertions</td>
+<td>security, backend, qa</td>
+</tr>
+<tr>
+<td>Concurrent attach/input lease</td>
+<td>Two-client ordered output and rejected-input test</td>
+<td>backend, terminal-ui, qa</td>
+</tr>
+<tr>
+<td>20 CLI flows</td>
+<td>Versioned black-box command suite</td>
+<td>backend, qa</td>
+</tr>
+<tr>
+<td>Latency/restore budgets</td>
+<td>Stable reference-profile benchmark artifacts</td>
+<td>terminal-ui, backend, devops, qa</td>
+</tr>
+<tr>
+<td>30-minute/8-hour soak</td>
+<td>Leak, gap, crash, orphan, queue-pressure telemetry</td>
+<td>backend, devops, qa</td>
+</tr>
+</tbody></table>
+<h3 id="release-gates">Release gates<a class="heading-link" href="#release-gates" aria-label="Link to Release gates">#</a></h3>
+<p>The MVP cannot be marked complete while any of these is red:</p>
+<ol>
+<li>Protocol compatibility vectors and snapshot migration fixtures.</li>
+<li>Full unit/property/fuzz/race suite on supported Linux architectures where tooling permits.</li>
+<li>All 20 CLI end-to-end flows.</li>
+<li>8-pane TUI acceptance with latency evidence.</li>
+<li>PTY forced-termination cleanup and orphan scan.</li>
+<li>Event and replay gap recovery tests.</li>
+<li>Hook trust, cwd containment, digest invalidation, revocation-ordering, timeout, output-cap, and redaction tests.</li>
+<li>30-minute blocking soak; nightly 8-hour soak remains required for release promotion.</li>
+<li>Arch and Ubuntu package-install smoke tests for amd64 and arm64 artifacts.</li>
+<li>Operator documentation for backup, restore, diagnostics, hook trust, and package verification.</li>
+</ol>
+<h3 id="explicitly-deferred-roadmap">Explicitly deferred roadmap<a class="heading-link" href="#explicitly-deferred-roadmap" aria-label="Link to Explicitly deferred roadmap">#</a></h3>
+<p>The package boundaries preserve future adapters, but the MVP plan contains no implementation work for:</p>
+<ul>
+<li>macOS PTYs, launch agents, native notifications, or packaging;</li>
+<li>Windows ConPTY, named pipes, services, or installers;</li>
+<li>Wails or any desktop GUI;</li>
+<li>embedded or automated browsers;</li>
+<li>SSH remote daemons or cloud sessions;</li>
+<li>tmux compatibility beyond concepts required by Amux&#39;s own CLI;</li>
+<li>OS-level hook sandboxing or network isolation;</li>
+<li>mobile, collaboration, Agent Chat, freeform canvas, Dock, or custom sidebars.</li>
+</ul>
+<p>Each deferred family requires its own approved spec because it changes platform, security, packaging, or product-support promises.</p>
+<h3 id="rollback-and-kill-switches">Rollback and kill switches<a class="heading-link" href="#rollback-and-kill-switches" aria-label="Link to Rollback and kill switches">#</a></h3>
+<ul>
+<li>TUI failure does not block a headless/CLI alpha; daemon and protocol must remain independent.</li>
+<li>The hook subsystem has a global disable flag and can be removed from the runnable set without changing session behavior.</li>
+<li>Native notification delivery can be disabled while preserving the daemon inbox.</li>
+<li>Snapshot migration failure preserves and reports the previous known-good snapshot; no partial load is committed.</li>
+<li>A VT implementation that fails the corpus can be replaced behind <code>TerminalEngine</code> while raw replay remains compatible.</li>
+<li>Release promotion stops rather than weakening performance, soak, trust, or platform gates without explicit spec amendment.</li>
+</ul>
+<h3 id="open-implementation-spikes-that-do-not-reopen-product-scope">Open implementation spikes that do not reopen product scope<a class="heading-link" href="#open-implementation-spikes-that-do-not-reopen-product-scope" aria-label="Link to Open implementation spikes that do not reopen product scope">#</a></h3>
+<ol>
+<li>Verify <code>charmbracelet/x/ansi</code> parser coverage and extension hooks against the initial VT corpus; fall back to an Amux parser only if the evidence fails.</li>
+<li>Verify UUIDv7 generation under clock rollback and concurrent creation; select the smallest audited implementation meeting the invariant.</li>
+<li>Compare GoReleaser with a small repository-owned release script for bit-for-bit inputs, SBOM/provenance generation, and AUR metadata.</li>
+<li>Select the initial 2–3 agent adapters from providers with stable structured lifecycle outputs and low secret exposure.</li>
+<li>Measure Bubble Tea v2 full-frame versus pane-damage rendering on the 8-pane and 20-PTY fixtures before freezing redraw strategy.</li>
+<li>Prove a Linux descendant-containment design for daemon <code>SIGKILL</code> using a guardian/cgroup/parent-death strategy, including double-fork, grandchild, process-group escape, guard failure, supported-kernel assumptions, and fail-closed fallback behavior.</li>
+<li>Prove descriptor-bound executable/config validation and launch using <code>openat2</code> plus <code>execveat</code>/<code>fexecve</code> or an equivalent race-safe mechanism across symlink, rename, replacement, and project-root races.</li>
+</ol>
+<p>These spikes may change an internal dependency or adapter choice. They may not change authority, supported platforms, trust semantics, or acceptance thresholds without user confirmation.</p>
+<h2 id="implementation-plan">Implementation plan<a class="heading-link" href="#implementation-plan" aria-label="Link to Implementation plan">#</a></h2>
+<h3 id="prd">PRD<a class="heading-link" href="#prd" aria-label="Link to PRD">#</a></h3>
+<p>PRD: .guild/prd/amux-go-linux-runtime.md</p>
+<h4 id="execution-dependency-gates">Execution dependency gates<a class="heading-link" href="#execution-dependency-gates" aria-label="Link to Execution dependency gates">#</a></h4>
+<table>
+<thead>
+<tr>
+<th>Gate</th>
+<th>May start when</th>
+<th>Required handoff</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>T1 architect</td>
+<td>Spec and team approved</td>
+<td>ADRs, contracts, protocol/snapshot fixtures, Linux containment and race-safe launch spike decisions.</td>
+</tr>
+<tr>
+<td>T2 security</td>
+<td>T1 complete</td>
+<td>S2–S5 authorization, endpoint, confirmation, 250 ms, cross-session, TOCTOU, and rollback matrices. S4 reviews the A4 pre-spawn seam, not backend implementation.</td>
+</tr>
+<tr>
+<td>T3 devops</td>
+<td>T1 complete</td>
+<td>Reproducible toolchain, CI/package/release definitions, and build/version interface. D3/D4 author pipelines against the skeleton; integrated execution is deliberately deferred to Q8.</td>
+</tr>
+<tr>
+<td>T4 backend</td>
+<td>T1, T2, and T3 complete</td>
+<td>Backend consumes security policy/fixtures and the CI/build interface. B11 cannot start without S2–S5.</td>
+</tr>
+<tr>
+<td>T5 terminal-ui</td>
+<td>T4 complete</td>
+<td>Immutable client models, cell snapshots/deltas, attach/lease recovery, notifications, and confirmation contract. The whole UI lane waits rather than guessing partial backend APIs.</td>
+</tr>
+<tr>
+<td>T6 qa</td>
+<td>T2, T3, T4, and T5 complete</td>
+<td>Q1 finalizes the plan&#39;s existing traceability baseline from all receipts; Q2–Q8 execute the integrated evidence and package pipelines.</td>
+</tr>
+</tbody></table>
+<p>This is a strict DAG: <code>T1 -&gt; {T2,T3} -&gt; T4 -&gt; T5 -&gt; T6</code>, with T6 also consuming T2 and T3 directly. No lane waits on an artifact produced by one of its downstream consumers.</p>
+<h3 id="lane-architect">Lane: architect<a class="heading-link" href="#lane-architect" aria-label="Link to Lane: architect">#</a></h3>
+<ul>
+<li>task-id: T1-architect</li>
+<li>owner: architect</li>
+<li>depends-on: []</li>
+<li>complexity_score: 4</li>
+<li>tier: powerful</li>
+<li>scope: Freeze the Go authority boundaries and versioned contracts before implementation begins. Produce the decisions that every daemon, client, persistence, security, packaging, and test package must follow.</li>
+<li>success-criteria:<ul>
+<li><code>docs/adr/0001-authority-and-package-boundaries.md</code> defines the daemon-global control actor, per-session graph actors, cross-actor message/lock ordering, import direction, ownership table, and prohibited duplicate authorities.</li>
+<li><code>docs/adr/0002-domain-graph-and-identifiers.md</code> freezes graph invariants, opaque ID behavior, split-tree rules, revisions, and deletion semantics.</li>
+<li><code>docs/adr/0003-local-protocol-v1.md</code> freezes framing, negotiation, request/response/event envelopes, limits, typed errors, compatibility policy, and golden vectors under <code>api/v1/testdata/</code>.</li>
+<li><code>docs/adr/0004-event-and-attach-ordering.md</code> proves the snapshot/replay/live cutover, boot/session/output sequences, slow-consumer boundary, and input-lease state machine.</li>
+<li><code>docs/adr/0005-persistence-and-restore.md</code> freezes canonical ownership per field, checkpoint generation IDs, manifest/replay/notification components, commit ordering, SQLite precedence, non-rollback of trust state, migrations, previous-known-good handling, and <code>live|restarted|stopped</code> classification.</li>
+<li><code>docs/adr/0006-platform-interfaces.md</code> defines narrow PTY, descendant containment, local transport, peer credentials, notification, process-inspection, filesystem-identity, descriptor-bound launch, and clock interfaces without implementing non-Linux platforms.</li>
+<li><code>docs/adr/0007-dependency-and-compatibility-policy.md</code> records selected libraries, license checks, pin/update policy, protocol/snapshot compatibility windows, and cgo prohibition.</li>
+<li>A pinned <code>go.mod</code>/<code>go.sum</code> and toolchain declaration, buildable <code>cmd/amuxd</code> and <code>cmd/amux</code> skeletons, dependency/license manifest, and baseline <code>go test ./...</code> exist before T2/T3/T4 dispatch.</li>
+<li><code>internal/domain</code> property tests prove graph invariants and deterministic command transitions before transport or UI packages depend on them.</li>
+<li>A dependency-rule test or static check rejects imports from <code>internal/domain</code> into transport, persistence, PTY, TUI, or provider adapters.</li>
+</ul>
+</li>
+<li>autonomy-policy:<ul>
+<li>may act without asking: choose package names, initialize the approved Go skeleton/toolchain, define internal interfaces, write ADRs and schemas, prototype protocol vectors, run bounded spikes/tests, and refine implementation-neutral invariants inside the approved spec.</li>
+<li>requires confirmation: changing the object model, persisted public contract, trust semantics, supported platform, cgo policy, or any acceptance threshold.</li>
+<li>forbidden: implementing cmux compatibility, introducing a second state authority, copying cmux code, or adding browser/desktop/remote scope.</li>
+</ul>
+</li>
+</ul>
+<h4 id="work-packages">Work packages<a class="heading-link" href="#work-packages" aria-label="Link to Work packages">#</a></h4>
+<ol>
+<li><strong>A1 — Repository skeleton and dependency direction</strong><ul>
+<li>Establish <code>cmd/</code>, <code>api/v1/</code>, <code>internal/control</code>, <code>internal/session</code>, <code>docs/adr/</code>, <code>packaging/</code>, and test-fixture boundaries from the PRD.</li>
+<li>Initialize the pinned Go module/toolchain, minimal buildable <code>amuxd</code>/<code>amux</code> entry points, dependency/license manifest, and baseline test target so T2 security fixtures and T3 CI never depend on downstream bootstrap.</li>
+<li>Specify which packages may expose interfaces and which must remain implementation details.</li>
+<li>Add an architecture test that parses Go imports and enforces the dependency graph.</li>
+</ul>
+</li>
+<li><strong>A2 — Domain model and invariants</strong><ul>
+<li>Define immutable command inputs and explicit state-transition results.</li>
+<li>Specify split-tree node invariants, surface ordering, active-surface validity, focus history, optional primary root, and project association.</li>
+<li>Define deletion/cascade behavior and typed conflict errors.</li>
+</ul>
+</li>
+<li><strong>A3 — Protocol v1 and compatibility</strong><ul>
+<li>Write canonical request, response, event, snapshot, attach, and error examples.</li>
+<li>Set frame/header/body limits, deadlines, heartbeat behavior, and unknown-field rules.</li>
+<li>Define major/minor negotiation and the compatibility test matrix.</li>
+</ul>
+</li>
+<li><strong>A4 — Ordering and concurrency proof</strong><ul>
+<li>Model command commit, event allocation, PTY output sequencing, replay cutover, lease takeover, disconnect, restore, and hook launch/revoke linearization across two sessions sharing one project.</li>
+<li>Record happens-before relationships, global-control/session message ordering, absence of nested actor waits, and ownership of every mutable counter and trust epoch.</li>
+</ul>
+</li>
+<li><strong>A5 — Persistence/platform contracts</strong><ul>
+<li>Freeze component preparation, checksum, fsync and manifest-commit steps; live-WAL responsibilities; explicit notification export; replay sidecars; migrations; restore precedence; and every partial-write recovery ordering.</li>
+<li>Define Linux implementations and compile-only placeholder boundaries for future Darwin/Windows files without adding support claims.</li>
+</ul>
+</li>
+<li><strong>A6 — Tool spikes and decision closure</strong><ul>
+<li>Run bounded spikes for <code>charmbracelet/x/ansi</code>, UUIDv7, Bubble Tea damage strategy inputs, release tooling, Linux daemon-death descendant containment, and descriptor-bound executable/config launch.</li>
+<li>The containment spike must kill <code>amuxd</code> with <code>SIGKILL</code> while shells double-fork, create grandchildren, or change process groups; the launch spike must race symlink, rename, byte replacement, config replacement, and project-root replacement.</li>
+<li>Convert each spike into an ADR result with evidence and delete throwaway code not selected.</li>
+</ul>
+</li>
+</ol>
+<h4 id="handoff-contract">Handoff contract<a class="heading-link" href="#handoff-contract" aria-label="Link to Handoff contract">#</a></h4>
+<p>T1 architect hands T2 security, T3 devops, T4 backend, and T5 terminal-ui a reviewed package map, protocol/snapshot fixtures, state-machine definitions, frozen error codes, performance measurement points, and a decision log. Downstream lanes may not independently redefine these contracts; proposed changes return as ADR amendments under the spec&#39;s confirmation rules.</p>
+<h3 id="lane-backend">Lane: backend<a class="heading-link" href="#lane-backend" aria-label="Link to Lane: backend">#</a></h3>
+<ul>
+<li>task-id: T4-backend</li>
+<li>owner: backend</li>
+<li>depends-on: [T1-architect, T2-security, T3-devops]</li>
+<li>complexity_score: 5</li>
+<li>tier: powerful</li>
+<li>scope: Implement the Go daemon and shared protocol client: graph authority, PTY/VT runtime, attach/event streams, persistence/restore, CLI, notifications, context, agent adapters, and hook execution plumbing. This lane is pinned upward because it owns process correctness and the largest blast radius.</li>
+<li>success-criteria:<ul>
+<li><code>amuxd</code> starts on an owner-only XDG Unix socket and exposes protocol negotiation, health, and clean shutdown.</li>
+<li>The daemon-global control actor serializes session registry and project trust state while session actors apply graph commands deterministically; cross-session revocation tests publish contiguous committed events without deadlock or post-revoke launch.</li>
+<li>The PTY supervisor passes spawn, resize, input, signal, exit, cancel, reap, process-group cleanup, and forced-daemon-termination tests with zero harness-detected orphans.</li>
+<li>Raw replay retains at least 16 MiB per configured surface and the VT corpus reproduces golden cell grids deterministically.</li>
+<li>Two concurrent clients pass atomic attach, ordered replay/live cutover, lease rejection/takeover/release, slow-consumer disconnect, and detach-without-stop tests.</li>
+<li>Snapshot manifests, replay sidecars, notification exports, and SQLite implementations pass every partial-write ordering, migration, co</article>
+      <footer class="report-footer">
+        <p>Generated from canonical Guild artifacts.</p>
+        <a href="index.html">Back to all research</a>
+      </footer>
+    </main>
+  </div>
+  <button class="mobile-toc-button" type="button" aria-expanded="false" aria-controls="mobile-toc">Contents</button>
+  <div id="mobile-toc" class="mobile-toc" hidden><nav aria-label="Mobile report sections"><a class="toc-link toc-level-2" href="#approved-specification">Approved specification</a>
+<a class="toc-link toc-level-3" href="#goal-amp-outcome">Goal &amp;amp; outcome</a>
+<a class="toc-link toc-level-3" href="#audience-operator">Audience / operator</a>
+<a class="toc-link toc-level-3" href="#product-boundary">Product boundary</a>
+<a class="toc-link toc-level-3" href="#mvp-feature-scope">MVP feature scope</a>
+<a class="toc-link toc-level-3" href="#success-criteria">Success criteria</a>
+<a class="toc-link toc-level-3" href="#non-goals">Non-goals</a>
+<a class="toc-link toc-level-3" href="#constraints">Constraints</a>
+<a class="toc-link toc-level-3" href="#autonomy-policy">Autonomy policy</a>
+<a class="toc-link toc-level-3" href="#risks-amp-rollback">Risks &amp;amp; rollback</a>
+<a class="toc-link toc-level-3" href="#release-sequence">Release sequence</a>
+<a class="toc-link toc-level-3" href="#assumptions-from-brainstorm">Assumptions (from brainstorm)</a>
+<a class="toc-link toc-level-2" href="#product-requirements">Product requirements</a>
+<a class="toc-link toc-level-3" href="#product-decision">Product decision</a>
+<a class="toc-link toc-level-3" href="#why-this-product-should-exist">Why this product should exist</a>
+<a class="toc-link toc-level-3" href="#primary-operator-and-jobs">Primary operator and jobs</a>
+<a class="toc-link toc-level-3" href="#product-principles">Product principles</a>
+<a class="toc-link toc-level-3" href="#mvp-feature-requirements">MVP feature requirements</a>
+<a class="toc-link toc-level-3" href="#tooling-decisions">Tooling decisions</a>
+<a class="toc-link toc-level-3" href="#repository-and-package-architecture">Repository and package architecture</a>
+<a class="toc-link toc-level-3" href="#command-and-event-contract">Command and event contract</a>
+<a class="toc-link toc-level-3" href="#data-ownership-and-durability">Data ownership and durability</a>
+<a class="toc-link toc-level-3" href="#delivery-waves-and-exit-gates">Delivery waves and exit gates</a>
+<a class="toc-link toc-level-3" href="#acceptance-traceability">Acceptance traceability</a>
+<a class="toc-link toc-level-3" href="#release-gates">Release gates</a>
+<a class="toc-link toc-level-3" href="#explicitly-deferred-roadmap">Explicitly deferred roadmap</a>
+<a class="toc-link toc-level-3" href="#rollback-and-kill-switches">Rollback and kill switches</a>
+<a class="toc-link toc-level-3" href="#open-implementation-spikes-that-do-not-reopen-product-scope">Open implementation spikes that do not reopen product scope</a>
+<a class="toc-link toc-level-2" href="#implementation-plan">Implementation plan</a>
+<a class="toc-link toc-level-3" href="#prd">PRD</a>
+<a class="toc-link toc-level-3" href="#lane-architect">Lane: architect</a>
+<a class="toc-link toc-level-3" href="#lane-backend">Lane: backend</a></nav></div>
+  <script src="assets/research.js"></script>
+</body>
+</html>

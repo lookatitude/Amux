@@ -1,0 +1,12 @@
+{
+  "should_trigger": [
+    "Profile p95 frame time for the 8-pane Bubble Tea fixture.",
+    "Reduce allocations during terminal resize storms without changing frames.",
+    "Verify keyboard-only and no-color operation across supported terminals."
+  ],
+  "should_not_trigger": [
+    "Optimize SQLite snapshot restore in the daemon.",
+    "Configure the Arch Linux release CI matrix.",
+    "Improve Core Web Vitals for a React application."
+  ]
+}

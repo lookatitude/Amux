@@ -1,0 +1,192 @@
+{
+  "schema_version": "guild.run_wrapper_record.v1",
+  "host": "claude",
+  "command": "claude",
+  "args": [
+    "--permission-mode",
+    "auto",
+    "--model",
+    "claude-fable-5",
+    "-p",
+    "Perform a hard T5-terminal-ui rework to close the two blocking Guild G-lane\nround-1 findings. Preserve all accepted Bubble Tea/Lip Gloss rendering,\nprojection authority, input non-leakage, tests, and tidy-clean module state.\n\nRead the exact review result at\n`.guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/review/G-lane:T5-terminal-ui/result-1.json`,\nthe approved T5 plan/spec/ADRs, the current handoff, and live source/tests.\n\nF1 — real attach lifecycle:\n\n- The production TUI must establish a real daemon attach stream through the\n  typed client/backend API for the focused surface, not merely poll projections.\n- Fold delivered attach frames/sequences into the presentation while preserving\n  daemon-owned cell state and never parsing raw VT in the TUI.\n- Track last delivered sequence and implement reconnect/resume/replay semantics\n  using the approved attach protocol. Surface gaps/overflow as recovery state.\n- `Ctrl+b d` must close/cancel the stream and release any UI-owned input lease;\n  it may then quit/detach according to the approved UX. It cannot be a no-op.\n- Focus/surface changes must move the attach lifecycle safely without leaked\n  goroutines, duplicate streams, stale writes, or fabricated `live` state.\n- Add production-path and adversarial tests for attach, detach, reconnect from\n  last sequence, replay gap/read-only behavior, lease release, focus changes,\n  daemon loss, and cancellation/race safety.\n\nF2 — reachable hook trust workflow:\n\n- Add discoverable live TUI actions/keybindings for hook inspect and explicit\n  approve, deny, and revoke workflows over backend semantic state.\n- The shipped Bubble Tea Update/dispatch path—not a test helper alone—must reach\n  `hook.inspect` and the confirmation card for the selected pane/project.\n- Approval and revoke require explicit confirmation and backend confirm tokens;\n  deny/cancel is fail-closed and performs no mutation. Do not make the TUI trust\n  authority or bypass audit/grant enforcement.\n- Render the frozen executable hash/events/env/timeout/scope/project detail\n  before confirmation. Handle absent grants and errors safely.\n- Add integration tests driven through real key messages/action dispatch, for\n  approve, deny/cancel, and revoke, and update truthful user docs/key tables.\n\nVerification and boundaries:\n\n- Keep all four daemon projections and the real Bubble Tea v2 Model/Update/View.\n- No imports of internal/terminal, direct SQLite, hooks internals, or backend\n  authority from internal/tui or the TUI command.\n- Prove gofmt, vet, staticcheck without module mutation, `go mod tidy -diff`,\n  module verification, frozen dependency/license gates, full tests, full race\n  tests, focused TUI tests, Linux amd64/arm64 no-cgo builds, and benchmark truth.\n- Update the existing T5 handoff with exact final evidence and these review\n  findings closed. Emit exactly one valid `guild.handoff.v2` fenced object with\n  summary <=600 characters and notes <=200, with no prose after it.\n\n\nWhen you finish, emit your result as a SINGLE fenced code block and nothing after it:\n```guild.handoff.v2\n{ ... a valid guild.handoff.v2 object ... }\n```\nThe block MUST validate against the guild.handoff.v2 contract. Do not add prose after it."
+  ],
+  "cwd": "/Users/miguelp/Projects/Amux",
+  "launch_mode": {
+    "requested": "auto",
+    "effective": "auto",
+    "args": [
+      "--permission-mode",
+      "auto"
+    ],
+    "degraded": false
+  },
+  "bootstrap_method": "hookSpecificOutput.additionalContext",
+  "host_adapter": {
+    "schema_version": "guild.run_host_adapter_receipt.v1",
+    "requested_host": "claude",
+    "host": "claude-code-cli",
+    "host_id": "claude-code-cli",
+    "provenance": "verified",
+    "preflight": {
+      "schema_version": "guild.host_adapter_result.v1",
+      "host": "claude-code-cli",
+      "operation": "preflight",
+      "status": "ok",
+      "value": {
+        "request": {
+          "cwd": "/Users/miguelp/Projects/Amux",
+          "runId": "T5-terminal-ui-runtime-rework"
+        },
+        "verified_by": "HOST_REGISTRY_ROWS[claude-code-cli].capabilities.hooks",
+        "session_start_registry_value": true,
+        "hook_file": "hooks/hooks.json",
+        "native_events": [
+          "session_start",
+          "user_prompt_submit",
+          "pre_tool_use",
+          "post_tool_use",
+          "stop",
+          "pre_compact",
+          "subagent_stop",
+          "task_created",
+          "task_completed",
+          "teammate_idle"
+        ],
+        "session_start_commands": [
+          "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/bootstrap.sh\"",
+          "node \"${CLAUDE_PLUGIN_ROOT}/hooks/dist/detect-guild-version.js\"",
+          "node \"${CLAUDE_PLUGIN_ROOT}/hooks/dist/using-guild-bootstrap.js\""
+        ]
+      },
+      "receipt": {
+        "schema_version": "guild.host_adapter_receipt.v1",
+        "host": "claude-code-cli",
+        "operation": "preflight",
+        "status": "ok",
+        "reason": "Claude Code hook preflight is registry-verified and includes using-guild SessionStart injection",
+        "degradation_receipt": {
+          "schema_version": "guild.degradation_receipt.v1",
+          "surface": "session",
+          "host": "claude-code-cli",
+          "rung": "native",
+          "degraded": false,
+          "inferred": false,
+          "reason": "session@claude-code-cli resolves to \"native\""
+        }
+      }
+    },
+    "model_params": {
+      "schema_version": "guild.host_adapter_result.v1",
+      "host": "claude-code-cli",
+      "operation": "resolveModelParams",
+      "status": "ok",
+      "value": {
+        "modelParams": {
+          "model": "claude-fable-5"
+        },
+        "argv": [
+          "--model",
+          "claude-fable-5"
+        ],
+        "unsupported_model_params": []
+      },
+      "receipt": {
+        "schema_version": "guild.host_adapter_receipt.v1",
+        "host": "claude-code-cli",
+        "operation": "resolveModelParams",
+        "status": "ok",
+        "reason": "Claude CLI maps model params to native --model/--effort flags",
+        "degradation_receipt": {
+          "schema_version": "guild.degradation_receipt.v1",
+          "surface": "semantic_tool",
+          "host": "claude-code-cli",
+          "rung": "native",
+          "degraded": false,
+          "inferred": false,
+          "reason": "semantic_tool@claude-code-cli resolves to \"native\""
+        }
+      }
+    },
+    "dispatch": {
+      "schema_version": "guild.host_adapter_result.v1",
+      "host": "claude-code-cli",
+      "operation": "dispatch",
+      "status": "ok",
+      "value": {
+        "taskRun": {
+          "runId": "T5-terminal-ui-runtime-rework",
+          "prompt": "Perform a hard T5-terminal-ui rework to close the two blocking Guild G-lane\nround-1 findings. Preserve all accepted Bubble Tea/Lip Gloss rendering,\nprojection authority, input non-leakage, tests, and tidy-clean module state.\n\nRead the exact review result at\n`.guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/review/G-lane:T5-terminal-ui/result-1.json`,\nthe approved T5 plan/spec/ADRs, the current handoff, and live source/tests.\n\nF1 — real attach lifecycle:\n\n- The production TUI must establish a real daemon attach stream through the\n  typed client/backend API for the focused surface, not merely poll projections.\n- Fold delivered attach frames/sequences into the presentation while preserving\n  daemon-owned cell state and never parsing raw VT in the TUI.\n- Track last delivered sequence and implement reconnect/resume/replay semantics\n  using the approved attach protocol. Surface gaps/overflow as recovery state.\n- `Ctrl+b d` must close/cancel the stream and release any UI-owned input lease;\n  it may then quit/detach according to the approved UX. It cannot be a no-op.\n- Focus/surface changes must move the attach lifecycle safely without leaked\n  goroutines, duplicate streams, stale writes, or fabricated `live` state.\n- Add production-path and adversarial tests for attach, detach, reconnect from\n  last sequence, replay gap/read-only behavior, lease release, focus changes,\n  daemon loss, and cancellation/race safety.\n\nF2 — reachable hook trust workflow:\n\n- Add discoverable live TUI actions/keybindings for hook inspect and explicit\n  approve, deny, and revoke workflows over backend semantic state.\n- The shipped Bubble Tea Update/dispatch path—not a test helper alone—must reach\n  `hook.inspect` and the confirmation card for the selected pane/project.\n- Approval and revoke require explicit confirmation and backend confirm tokens;\n  deny/cancel is fail-closed and performs no mutation. Do not make the TUI trust\n  authority or bypass audit/grant enforcement.\n- Render the frozen executable hash/events/env/timeout/scope/project detail\n  before confirmation. Handle absent grants and errors safely.\n- Add integration tests driven through real key messages/action dispatch, for\n  approve, deny/cancel, and revoke, and update truthful user docs/key tables.\n\nVerification and boundaries:\n\n- Keep all four daemon projections and the real Bubble Tea v2 Model/Update/View.\n- No imports of internal/terminal, direct SQLite, hooks internals, or backend\n  authority from internal/tui or the TUI command.\n- Prove gofmt, vet, staticcheck without module mutation, `go mod tidy -diff`,\n  module verification, frozen dependency/license gates, full tests, full race\n  tests, focused TUI tests, Linux amd64/arm64 no-cgo builds, and benchmark truth.\n- Update the existing T5 handoff with exact final evidence and these review\n  findings closed. Emit exactly one valid `guild.handoff.v2` fenced object with\n  summary <=600 characters and notes <=200, with no prose after it.\n",
+          "host": "claude",
+          "cwd": "/Users/miguelp/Projects/Amux",
+          "modelParams": {
+            "model": "claude-fable-5"
+          },
+          "command": "claude",
+          "args": [
+            "--permission-mode",
+            "auto",
+            "--model",
+            "claude-fable-5",
+            "-p",
+            "Perform a hard T5-terminal-ui rework to close the two blocking Guild G-lane\nround-1 findings. Preserve all accepted Bubble Tea/Lip Gloss rendering,\nprojection authority, input non-leakage, tests, and tidy-clean module state.\n\nRead the exact review result at\n`.guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/review/G-lane:T5-terminal-ui/result-1.json`,\nthe approved T5 plan/spec/ADRs, the current handoff, and live source/tests.\n\nF1 — real attach lifecycle:\n\n- The production TUI must establish a real daemon attach stream through the\n  typed client/backend API for the focused surface, not merely poll projections.\n- Fold delivered attach frames/sequences into the presentation while preserving\n  daemon-owned cell state and never parsing raw VT in the TUI.\n- Track last delivered sequence and implement reconnect/resume/replay semantics\n  using the approved attach protocol. Surface gaps/overflow as recovery state.\n- `Ctrl+b d` must close/cancel the stream and release any UI-owned input lease;\n  it may then quit/detach according to the approved UX. It cannot be a no-op.\n- Focus/surface changes must move the attach lifecycle safely without leaked\n  goroutines, duplicate streams, stale writes, or fabricated `live` state.\n- Add production-path and adversarial tests for attach, detach, reconnect from\n  last sequence, replay gap/read-only behavior, lease release, focus changes,\n  daemon loss, and cancellation/race safety.\n\nF2 — reachable hook trust workflow:\n\n- Add discoverable live TUI actions/keybindings for hook inspect and explicit\n  approve, deny, and revoke workflows over backend semantic state.\n- The shipped Bubble Tea Update/dispatch path—not a test helper alone—must reach\n  `hook.inspect` and the confirmation card for the selected pane/project.\n- Approval and revoke require explicit confirmation and backend confirm tokens;\n  deny/cancel is fail-closed and performs no mutation. Do not make the TUI trust\n  authority or bypass audit/grant enforcement.\n- Render the frozen executable hash/events/env/timeout/scope/project detail\n  before confirmation. Handle absent grants and errors safely.\n- Add integration tests driven through real key messages/action dispatch, for\n  approve, deny/cancel, and revoke, and update truthful user docs/key tables.\n\nVerification and boundaries:\n\n- Keep all four daemon projections and the real Bubble Tea v2 Model/Update/View.\n- No imports of internal/terminal, direct SQLite, hooks internals, or backend\n  authority from internal/tui or the TUI command.\n- Prove gofmt, vet, staticcheck without module mutation, `go mod tidy -diff`,\n  module verification, frozen dependency/license gates, full tests, full race\n  tests, focused TUI tests, Linux amd64/arm64 no-cgo builds, and benchmark truth.\n- Update the existing T5 handoff with exact final evidence and these review\n  findings closed. Emit exactly one valid `guild.handoff.v2` fenced object with\n  summary <=600 characters and notes <=200, with no prose after it.\n\n\nWhen you finish, emit your result as a SINGLE fenced code block and nothing after it:\n```guild.handoff.v2\n{ ... a valid guild.handoff.v2 object ... }\n```\nThe block MUST validate against the guild.handoff.v2 contract. Do not add prose after it."
+          ],
+          "env": {},
+          "launch_mode": {
+            "requested": "auto",
+            "effective": "auto",
+            "args": [
+              "--permission-mode",
+              "auto"
+            ],
+            "degraded": false
+          }
+        },
+        "dispatch_kind": "wrapper_launch",
+        "command": "claude",
+        "args": [
+          "--permission-mode",
+          "auto",
+          "--model",
+          "claude-fable-5",
+          "-p",
+          "Perform a hard T5-terminal-ui rework to close the two blocking Guild G-lane\nround-1 findings. Preserve all accepted Bubble Tea/Lip Gloss rendering,\nprojection authority, input non-leakage, tests, and tidy-clean module state.\n\nRead the exact review result at\n`.guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/review/G-lane:T5-terminal-ui/result-1.json`,\nthe approved T5 plan/spec/ADRs, the current handoff, and live source/tests.\n\nF1 — real attach lifecycle:\n\n- The production TUI must establish a real daemon attach stream through the\n  typed client/backend API for the focused surface, not merely poll projections.\n- Fold delivered attach frames/sequences into the presentation while preserving\n  daemon-owned cell state and never parsing raw VT in the TUI.\n- Track last delivered sequence and implement reconnect/resume/replay semantics\n  using the approved attach protocol. Surface gaps/overflow as recovery state.\n- `Ctrl+b d` must close/cancel the stream and release any UI-owned input lease;\n  it may then quit/detach according to the approved UX. It cannot be a no-op.\n- Focus/surface changes must move the attach lifecycle safely without leaked\n  goroutines, duplicate streams, stale writes, or fabricated `live` state.\n- Add production-path and adversarial tests for attach, detach, reconnect from\n  last sequence, replay gap/read-only behavior, lease release, focus changes,\n  daemon loss, and cancellation/race safety.\n\nF2 — reachable hook trust workflow:\n\n- Add discoverable live TUI actions/keybindings for hook inspect and explicit\n  approve, deny, and revoke workflows over backend semantic state.\n- The shipped Bubble Tea Update/dispatch path—not a test helper alone—must reach\n  `hook.inspect` and the confirmation card for the selected pane/project.\n- Approval and revoke require explicit confirmation and backend confirm tokens;\n  deny/cancel is fail-closed and performs no mutation. Do not make the TUI trust\n  authority or bypass audit/grant enforcement.\n- Render the frozen executable hash/events/env/timeout/scope/project detail\n  before confirmation. Handle absent grants and errors safely.\n- Add integration tests driven through real key messages/action dispatch, for\n  approve, deny/cancel, and revoke, and update truthful user docs/key tables.\n\nVerification and boundaries:\n\n- Keep all four daemon projections and the real Bubble Tea v2 Model/Update/View.\n- No imports of internal/terminal, direct SQLite, hooks internals, or backend\n  authority from internal/tui or the TUI command.\n- Prove gofmt, vet, staticcheck without module mutation, `go mod tidy -diff`,\n  module verification, frozen dependency/license gates, full tests, full race\n  tests, focused TUI tests, Linux amd64/arm64 no-cgo builds, and benchmark truth.\n- Update the existing T5 handoff with exact final evidence and these review\n  findings closed. Emit exactly one valid `guild.handoff.v2` fenced object with\n  summary <=600 characters and notes <=200, with no prose after it.\n\n\nWhen you finish, emit your result as a SINGLE fenced code block and nothing after it:\n```guild.handoff.v2\n{ ... a valid guild.handoff.v2 object ... }\n```\nThe block MUST validate against the guild.handoff.v2 contract. Do not add prose after it."
+        ],
+        "env": {},
+        "alternate_pane_command": "export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1; export GUILD_RUN_ID=T5-terminal-ui-runtime-rework; claude 'Perform a hard T5-terminal-ui rework to close the two blocking Guild G-lane\nround-1 findings. Preserve all accepted Bubble Tea/Lip Gloss rendering,\nprojection authority, input non-leakage, tests, and tidy-clean module state.\n\nRead the exact review result at\n`.guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/review/G-lane:T5-terminal-ui/result-1.json`,\nthe approved T5 plan/spec/ADRs, the current handoff, and live source/tests.\n\nF1 — real attach lifecycle:\n\n- The production TUI must establish a real daemon attach stream through the\n  typed client/backend API for the focused surface, not merely poll projections.\n- Fold delivered attach frames/sequences into the presentation while preserving\n  daemon-owned cell state and never parsing raw VT in the TUI.\n- Track last delivered sequence and implement reconnect/resume/replay semantics\n  using the approved attach protocol. Surface gaps/overflow as recovery state.\n- `Ctrl+b d` must close/cancel the stream and release any UI-owned input lease;\n  it may then quit/detach according to the approved UX. It cannot be a no-op.\n- Focus/surface changes must move the attach lifecycle safely without leaked\n  goroutines, duplicate streams, stale writes, or fabricated `live` state.\n- Add production-path and adversarial tests for attach, detach, reconnect from\n  last sequence, replay gap/read-only behavior, lease release, focus changes,\n  daemon loss, and cancellation/race safety.\n\nF2 — reachable hook trust workflow:\n\n- Add discoverable live TUI actions/keybindings for hook inspect and explicit\n  approve, deny, and revoke workflows over backend semantic state.\n- The shipped Bubble Tea Update/dispatch path—not a test helper alone—must reach\n  `hook.inspect` and the confirmation card for the selected pane/project.\n- Approval and revoke require explicit confirmation and backend confirm tokens;\n  deny/cancel is fail-closed and performs no mutation. Do not make the TUI trust\n  authority or bypass audit/grant enforcement.\n- Render the frozen executable hash/events/env/timeout/scope/project detail\n  before confirmation. Handle absent grants and errors safely.\n- Add integration tests driven through real key messages/action dispatch, for\n  approve, deny/cancel, and revoke, and update truthful user docs/key tables.\n\nVerification and boundaries:\n\n- Keep all four daemon projections and the real Bubble Tea v2 Model/Update/View.\n- No imports of internal/terminal, direct SQLite, hooks internals, or backend\n  authority from internal/tui or the TUI command.\n- Prove gofmt, vet, staticcheck without module mutation, `go mod tidy -diff`,\n  module verification, frozen dependency/license gates, full tests, full race\n  tests, focused TUI tests, Linux amd64/arm64 no-cgo builds, and benchmark truth.\n- Update the existing T5 handoff with exact final evidence and these review\n  findings closed. Emit exactly one valid `guild.handoff.v2` fenced object with\n  summary <=600 characters and notes <=200, with no prose after it.\n'",
+        "alternate_pane_env": {
+          "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1",
+          "GUILD_RUN_ID": "T5-terminal-ui-runtime-rework"
+        }
+      },
+      "receipt": {
+        "schema_version": "guild.host_adapter_receipt.v1",
+        "host": "claude-code-cli",
+        "operation": "dispatch",
+        "status": "ok",
+        "reason": "Claude dispatch receipt follows the wrapper launch plan and keeps pane dispatch as an alternate host surface",
+        "degradation_receipt": {
+          "schema_version": "guild.degradation_receipt.v1",
+          "surface": "session",
+          "host": "claude-code-cli",
+          "rung": "native",
+          "degraded": false,
+          "inferred": false,
+          "reason": "session@claude-code-cli resolves to \"native\""
+        }
+      }
+    }
+  },
+  "session_id": "8c2926bb-2ebe-4166-8b77-84c0de3e12c0",
+  "exit": 0,
+  "receipt_paths": [
+    ".guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/handoffs/terminal-ui-T5-terminal-ui.md"
+  ],
+  "contract": "guild.handoff.v2",
+  "normalized": {
+    "ok": true,
+    "wire_schema_version": "guild.handoff.v2",
+    "rounds_used": 0,
+    "failed_closed": false,
+    "errors": []
+  }
+}

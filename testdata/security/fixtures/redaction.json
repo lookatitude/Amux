@@ -1,0 +1,90 @@
+{
+  "schema": "amux.security.fixtures.v1",
+  "fixtures": [
+    {
+      "id": "redaction.config",
+      "requirement": "RED-1, RED-2",
+      "context": "config",
+      "label": "config-token",
+      "payload": "{\"hooks\":[{\"id\":\"h1\",\"env\":{\"DEPLOY_TOKEN\":\"{{SECRET:config-token}}\"}}]}"
+    },
+    {
+      "id": "redaction.environment",
+      "requirement": "RED-1, RED-3",
+      "context": "environment",
+      "label": "env-secret",
+      "payload": "PATH=/usr/bin\nAWS_SECRET_ACCESS_KEY={{SECRET:env-secret}}\nHOME=/home/op"
+    },
+    {
+      "id": "redaction.hook-input",
+      "requirement": "RED-1, RED-2",
+      "context": "hook_input",
+      "label": "hook-input-cred",
+      "payload": "{\"event\":\"pane_exit\",\"pane_title\":\"deploy\",\"excerpt\":\"export API_KEY={{SECRET:hook-input-cred}}\"}"
+    },
+    {
+      "id": "redaction.hook-output",
+      "requirement": "RED-1, RED-2",
+      "context": "hook_output",
+      "label": "hook-output-cred",
+      "payload": "deploy ok\nAuthorization: Bearer {{SECRET:hook-output-cred}}\ndone\n"
+    },
+    {
+      "id": "redaction.error",
+      "requirement": "RED-1, RED-5",
+      "context": "error",
+      "label": "error-cred",
+      "payload": "connect failed: dial unix: auth header 'Basic {{SECRET:error-cred}}' rejected"
+    },
+    {
+      "id": "redaction.log",
+      "requirement": "RED-1, RED-5",
+      "context": "log",
+      "label": "log-cred",
+      "payload": "level=INFO msg=\"hook env assembled\" GITHUB_TOKEN={{SECRET:log-cred}} keys=1"
+    },
+    {
+      "id": "redaction.audit",
+      "requirement": "RED-1, AUD-7",
+      "context": "audit",
+      "label": "audit-cred",
+      "payload": "{\"kind\":\"activation_denied\",\"detail\":\"env value {{SECRET:audit-cred}} outside allowlist\"}"
+    },
+    {
+      "id": "redaction.snapshot",
+      "requirement": "RED-1, RED-6",
+      "context": "snapshot",
+      "label": "snapshot-cred",
+      "payload": "{\"pane\":{\"title\":\"psql\",\"last_cmd\":\"PGPASSWORD={{SECRET:snapshot-cred}} psql\"}}"
+    },
+    {
+      "id": "redaction.agent-adapter",
+      "requirement": "RED-1, RED-7",
+      "context": "agent_adapter",
+      "label": "adapter-cred",
+      "payload": "{\"provider\":\"x\",\"payload\":\"session token {{SECRET:adapter-cred}} issued\"}"
+    },
+    {
+      "id": "redaction.notification",
+      "requirement": "RED-1, RED-6",
+      "context": "notification",
+      "label": "notify-cred",
+      "payload": "{\"summary\":\"hook finished\",\"body\":\"output tail: token={{SECRET:notify-cred}}\"}"
+    },
+    {
+      "id": "redaction.diagnostics",
+      "requirement": "RED-1, STR-12, RED-5",
+      "context": "diagnostics",
+      "label": "diag-cred",
+      "payload": "goroutine dump excerpt: conn.hdr[Authorization]=Bearer {{SECRET:diag-cred}}"
+    },
+    {
+      "id": "redaction.truncation",
+      "requirement": "RED-5 (truncate first, then redact; no prefix leak)",
+      "context": "hook_output",
+      "label": "truncation-cred",
+      "payload": "hook output line\n{{SECRET:truncation-cred}} trailing bytes beyond the cap",
+      "truncate_at_bytes": 37
+    }
+  ]
+}

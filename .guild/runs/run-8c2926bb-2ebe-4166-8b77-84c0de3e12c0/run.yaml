@@ -1,0 +1,33 @@
+schema_version: guild.run.v1
+run_id: run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0
+command: /guild:plan
+arguments: {}
+cwd: /Users/miguelp/Projects/Amux
+target_kind: existing_guild_project
+workspace:
+  is_workspace: false
+  root: /Users/miguelp/Projects/Amux
+project: project
+host:
+  requested: auto
+  resolved: claude
+model_tier_policy: default (full run)
+started_at: 2026-07-15T02:40:39Z
+ignore_policy: default
+scan_policy: default
+initiative_attachment: null
+phase: execute
+run_class: full
+gates: {}
+status: closed
+phases_log:
+  - phase: plan
+    at: 2026-07-15T02:40:44Z
+  - phase: execute
+    at: 2026-07-15T05:26:13Z
+settings_ref:
+  path: resolved-settings.json
+  schema_version: guild.resolved_settings.v1
+  effective_backend: auto
+  review: local
+  recommended_provider: null

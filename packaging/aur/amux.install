@@ -1,0 +1,34 @@
+# amux-bin post-install messaging (T3 devops, D4).
+#
+# CRITICAL: this NEVER enables or starts a service. Amux is a user-session
+# daemon; auto-starting an untrusted daemon on install is exactly the behaviour
+# the autonomy policy forbids ("auto-starting hooks/services"). We only tell the
+# user how to start it themselves.
+
+post_install() {
+  cat <<'EOF'
+amux installed.
+
+  amuxd is a per-user session daemon. It is NOT started automatically.
+
+  Start it in your session with either:
+    amuxd                                  # foreground / your own supervision
+  or, using the example user unit (opt-in):
+    systemctl --user enable --now amuxd    # you enable it explicitly
+
+  amux --version    verify the install
+  amux --help       list commands
+
+  Config/data live under the XDG base directories. See:
+    /usr/share/doc/amux/
+EOF
+}
+
+post_upgrade() {
+  cat <<'EOF'
+amux upgraded. If you run the user unit, restart it:
+    systemctl --user restart amuxd
+Review upgrade/compatibility notes before restarting a daemon with live state:
+    /usr/share/doc/amux/  (rollback-and-recovery, versioning-and-release)
+EOF
+}

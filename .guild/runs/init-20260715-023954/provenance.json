@@ -1,0 +1,19 @@
+{
+  "run_id": "init-20260715-023954",
+  "phase": "init",
+  "status": "complete",
+  "generated_from_commit": "unknown",
+  "touched": {
+    "wiki": [
+      ".guild/wiki/index.md",
+      ".guild/wiki/overview.md",
+      ".guild/wiki/concepts/architecture-map.md"
+    ],
+    "indexes": [
+      ".guild/indexes/codebase-map.json"
+    ],
+    "decisions": []
+  },
+  "evidence_ref": ".guild/init/amux.md",
+  "final_learning_checkpoint": ".guild/runs/init-20260715-023954/learning/init-init-20260715-023954.yaml"
+}

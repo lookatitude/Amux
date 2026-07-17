@@ -1,0 +1,192 @@
+{
+  "schema_version": "guild.run_wrapper_record.v1",
+  "host": "claude",
+  "command": "claude",
+  "args": [
+    "--permission-mode",
+    "auto",
+    "--model",
+    "claude-fable-5",
+    "-p",
+    "Adopt the project-local QA specialist definition at `.guild/agents/qa.md` and\nexecute T6-qa from the formally assembled bundle\n`.guild/context/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/qa-T6-qa.md`.\n\nImplement and execute Q1-Q8 autonomously within the frozen contracts. Reopen\nthe live source and reviewed upstream receipts; do not trust old counts. Build\nthe durable traceability, test, fuzz/property, fault, acceptance, performance,\nsoak, package, and release-candidate evidence system. Run every gate the current\nenvironment can genuinely execute. Detect available Linux/container/CI tooling\nbefore deferring it. Never fabricate native Linux, Arch, clean-chroot, scanner,\nelapsed-soak, or performance evidence, and never weaken/reclassify a blocking\ngate without approval.\n\nIf a production defect prevents a required gate, pin it with the narrowest\nreproduction and report it as a blocking issue rather than changing application\nsemantics outside QA ownership. Test-only fixtures and harnesses are in scope.\nDo not publish releases, push AUR, commit, or change external state.\n\nFinish with current reproducible commands, environment metadata, residual risks,\nand a single valid `guild.handoff.v2` receipt at\n`.guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/handoffs/qa-T6-qa.md`.\nEmit exactly one valid `guild.handoff.v2` fenced object with summary <=600\ncharacters and notes <=200, and no prose after it.\n\n\nWhen you finish, emit your result as a SINGLE fenced code block and nothing after it:\n```guild.handoff.v2\n{ ... a valid guild.handoff.v2 object ... }\n```\nThe block MUST validate against the guild.handoff.v2 contract. Do not add prose after it."
+  ],
+  "cwd": "/Users/miguelp/Projects/Amux",
+  "launch_mode": {
+    "requested": "auto",
+    "effective": "auto",
+    "args": [
+      "--permission-mode",
+      "auto"
+    ],
+    "degraded": false
+  },
+  "bootstrap_method": "hookSpecificOutput.additionalContext",
+  "host_adapter": {
+    "schema_version": "guild.run_host_adapter_receipt.v1",
+    "requested_host": "claude",
+    "host": "claude-code-cli",
+    "host_id": "claude-code-cli",
+    "provenance": "verified",
+    "preflight": {
+      "schema_version": "guild.host_adapter_result.v1",
+      "host": "claude-code-cli",
+      "operation": "preflight",
+      "status": "ok",
+      "value": {
+        "request": {
+          "cwd": "/Users/miguelp/Projects/Amux",
+          "runId": "T6-qa-attempt-1"
+        },
+        "verified_by": "HOST_REGISTRY_ROWS[claude-code-cli].capabilities.hooks",
+        "session_start_registry_value": true,
+        "hook_file": "hooks/hooks.json",
+        "native_events": [
+          "session_start",
+          "user_prompt_submit",
+          "pre_tool_use",
+          "post_tool_use",
+          "stop",
+          "pre_compact",
+          "subagent_stop",
+          "task_created",
+          "task_completed",
+          "teammate_idle"
+        ],
+        "session_start_commands": [
+          "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/bootstrap.sh\"",
+          "node \"${CLAUDE_PLUGIN_ROOT}/hooks/dist/detect-guild-version.js\"",
+          "node \"${CLAUDE_PLUGIN_ROOT}/hooks/dist/using-guild-bootstrap.js\""
+        ]
+      },
+      "receipt": {
+        "schema_version": "guild.host_adapter_receipt.v1",
+        "host": "claude-code-cli",
+        "operation": "preflight",
+        "status": "ok",
+        "reason": "Claude Code hook preflight is registry-verified and includes using-guild SessionStart injection",
+        "degradation_receipt": {
+          "schema_version": "guild.degradation_receipt.v1",
+          "surface": "session",
+          "host": "claude-code-cli",
+          "rung": "native",
+          "degraded": false,
+          "inferred": false,
+          "reason": "session@claude-code-cli resolves to \"native\""
+        }
+      }
+    },
+    "model_params": {
+      "schema_version": "guild.host_adapter_result.v1",
+      "host": "claude-code-cli",
+      "operation": "resolveModelParams",
+      "status": "ok",
+      "value": {
+        "modelParams": {
+          "model": "claude-fable-5"
+        },
+        "argv": [
+          "--model",
+          "claude-fable-5"
+        ],
+        "unsupported_model_params": []
+      },
+      "receipt": {
+        "schema_version": "guild.host_adapter_receipt.v1",
+        "host": "claude-code-cli",
+        "operation": "resolveModelParams",
+        "status": "ok",
+        "reason": "Claude CLI maps model params to native --model/--effort flags",
+        "degradation_receipt": {
+          "schema_version": "guild.degradation_receipt.v1",
+          "surface": "semantic_tool",
+          "host": "claude-code-cli",
+          "rung": "native",
+          "degraded": false,
+          "inferred": false,
+          "reason": "semantic_tool@claude-code-cli resolves to \"native\""
+        }
+      }
+    },
+    "dispatch": {
+      "schema_version": "guild.host_adapter_result.v1",
+      "host": "claude-code-cli",
+      "operation": "dispatch",
+      "status": "ok",
+      "value": {
+        "taskRun": {
+          "runId": "T6-qa-attempt-1",
+          "prompt": "Adopt the project-local QA specialist definition at `.guild/agents/qa.md` and\nexecute T6-qa from the formally assembled bundle\n`.guild/context/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/qa-T6-qa.md`.\n\nImplement and execute Q1-Q8 autonomously within the frozen contracts. Reopen\nthe live source and reviewed upstream receipts; do not trust old counts. Build\nthe durable traceability, test, fuzz/property, fault, acceptance, performance,\nsoak, package, and release-candidate evidence system. Run every gate the current\nenvironment can genuinely execute. Detect available Linux/container/CI tooling\nbefore deferring it. Never fabricate native Linux, Arch, clean-chroot, scanner,\nelapsed-soak, or performance evidence, and never weaken/reclassify a blocking\ngate without approval.\n\nIf a production defect prevents a required gate, pin it with the narrowest\nreproduction and report it as a blocking issue rather than changing application\nsemantics outside QA ownership. Test-only fixtures and harnesses are in scope.\nDo not publish releases, push AUR, commit, or change external state.\n\nFinish with current reproducible commands, environment metadata, residual risks,\nand a single valid `guild.handoff.v2` receipt at\n`.guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/handoffs/qa-T6-qa.md`.\nEmit exactly one valid `guild.handoff.v2` fenced object with summary <=600\ncharacters and notes <=200, and no prose after it.\n",
+          "host": "claude",
+          "cwd": "/Users/miguelp/Projects/Amux",
+          "modelParams": {
+            "model": "claude-fable-5"
+          },
+          "command": "claude",
+          "args": [
+            "--permission-mode",
+            "auto",
+            "--model",
+            "claude-fable-5",
+            "-p",
+            "Adopt the project-local QA specialist definition at `.guild/agents/qa.md` and\nexecute T6-qa from the formally assembled bundle\n`.guild/context/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/qa-T6-qa.md`.\n\nImplement and execute Q1-Q8 autonomously within the frozen contracts. Reopen\nthe live source and reviewed upstream receipts; do not trust old counts. Build\nthe durable traceability, test, fuzz/property, fault, acceptance, performance,\nsoak, package, and release-candidate evidence system. Run every gate the current\nenvironment can genuinely execute. Detect available Linux/container/CI tooling\nbefore deferring it. Never fabricate native Linux, Arch, clean-chroot, scanner,\nelapsed-soak, or performance evidence, and never weaken/reclassify a blocking\ngate without approval.\n\nIf a production defect prevents a required gate, pin it with the narrowest\nreproduction and report it as a blocking issue rather than changing application\nsemantics outside QA ownership. Test-only fixtures and harnesses are in scope.\nDo not publish releases, push AUR, commit, or change external state.\n\nFinish with current reproducible commands, environment metadata, residual risks,\nand a single valid `guild.handoff.v2` receipt at\n`.guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/handoffs/qa-T6-qa.md`.\nEmit exactly one valid `guild.handoff.v2` fenced object with summary <=600\ncharacters and notes <=200, and no prose after it.\n\n\nWhen you finish, emit your result as a SINGLE fenced code block and nothing after it:\n```guild.handoff.v2\n{ ... a valid guild.handoff.v2 object ... }\n```\nThe block MUST validate against the guild.handoff.v2 contract. Do not add prose after it."
+          ],
+          "env": {},
+          "launch_mode": {
+            "requested": "auto",
+            "effective": "auto",
+            "args": [
+              "--permission-mode",
+              "auto"
+            ],
+            "degraded": false
+          }
+        },
+        "dispatch_kind": "wrapper_launch",
+        "command": "claude",
+        "args": [
+          "--permission-mode",
+          "auto",
+          "--model",
+          "claude-fable-5",
+          "-p",
+          "Adopt the project-local QA specialist definition at `.guild/agents/qa.md` and\nexecute T6-qa from the formally assembled bundle\n`.guild/context/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/qa-T6-qa.md`.\n\nImplement and execute Q1-Q8 autonomously within the frozen contracts. Reopen\nthe live source and reviewed upstream receipts; do not trust old counts. Build\nthe durable traceability, test, fuzz/property, fault, acceptance, performance,\nsoak, package, and release-candidate evidence system. Run every gate the current\nenvironment can genuinely execute. Detect available Linux/container/CI tooling\nbefore deferring it. Never fabricate native Linux, Arch, clean-chroot, scanner,\nelapsed-soak, or performance evidence, and never weaken/reclassify a blocking\ngate without approval.\n\nIf a production defect prevents a required gate, pin it with the narrowest\nreproduction and report it as a blocking issue rather than changing application\nsemantics outside QA ownership. Test-only fixtures and harnesses are in scope.\nDo not publish releases, push AUR, commit, or change external state.\n\nFinish with current reproducible commands, environment metadata, residual risks,\nand a single valid `guild.handoff.v2` receipt at\n`.guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/handoffs/qa-T6-qa.md`.\nEmit exactly one valid `guild.handoff.v2` fenced object with summary <=600\ncharacters and notes <=200, and no prose after it.\n\n\nWhen you finish, emit your result as a SINGLE fenced code block and nothing after it:\n```guild.handoff.v2\n{ ... a valid guild.handoff.v2 object ... }\n```\nThe block MUST validate against the guild.handoff.v2 contract. Do not add prose after it."
+        ],
+        "env": {},
+        "alternate_pane_command": "export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1; export GUILD_RUN_ID=T6-qa-attempt-1; claude 'Adopt the project-local QA specialist definition at `.guild/agents/qa.md` and\nexecute T6-qa from the formally assembled bundle\n`.guild/context/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/qa-T6-qa.md`.\n\nImplement and execute Q1-Q8 autonomously within the frozen contracts. Reopen\nthe live source and reviewed upstream receipts; do not trust old counts. Build\nthe durable traceability, test, fuzz/property, fault, acceptance, performance,\nsoak, package, and release-candidate evidence system. Run every gate the current\nenvironment can genuinely execute. Detect available Linux/container/CI tooling\nbefore deferring it. Never fabricate native Linux, Arch, clean-chroot, scanner,\nelapsed-soak, or performance evidence, and never weaken/reclassify a blocking\ngate without approval.\n\nIf a production defect prevents a required gate, pin it with the narrowest\nreproduction and report it as a blocking issue rather than changing application\nsemantics outside QA ownership. Test-only fixtures and harnesses are in scope.\nDo not publish releases, push AUR, commit, or change external state.\n\nFinish with current reproducible commands, environment metadata, residual risks,\nand a single valid `guild.handoff.v2` receipt at\n`.guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/handoffs/qa-T6-qa.md`.\nEmit exactly one valid `guild.handoff.v2` fenced object with summary <=600\ncharacters and notes <=200, and no prose after it.\n'",
+        "alternate_pane_env": {
+          "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1",
+          "GUILD_RUN_ID": "T6-qa-attempt-1"
+        }
+      },
+      "receipt": {
+        "schema_version": "guild.host_adapter_receipt.v1",
+        "host": "claude-code-cli",
+        "operation": "dispatch",
+        "status": "ok",
+        "reason": "Claude dispatch receipt follows the wrapper launch plan and keeps pane dispatch as an alternate host surface",
+        "degradation_receipt": {
+          "schema_version": "guild.degradation_receipt.v1",
+          "surface": "session",
+          "host": "claude-code-cli",
+          "rung": "native",
+          "degraded": false,
+          "inferred": false,
+          "reason": "session@claude-code-cli resolves to \"native\""
+        }
+      }
+    }
+  },
+  "session_id": "8c2926bb-2ebe-4166-8b77-84c0de3e12c0",
+  "exit": 0,
+  "receipt_paths": [
+    ".guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/handoffs/qa-T6-qa.md"
+  ],
+  "contract": "guild.handoff.v2",
+  "normalized": {
+    "ok": true,
+    "wire_schema_version": "guild.handoff.v2",
+    "rounds_used": 0,
+    "failed_closed": false,
+    "errors": []
+  }
+}

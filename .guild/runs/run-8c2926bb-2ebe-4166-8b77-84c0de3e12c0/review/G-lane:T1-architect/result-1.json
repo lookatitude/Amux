@@ -1,0 +1,26 @@
+{
+  "schema_version": "review_result.v1",
+  "packet_id": "G-lane-T1-architect-r1",
+  "artifact_sha256_reviewed": "884ba308fe2fa5a0ac450ab85bb6ba8ba7a7adcb1ac004e93f7ae94aeef053cf",
+  "verdict": "issues",
+  "findings": [
+    {
+      "id": "F1",
+      "severity": "blocking",
+      "title": "ADR-0006's frozen platform seam is incomplete",
+      "detail": "T1's plan requires ADR-0006 to define the PTY, local-transport, peer-credential, notification, process-inspection, filesystem-identity, descriptor-launch, and clock interfaces before downstream dispatch. ADR-0006 says that interface set lives in internal/platform/platform.go, but the live file only defines FilesystemIdentity, PeerCredentials, Containment, DescriptorLaunch, ProcessInspector, and Clock; there is no PTY, LocalTransport, or Notifier seam anywhere under internal/. That leaves key Linux-first boundaries prose-only, so the receipt's claim that the platform interfaces were already verified is not durable acceptance evidence and would force downstream lanes to invent architect-owned contracts.",
+      "evidence": ".guild/plan/amux-go-linux-runtime.md:48-52; docs/adr/0006-platform-interfaces.md:25-49,102-106; internal/platform/platform.go:1-121; .guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/handoffs/architect-T1-architect.md:18-23"
+    }
+  ],
+  "blocking_findings": [
+    {
+      "id": "F1",
+      "severity": "blocking",
+      "title": "ADR-0006's frozen platform seam is incomplete",
+      "detail": "The reviewed handoff treats the platform-interface surface as already green, but internal/platform/platform.go does not actually materialize the PTY, local-transport, or notifier interfaces that ADR-0006 says are part of the frozen T1 contract.",
+      "evidence": ".guild/plan/amux-go-linux-runtime.md:48-52; docs/adr/0006-platform-interfaces.md:25-49; internal/platform/platform.go:1-121; .guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/handoffs/architect-T1-architect.md:18-23"
+    }
+  ],
+  "round": 1,
+  "reviewer_host": "codex"
+}

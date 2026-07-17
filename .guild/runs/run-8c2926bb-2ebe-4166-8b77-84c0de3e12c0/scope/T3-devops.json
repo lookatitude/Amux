@@ -1,0 +1,23 @@
+{
+  "schema_version": "guild.scope.v1",
+  "run_id": "run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0",
+  "task_id": "T3-devops",
+  "specialist": "devops",
+  "write_globs": [
+    ".github/workflows/**",
+    "Makefile",
+    "Taskfile.yml",
+    "scripts/**",
+    "packaging/**",
+    "docs/operations/**",
+    "docs/release/**",
+    ".guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/handoffs/devops-T3-devops.md"
+  ],
+  "forbidden_globs": [
+    "docs/security/**",
+    "internal/domain/**",
+    "internal/platform/**",
+    "api/v1/**",
+    "docs/adr/**"
+  ]
+}

@@ -1,0 +1,27 @@
+# guild.learning_checkpoint.v1
+learning_checkpoint:
+  version: guild.learning_checkpoint.v1
+  phase: ideation
+  run_id: run-bc5df50b-2431-46bf-94a0-624f9dd33115
+  observed:
+    - The clean-room Go and Linux-first product boundary was frozen in the reviewed spec.
+    - Six clarification rounds resolved hook launch/revocation semantics and the final G-spec review resolved project trust identity plus client attach semantics.
+    - No durable cross-project learning promotion is warranted before implementation produces verified code evidence.
+  decisions:
+    memory: none
+    wiki: none
+    knowledge_graph: none
+    domain_model: none
+    agent_def: none
+    skill_def: none
+    agent_template: none
+    skill_template: none
+    config: none
+    task_tracking: none
+    workflow_rules: none
+    review_policy: none
+  knowledge_links_batch: []
+  routed_to: .guild/reflections/run-bc5df50b-2431-46bf-94a0-624f9dd33115.md
+  evidence_ref: .guild/spec/amux-go-linux-runtime.md
+  emitter_status: manual-fallback
+  emitter_note: Installed Guild bundle does not contain hooks/emit-learning-checkpoint.ts.

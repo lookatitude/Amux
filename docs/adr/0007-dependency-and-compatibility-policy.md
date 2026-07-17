@@ -1,0 +1,180 @@
+# ADR-0007 — Dependency and compatibility policy
+
+- Status: Accepted
+- Date: 2026-07-15
+- Deciders: architect (T1)
+- Significance: high
+- Enforced by: pinned `go.mod`/`go.sum` + `docs/dependencies.md` (regeneration
+  commands inside), `internal/archtest` import rules, `CGO_ENABLED=0` release
+  builds, `api/v1/golden_test.go` (protocol vectors), `internal/persist`
+  manifest contract (snapshot generations), `internal/archtest` `TestNoCgo` +
+  domain external allowlist
+
+## Context
+
+T1 froze the authority boundaries (ADR-0001), domain graph (ADR-0002), protocol
+v1 (ADR-0003), ordering proofs (ADR-0004), persistence contract (ADR-0005), and
+platform seams (ADR-0006). What remains open is the policy layer those contracts
+sit on: which third-party libraries Amux builds against, how they are licensed,
+pinned, and updated, why cgo is prohibited, and how long a protocol or snapshot
+producer/consumer pair must remain interoperable. This ADR closes the A6 spike
+decisions and freezes that policy before T2–T5 dispatch.
+
+## Decision drivers
+
+- Clean-room, Go-authoritative, Linux-first runtime; single static binary per
+  architecture (spec platform constraint: glibc Linux `x86_64`/`aarch64`).
+- Spec autonomy gate: "adding dependencies with material licensing obligations"
+  requires confirmation — so the default posture is permissive-only licenses.
+- Spec confirmation gate on "introducing cgo/Rust" — the prohibition must be a
+  frozen policy, not a habit.
+- Evidence over claims: every selected library carries a bounded A6 spike or an
+  explicit deferral, never an unproven suitability claim.
+
+## Decision 1 — Selected libraries (exact pins)
+
+The full machine-derived manifest with license verification lives in
+`docs/dependencies.md`; this table freezes the *selection rationale*. All pins
+are exact versions in `go.mod`, hash-locked by `go.sum`.
+
+| Module | Version | License | Role | A6 evidence |
+|---|---|---|---|---|
+| `github.com/charmbracelet/x/ansi` | v0.4.5 | MIT | Streaming VT/control-sequence decoder behind the frozen `TerminalEngine` seam (ADR-0006) | `spikes/ansi` — corpus decodes without crash/desync; truncated tail neither crashes nor drops trailing bytes; full buffer consumed (3 tests pass on author host) |
+| `github.com/creack/pty` | v1.1.24 | MIT | Backs the narrow PTY interface (ADR-0006); test-graph only until T4 wires supervision | `spikes/pty` — opens a real PTY, round-trips child output, resizes (2 tests pass on author host) |
+| `github.com/google/uuid` | v1.6.0 | BSD-3-Clause | UUIDv7 generation for all opaque sortable IDs (ADR-0002) and checkpoint generation IDs (ADR-0005) | `spikes/uuidv7` — same-millisecond monotonicity, concurrent uniqueness, clock-regression clamp documented (3 tests pass on author host) |
+| `github.com/spf13/cobra` | v1.8.1 | Apache-2.0 | CLI command tree for `cmd/amux` (and daemon flags) | No spike needed: mainstream, API-stable, permissive; `internal/archtest` keeps it out of `internal/domain` (non-allowlisted external) |
+| `golang.org/x/sys` | v0.28.0 | BSD-3-Clause | Raw syscall surface for Linux-only platform files (`openat2`, `SO_PEERCRED`, pdeathsig) — never imported outside `internal/platform`/spikes | Compiles into the `GOOS=linux` build graph only; runtime behavior is the deferred containment/launch evidence (ADR-0006) |
+
+Indirect (pulled by the above, permissive, hash-locked): `inconshreveable/mousetrap`
+v1.1.0 (Apache-2.0, cobra/Windows), `rivo/uniseg` v0.4.7 (MIT, grapheme widths
+under x/ansi), `spf13/pflag` v1.0.5 (BSD-3-Clause, cobra). Four further modules
+exist in the module graph but in **no** build or test binary; they are inventoried
+and explicitly deferred in `docs/dependencies.md`.
+
+**Selected but not yet pinned — Bubble Tea (T5).** `charmbracelet/bubbletea` is
+the selected TUI framework (ADR-0001 places it in `internal/tui`; the spec's
+autonomy policy pre-authorizes "choose Bubble Tea components"). It is MIT and
+pure Go (cgo-free), so it passes this policy's gates, but T1 does not add the
+pin: no T1 package may import it (archtest has no `internal/tui` yet), and
+pinning an unused module would create an unevidenced dependency. T5 adds the
+exact pin under this ADR's rules. The A6 "Bubble Tea damage strategy inputs"
+spike closed at the *input* boundary: `spikes/ansi` proves the decoder yields
+classified tokens (text/CSI/OSC) with grapheme-cluster widths via `uniseg` —
+exactly the cell-grid damage inputs a renderer diffing strategy consumes. No
+Bubble Tea code was executed in T1; renderer fidelity/perf remains the spec's
+named risk and is release-gated in T5/T6.
+
+**Release tooling (build-time, never in `go.mod`).** GoReleaser (MIT, single Go
+binary) is selected to produce the MVP release artifacts: reproducible
+`CGO_ENABLED=0` cross-builds for linux/`amd64`+`arm64`, tarballs, and checksums.
+The AUR **binary** package (spec release sequence step 5) is a hand-authored
+`PKGBUILD` under `packaging/aur/` consuming those released tarballs — AUR
+metadata is not generated by GoReleaser. Ubuntu 24.04 is a CI/support lane, not
+a distinct packaging target; tarballs cover it (deb/rpm repositories are
+explicitly not MVP gates). This is a decision-level A6 closure: GoReleaser was
+evaluated against a hand-rolled `make`+`go build` matrix (rejected: re-implements
+checksums/archives/reproducibility flags GoReleaser already standardizes) and
+against nfpm/deb output (rejected: not an MVP gate). T3 (devops) pins the exact
+GoReleaser version in CI and owns runtime validation of the release pipeline; no
+release-pipeline runtime claim is made from T1.
+
+## Decision 2 — License policy
+
+- **Allowed by default:** MIT, BSD-2/3-Clause, Apache-2.0, ISC. Everything in
+  the current build graph is in this set, verified against the actual `LICENSE`
+  file shipped in each module (see `docs/dependencies.md` for the verification
+  commands, not registry metadata).
+- **Requires spec-level confirmation (autonomy gate):** any copyleft (GPL/LGPL/
+  AGPL/MPL), source-available, or dual-licensed dependency, and any license
+  imposing obligations beyond attribution.
+- **Check runs at every dependency change:** the manifest in
+  `docs/dependencies.md` must be regenerated whenever `go.mod` changes; a stale
+  manifest is a review-blocking defect. T3 may automate this in CI; the manual
+  regeneration commands are frozen in the manifest header.
+
+## Decision 3 — Pin and update policy
+
+- `go.mod` pins **exact versions**; `go.sum` is committed and authoritative
+  (hash-locked supply chain). The `toolchain` directive pins the Go toolchain
+  (`go1.26.5` today) so builds do not float with the host.
+- No wildcard/latest upgrades. An update is a deliberate change: bump one
+  module, re-run the full gate (`gofmt`, `go vet`, `go test ./...`,
+  `go test -race ./...`, `GOOS=linux` builds), regenerate the manifest, and
+  record material behavior changes in the commit.
+- Security fixes may fast-track but follow the same mechanics.
+- Adding a **new** direct dependency requires: permissive license verified from
+  the module's own LICENSE file, cgo-free check, a bounded suitability spike or
+  an explicit written waiver of one, and a manifest regeneration. Dependencies
+  reachable only from `cmd/` or `spikes/` must not leak into `internal/domain`
+  (enforced by `internal/archtest`).
+
+## Decision 4 — cgo prohibition
+
+`CGO_ENABLED=0` for all release builds; no module that requires cgo may enter
+the build graph. Rationale: static single-binary distribution across Arch and
+Ubuntu glibc lanes, trivial cross-compilation (`GOOS=linux GOARCH=amd64|arm64`
+from any host — the verified T1 compile gate), no C toolchain in the supply
+chain, and race-detector coverage that stays meaningful. Everything currently
+selected is pure Go. Introducing cgo (or Rust) is a spec-level confirmation
+gate, not an architect decision — this ADR just makes the default enforceable.
+
+## Decision 5 — Compatibility windows
+
+- **Protocol (ADR-0003):** the window is **one major version**. Within major 1,
+  every minor interoperates with every other minor by down-negotiation to
+  `min(client, server)`; unknown fields are ignored at the wire boundary
+  (forward-compat), and `unsupported_version` is returned before any request is
+  accepted on a major mismatch. Golden vectors under `api/v1/testdata/` are the
+  frozen evidence; a vector may be *added* for a new minor but never mutated.
+- **Snapshot (ADR-0005):** compatibility is **per-generation, one schema step**.
+  Every manifest carries `schema_version`; a daemon must read snapshots written
+  by the previous schema version and migrate forward transactionally
+  (ordered migrations, previous-known-good retained). It must never write a
+  snapshot an already-released daemon of the same major cannot reject cleanly:
+  on encountering a *newer* schema than it supports, a daemon refuses to touch
+  the generation (fail-closed, no partial import) so a rollback binary still
+  finds its previous-known-good intact. Trust state is SQLite-only and never
+  rolls back with snapshots (ADR-0005 non-rollback rule).
+- **Pre-1.0 caveat:** until the first alpha release, `Major=1, Minor=0` and
+  `schema_version` may still be revised by ADR amendment; after an alpha ships,
+  changing persisted public contracts is a spec-level confirmation gate.
+
+## Consequences
+
+**Positive**
+
+- Supply chain is small (5 direct modules, all permissive, all hash-locked),
+  fully inventoried, and reproducible from two commands.
+- cgo-free policy keeps cross-compilation, static packaging, and the race gate
+  cheap — already exercised by the T1 Linux compile-only checks.
+- Downstream lanes inherit crisp rules: T5 pins Bubble Tea under this policy,
+  T3 pins GoReleaser in CI, nobody re-litigates licensing per PR.
+
+**Negative**
+
+- Exact pins mean routine manual bumps (no auto-float); accepted for a runtime
+  that values reproducibility over freshness.
+- A pure-Go constraint forecloses some high-performance C-backed options
+  (e.g. SQLite via cgo); the modernc-style pure-Go route or stdlib alternatives
+  must be chosen by T4 within this policy, escalating only if none fits.
+
+## Alternatives considered
+
+- **Vendoring (`vendor/`)** — rejected for MVP: `go.sum` + module cache already
+  hash-locks; vendoring adds churn without a build-environment requirement yet.
+- **Floating minor versions / dependabot-style auto-merge** — rejected:
+  violates evidence-over-claims (updates land without a spike or gate run).
+- **nfpm/deb packaging in MVP** — rejected: spec names tarballs + AUR binary as
+  the MVP artifacts; deb/rpm repositories are explicitly non-gates.
+- **Writing our own VT parser / UUID generator** — rejected: `spikes/ansi` and
+  `spikes/uuidv7` show the selected libraries meet the frozen invariants; both
+  sit behind interfaces (ADR-0006, ADR-0002) so replacement stays possible.
+
+## Follow-ups
+
+- T3: pin GoReleaser in CI, automate manifest freshness, wire the deferred
+  Linux spike harnesses (ADR-0006) as blocking jobs on the Arch/Ubuntu matrix.
+- T4: choose the SQLite implementation within the cgo prohibition (pure-Go
+  driver or stdlib fallback) — escalate via ADR amendment only if impossible.
+- T5: add the `charmbracelet/bubbletea` pin plus its transitive set to
+  `go.mod` under Decision 3's new-dependency rules; regenerate the manifest.

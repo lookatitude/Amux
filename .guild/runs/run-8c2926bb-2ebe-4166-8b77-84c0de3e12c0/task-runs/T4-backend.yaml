@@ -1,0 +1,40 @@
+task_run:
+  schema_version: guild.task_run.v1
+  ids:
+    initiative_id: null
+    run_id: run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0
+    task_id: T4-backend
+    task_run_id: trun-017
+  specialist: backend
+  objective: Complete the planned T4-to-T5 client contract by migrating x/ansi for Bubble Tea v2 compatibility and adding the four missing immutable client projections without changing durable authority.
+  context_bundle: .guild/context/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/backend-T4-backend.md
+  inputs: []
+  expected_outputs: []
+  depends_on:
+    - T1-architect
+    - T2-security
+    - T3-devops
+  permissions:
+    read:
+      - repo
+    write:
+      - assigned_worktree
+    network: disabled_by_default
+    shell: approval_required
+    destructive: approval_required
+  budget:
+    max_turns: 32
+    max_tokens: 140000
+  autonomy_policy: autonomous_after_plan_approval
+  loops_applicable: full
+  host:
+    requested: claude-code
+    selected: null
+    capability_requirements:
+      needs_pr: false
+      needs_parallel: false
+      needs_network: false
+      isolation: none
+    model_params: null
+  trace:
+    events_ref: .guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/logs/v1.4-events.jsonl

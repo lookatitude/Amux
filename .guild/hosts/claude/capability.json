@@ -1,0 +1,29 @@
+{
+  "schema_version": "guild.host_capability.v1",
+  "host_id": "claude",
+  "host_kind": "claude",
+  "advertised_at": "2026-07-17T01:45:18.961Z",
+  "source": "session-start",
+  "tier_models": {
+    "cheap": "claude-opus-4-8",
+    "mid": "claude-opus-4-8",
+    "powerful": "claude-fable-5"
+  },
+  "supported_tiers": [
+    "cheap",
+    "mid",
+    "powerful"
+  ],
+  "models": [
+    "claude-opus-4-8",
+    "claude-fable-5"
+  ],
+  "tool_support": {
+    "subagent": true,
+    "agent_team": true,
+    "independent_agents": true,
+    "tmux": true,
+    "mcp": true,
+    "pre_tool_use_ask": true
+  }
+}

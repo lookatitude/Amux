@@ -1,0 +1,81 @@
+# schema_version: guild.agents_registry.v1
+# generated_by: guild.roster_resolve.v1
+# DERIVED INDEX of .guild/agents/*.md — the .md files are the source of truth (D4).
+# Regenerate with: roster-resolve.ts --cwd <root> --write-registry. Do not hand-edit.
+agents:
+  - id: architect
+    file: .guild/agents/architect.md
+    model: opus
+    default_tier: powerful
+    derived_from_template: guild.specialist_template.v1
+    skills:
+      - guild-principles
+      - architect-systems-design
+      - architect-tradeoff-matrix
+      - architect-adr-writer
+  - id: backend
+    file: .guild/agents/backend.md
+    model: sonnet
+    default_tier: mid
+    derived_from_template: guild.specialist_template.v1
+    skills:
+      - guild-principles
+      - backend-api-contract
+      - backend-data-layer
+      - backend-migration-writer
+      - backend-service-integration
+  - id: devops
+    file: .guild/agents/devops.md
+    model: sonnet
+    default_tier: mid
+    derived_from_template: guild.specialist_template.v1
+    skills:
+      - guild-principles
+      - devops-ci-cd-pipeline
+      - devops-infrastructure-as-code
+      - devops-observability-setup
+      - devops-incident-runbook
+  - id: frontend
+    file: .guild/agents/frontend.md
+    model: sonnet
+    default_tier: mid
+    derived_from_template: guild.specialist_template.v1
+    skills:
+      - guild-principles
+      - frontend-react
+      - frontend-state-management
+      - frontend-bundler-config
+      - frontend-a11y
+  - id: qa
+    file: .guild/agents/qa.md
+    model: sonnet
+    default_tier: mid
+    derived_from_template: guild.specialist_template.v1
+    skills:
+      - guild-principles
+      - qa-test-strategy
+      - qa-property-based-tests
+      - qa-snapshot-tests
+      - qa-flaky-test-hunter
+  - id: security
+    file: .guild/agents/security.md
+    model: opus
+    default_tier: powerful
+    derived_from_template: guild.specialist_template.v1
+    skills:
+      - guild-principles
+      - security-threat-modeling
+      - security-dependency-audit
+      - security-auth-flow-review
+      - security-secrets-scan
+  - id: terminal-ui
+    file: .guild/agents/terminal-ui.md
+    model: sonnet
+    default_tier: mid
+    derived_from_template: guild.agent_template.v1
+    skills:
+      - guild-principles
+      - terminal-ui-vt-rendering
+      - terminal-ui-interaction
+      - terminal-ui-attach-streams
+      - terminal-ui-performance

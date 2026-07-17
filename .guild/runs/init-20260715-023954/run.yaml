@@ -1,0 +1,6 @@
+run_id: init-20260715-023954
+phase: init
+status: complete
+repository_kind: regular
+artifact: .guild/init/amux.md
+generated_from_commit: unknown

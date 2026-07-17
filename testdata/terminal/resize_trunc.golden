@@ -1,0 +1,9 @@
+01234567
+row two
+--
+cursor: row=1 col=5 visible=true wrapnext=false
+pen: fg=default bg=default attrs=none
+title: 
+modes: altscreen=false autowrap=true region=0..1 rows=2 cols=8
+bell=0 unsupported=0
+styles:

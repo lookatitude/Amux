@@ -1,0 +1,7 @@
+{
+  "type": "welcome",
+  "major": 1,
+  "minor": 0,
+  "boot_id": "boot-01HZ",
+  "server": "amuxd/0.0.0-dev"
+}

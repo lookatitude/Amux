@@ -1,0 +1,40 @@
+{
+  "schema_version": "review_result.v1",
+  "packet_id": "G-lane-T5-terminal-ui-r1",
+  "artifact_sha256_reviewed": "f42448ed40726d2e299eb8f55099264a66cc4e2a3d4336588024eb5d16511efc",
+  "verdict": "issues",
+  "findings": [
+    {
+      "id": "F1",
+      "severity": "blocking",
+      "title": "Production `amux tui` never opens the daemon attach stream, so attach/detach and reconnect are not real workflows",
+      "detail": "The approved T5 contract requires attach/detach presentation over backend APIs, and the spec says the TUI itself counts as an attached client using the `attach` stream. The live production path never calls `attach`: `runTUIInteractive` only starts the Bubble Tea bridge, `Init` only fetches health/notifications/tree and starts polling, and `applyTree` marks the UI `live` after a tree fetch. The detach key emits `IntentDetach`, but dispatch returns `nil`, so no stream is closed and no lease is released. Recovery is likewise reduced to re-fetching `workspace.tree` plus `surface.cells`, not reattaching from the last delivered sequence. That leaves U5's attach/replaying/read-only semantics projection-only and makes the receipt's 'real attach/reconnect' claim untrue.",
+      "evidence": ".guild/plan/amux-go-linux-runtime.md:270-275,299-301; .guild/spec/amux-go-linux-runtime.md:98-102; cmd/amux/tui.go:98-138; internal/tui/teabridge/teabridge.go:128-135; internal/tui/teabridge/dispatch.go:122-153,308-317; internal/tui/app/app.go:249-254"
+    },
+    {
+      "id": "F2",
+      "severity": "blocking",
+      "title": "Hook trust approve/deny/revoke exists only as a test-invoked helper, not a live TUI workflow",
+      "detail": "T5's approved U6 scope requires hook inspect/approve/deny/revoke confirmations over backend semantic state. The shipped keymap exposes focus, split, surface, notification, takeover, detach, and recover actions, but no trust action. The only production code path that opens the trust card is `RequestHookTrust(...)`, and the live Bubble Tea update loop never calls it; the only call sites in the repo are the integration tests. So an operator using `amux tui` cannot actually reach `hook.inspect` or the approval/revoke confirmation flow, despite the receipt and docs presenting that workflow as complete.",
+      "evidence": ".guild/plan/amux-go-linux-runtime.md:302-304; internal/tui/keys/defaults.go:15-35; internal/tui/teabridge/dispatch.go:366-391; internal/tui/teabridge/teabridge.go:194-199; internal/tui/teabridge/integration_test.go:246-249,277-279; docs/tui.md:40-42,103-107"
+    }
+  ],
+  "blocking_findings": [
+    {
+      "id": "F1",
+      "severity": "blocking",
+      "title": "Production `amux tui` never opens the daemon attach stream, so attach/detach and reconnect are not real workflows",
+      "detail": "The live TUI polls projections and synthesizes `live` state, but never uses `attach`; `Ctrl+b d` dispatches to a no-op instead of closing an attach stream or releasing the lease it owns.",
+      "evidence": ".guild/spec/amux-go-linux-runtime.md:98-102; cmd/amux/tui.go:98-138; internal/tui/teabridge/teabridge.go:128-135; internal/tui/teabridge/dispatch.go:308-317"
+    },
+    {
+      "id": "F2",
+      "severity": "blocking",
+      "title": "Hook trust approve/deny/revoke exists only as a test-invoked helper, not a live TUI workflow",
+      "detail": "The trust card helper exists, but no shipped keybinding or runtime event path reaches it; only integration tests call `RequestHookTrust(...)`.",
+      "evidence": ".guild/plan/amux-go-linux-runtime.md:302-304; internal/tui/keys/defaults.go:15-35; internal/tui/teabridge/dispatch.go:366-391; internal/tui/teabridge/integration_test.go:246-249,277-279"
+    }
+  ],
+  "round": 1,
+  "reviewer_host": "codex"
+}

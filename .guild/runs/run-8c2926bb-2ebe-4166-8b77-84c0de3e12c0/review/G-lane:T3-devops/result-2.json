@@ -1,0 +1,26 @@
+{
+  "schema_version": "review_result.v1",
+  "packet_id": "G-lane-T3-devops-r2",
+  "artifact_sha256_reviewed": "de69fa724a0947862e55926c0f70e3cb21fe2550854e4a0c58b4b57751f30b88",
+  "verdict": "issues",
+  "findings": [
+    {
+      "id": "F1",
+      "severity": "blocking",
+      "title": "The reworked T3 CI still consumes the dead T2 security surface",
+      "detail": "The packet required the dead T2 boundary to be respected exactly, and the receipt claims T3 neither consumed nor depended on docs/security/**, internal/securitytest/**, or testdata/security/**. The live CI matrix still runs make test in every native lane, and make test is repo-wide go test ./..., which includes internal/securitytest. That package's tests/helpers load docs/security/readiness-manifest.json and walk docs/security plus testdata/security, so T3's supported-target evidence remains coupled to dead T2 artifacts outside T3's declared dependency boundary. Even though the suite is green today, the closure claim is overstated and the exact dead-T2 boundary in the packet is not met.",
+      "evidence": ".guild/plan/amux-go-linux-runtime.md:220-228; .guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/handoffs/devops-T3-devops.md:26-30,119-123; .github/workflows/ci.yml:70-71,104-107,129-130,161-164; Makefile:106-108; internal/securitytest/fixtures_test.go:22-41; internal/securitytest/vectors.go:123-137; internal/securitytest/manifest_test.go:23-35"
+    }
+  ],
+  "blocking_findings": [
+    {
+      "id": "F1",
+      "severity": "blocking",
+      "title": "The reworked T3 CI still consumes the dead T2 security surface",
+      "detail": "Every native T3 CI lane still executes repo-wide go test ./..., which includes internal/securitytest and its reads of docs/security and testdata/security, so the lane does not actually respect the packet's dead-T2 boundary.",
+      "evidence": ".guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/handoffs/devops-T3-devops.md:28-30,119-123; .github/workflows/ci.yml:70-71,104-105,129-130,161-162; Makefile:106-108; internal/securitytest/fixtures_test.go:22-41; internal/securitytest/vectors.go:123-137"
+    }
+  ],
+  "round": 2,
+  "reviewer_host": "codex"
+}

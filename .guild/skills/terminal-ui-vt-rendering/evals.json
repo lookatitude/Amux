@@ -1,0 +1,12 @@
+{
+  "should_trigger": [
+    "Render backend-provided immutable cell snapshots in the Go multiplexer TUI.",
+    "Fix wide-character and combining-mark corruption in terminal frames.",
+    "Add golden fixtures for cursor, style, clipping, and alternate-screen rendering."
+  ],
+  "should_not_trigger": [
+    "Implement the raw VT parser and authoritative terminal cell-state engine.",
+    "Design the daemon event protocol and persistence schema.",
+    "Build a React canvas terminal component for the browser."
+  ]
+}

@@ -1,0 +1,96 @@
+{
+  "schema_version": "review_result.v1",
+  "packet_id": "G-lane-T6-qa-r1",
+  "artifact_sha256_reviewed": "0000879b88ff27158f23a949e67e3c8487bf6e62f0eabcaed6740726ab5c3064",
+  "verdict": "issues",
+  "findings": [
+    {
+      "id": "F1",
+      "severity": "blocking",
+      "title": "Flow 14 is still broken because ReplayRead ignores MaxBytes",
+      "detail": "The frozen CLI contract requires bounded replay for flow 14, but the live engine still never consults ReplayReadParams.MaxBytes before base64-encoding the entire retained window into one unary response. The current QA evidence and the security receipt both still fail on the same defect: once retained output grows past roughly 768 KiB, the reply exceeds v1.MaxHeaderBytes and the daemon drops the connection with EOF.",
+      "evidence": ".guild/spec/amux-go-linux-runtime.md:185-186; internal/daemon/surface.go:171-204; internal/daemon/exhaustion_integration_test.go:152-188; .amux-artifacts/qa/20260716T233403Z/q5-resource-exhaustion-host.log:1-6; .amux-artifacts/security/integration-resource-exhaustion.receipt.json:1-13"
+    },
+    {
+      "id": "F2",
+      "severity": "blocking",
+      "title": "Overlayfs root replacement still violates the frozen project-identity contract",
+      "detail": "The approved spec says replacing a project root must change identity and invalidate trust, but the current replacement test still fails on overlayfs because rm+mkdir can reuse the same inode. The QA receipt is truthful that this remains open; the release gate is still blocked because the current implementation cannot uphold the approved identity semantics on that filesystem class.",
+      "evidence": ".guild/spec/amux-go-linux-runtime.md:54-60; internal/control/actor_test.go:152-174; docs/testing/strategy.md:153-165; docs/security/reviews/release-candidate.md:24-40"
+    },
+    {
+      "id": "F3",
+      "severity": "blocking",
+      "title": "The frozen release pipeline still cannot build with the pinned GoReleaser configuration",
+      "detail": "The checked-in GoReleaser file is still incompatible with the pinned v2.5.1 tool (`ids`, `formats`) and still uses the invalid `default_file_info` key. The diagnostic dry run only succeeds after changing both the config and the tool version, so the as-frozen release path remains red.",
+      "evidence": "packaging/goreleaser/goreleaser.yaml:31-36,70-87; .amux-artifacts/qa/20260716T233403Z/q8-release-snapshot.log:1-18; .amux-artifacts/qa/20260716T233403Z/q8-release-dryrun-diagnostic.log:1-21,22-89; docs/testing/strategy.md:183-191"
+    },
+    {
+      "id": "F4",
+      "severity": "blocking",
+      "title": "Installed CLI smoke is still blocked because `amux --version` is not wired",
+      "detail": "The release smoke contract and rollback docs both require `amux --version`, but the root Cobra command still exposes only the `version` subcommand while `amuxd` has a real `--version` flag. Current install-smoke evidence still shows `amux: unknown flag: --version` on the produced tarballs.",
+      "evidence": "cmd/amux/main.go:212-270; cmd/amuxd/main.go:22-29; internal/version/version.go:22-25; packaging/smoke/smoke-install.sh:42-45; docs/release/rollback-and-recovery.md:127-133,160-163; .amux-artifacts/qa/20260716T233403Z/q8-install-smoke.log:1-20,33-76"
+    },
+    {
+      "id": "F5",
+      "severity": "blocking",
+      "title": "The frozen trust-matrix security gate is still misbound even though later QA evidence closed other snapshot-era blockers",
+      "detail": "The current evidence does close the security review snapshot's F-7, F-9, and F-10: the manifest receipts now exist under `.amux-artifacts/security/`, the 30-minute Arch soak completed for 1807 seconds with 20 PTYs, and `FuzzEngineFeed` has a clean rerun log. Those should not be treated as current blockers. The remaining frozen security-gate defect is narrower but still blocking: `trust-matrix-replay` is still defined as `-run 'TrustMatrixReplay' ./...`, which matches zero tests and is explicitly recorded as a failed check. The second-UID gate now has real Linux evidence, but the trust-matrix manifest command is still wrong.",
+      "evidence": "docs/security/readiness-manifest.json:54-74; .amux-artifacts/security/trust-matrix-replay.receipt.json:1-13; .amux-artifacts/security/integration-second-uid.receipt.json:1-13; .amux-artifacts/qa/20260716T233403Z/q7-soak-linux-30m.log:1-19; .amux-artifacts/soak/20260717T001113Z/metadata.env:1-12; .amux-artifacts/soak/20260717T001113Z/summary.env:1-6; .amux-artifacts/qa/20260716T233403Z/q2-fuzz-smoke.log:34-47,70; .amux-artifacts/qa/20260716T233403Z/q2-fuzz-smoke-clean.log:34-67; docs/security/reviews/release-candidate.md:130-165"
+    },
+    {
+      "id": "F6",
+      "severity": "blocking",
+      "title": "The release-promotion gate remains incomplete, and `race-full-suite` is overstated as satisfied",
+      "detail": "A truthful blocked QA receipt is still not a satisfied release gate. Several release-promotion requirements remain honestly unproven in the handoff itself: reference-profile performance, 8-hour soak, AUR clean-chroot, hosted CI, interactive real-terminal TUI smoke, and commit-bound provenance/history scanning. More importantly, one frozen manifest check is currently overstated: `race-full-suite` is recorded as `outcome: pass` from a darwin/arm64 host run even though the manifest freezes it to the Linux CI matrix and the receipt notes that the Linux-native race lane remains a CI runner gate. The CI workflows also still do not export an owner-safe TMPDIR despite the strategy stating every Linux runner must, and the repository still has no `.gitignore` while the secrets-scan evidence shows `.guild/`, generated artifacts, and the stray binary would be candidate history noise. The release gate therefore remains blocked both by absent evidence and by an overclaimed manifest pass.",
+      "evidence": ".guild/spec/amux-go-linux-runtime.md:164,195-200; docs/security/security-readiness.md:21-25,52-55,86-93; docs/security/readiness-manifest.json:87-95; .amux-artifacts/security/race-full-suite.receipt.json:1-12; .amux-artifacts/security/race-full-suite.txt:1-46; .amux-artifacts/qa/20260716T233403Z/environment.env:1-3; .amux-artifacts/security/secrets-scan-history.receipt.json:1-13; .amux-artifacts/security/secrets-scan-history.txt:29-31,61-63,69-71,97-99; .github/workflows/ci.yml:59-79,93-109,112-166; docs/testing/strategy.md:142-149; .guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/handoffs/qa-T6-qa.md:50-57; command `rg --files -g '.gitignore' .` returned no files; command `git status --short` shows `.amux-artifacts/`, `.guild/`, and `amux` untracked"
+    }
+  ],
+  "blocking_findings": [
+    {
+      "id": "F1",
+      "severity": "blocking",
+      "title": "Flow 14 is still broken because ReplayRead ignores MaxBytes",
+      "detail": "The live engine still returns unbounded replay payloads, and the current integration evidence still fails with EOF once the reply exceeds the protocol cap.",
+      "evidence": "internal/daemon/surface.go:171-204; internal/daemon/exhaustion_integration_test.go:152-188; .amux-artifacts/qa/20260716T233403Z/q5-resource-exhaustion-host.log:1-6"
+    },
+    {
+      "id": "F2",
+      "severity": "blocking",
+      "title": "Overlayfs root replacement still violates the frozen project-identity contract",
+      "detail": "The current replacement test still fails on overlayfs, so replacing a trusted root does not reliably invalidate trust as the approved spec requires.",
+      "evidence": ".guild/spec/amux-go-linux-runtime.md:54-60; internal/control/actor_test.go:152-174; docs/testing/strategy.md:153-165"
+    },
+    {
+      "id": "F3",
+      "severity": "blocking",
+      "title": "The frozen release pipeline still cannot build with the pinned GoReleaser configuration",
+      "detail": "The pinned v2.5.1 tool still rejects the checked-in config, and the only successful build path in evidence used a patched config plus a newer tool.",
+      "evidence": "packaging/goreleaser/goreleaser.yaml:31-36,70-87; .amux-artifacts/qa/20260716T233403Z/q8-release-snapshot.log:1-18; .amux-artifacts/qa/20260716T233403Z/q8-release-dryrun-diagnostic.log:1-21,22-89"
+    },
+    {
+      "id": "F4",
+      "severity": "blocking",
+      "title": "Installed CLI smoke is still blocked because `amux --version` is not wired",
+      "detail": "The CLI still lacks the required `--version` flag, and install smoke remains red on produced artifacts.",
+      "evidence": "cmd/amux/main.go:212-270; packaging/smoke/smoke-install.sh:42-45; .amux-artifacts/qa/20260716T233403Z/q8-install-smoke.log:1-20,33-76"
+    },
+    {
+      "id": "F5",
+      "severity": "blocking",
+      "title": "The frozen trust-matrix security gate is still misbound even though later QA evidence closed other snapshot-era blockers",
+      "detail": "Current artifacts close the old missing-receipt, soak-completion, and fuzz-rerun gaps, but `trust-matrix-replay` is still a failed frozen check because its `-run` pattern binds to no test.",
+      "evidence": "docs/security/readiness-manifest.json:54-63; .amux-artifacts/security/trust-matrix-replay.receipt.json:1-13; .amux-artifacts/qa/20260716T233403Z/q7-soak-linux-30m.log:1-19; .amux-artifacts/qa/20260716T233403Z/q2-fuzz-smoke-clean.log:34-67"
+    },
+    {
+      "id": "F6",
+      "severity": "blocking",
+      "title": "The release-promotion gate remains incomplete, and `race-full-suite` is overstated as satisfied",
+      "detail": "Hosted CI, reference-profile, AUR, interactive-TTY, and commit-bound provenance gates remain unproven, while `race-full-suite` is currently marked pass from a darwin host despite the manifest requiring Linux CI.",
+      "evidence": "docs/security/readiness-manifest.json:87-95; .amux-artifacts/security/race-full-suite.receipt.json:1-12; .guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/handoffs/qa-T6-qa.md:50-57; .github/workflows/ci.yml:59-79,93-109,112-166; docs/testing/strategy.md:142-149"
+    }
+  ],
+  "round": 1,
+  "reviewer_host": "codex"
+}

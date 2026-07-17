@@ -1,0 +1,3 @@
+Act as the mandatory independent Guild G-lane round-2 reviewer. Read `.guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/review/G-lane:T4-backend/packet-2.md`, the exact receipt named there, the approved plan/spec/ADR-0005, the round-1 result and trail, and every current repository artifact needed to verify the rework. Focus on whether F1 is genuinely closed in the production path and whether the fix introduced a concrete regression. Reopen live files and run read-only/focused verification where useful. Do not rubber-stamp counts or re-litigate settled areas without evidence.
+
+Return only one valid `review_result.v1` object for the packet id and SHA in the packet. No markdown prose outside the required structured result.

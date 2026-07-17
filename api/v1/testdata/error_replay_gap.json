@@ -1,0 +1,9 @@
+{
+  "code": "replay_gap",
+  "message": "requested sequence 10 below retained floor 128; reattach with snapshot",
+  "retryable": true,
+  "details": {
+    "requested": 10,
+    "floor": 128
+  }
+}

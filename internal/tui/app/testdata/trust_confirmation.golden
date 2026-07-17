@@ -1,0 +1,16 @@
+┌ confirm ─────────────────────────────────────────────────┐
+│Hook trust — APPROVE                                      │
+│  Project:     proj                                       │
+│  Hook:        h1                                         │
+│  Executable:  UNAVAILABLE (not on hook.list wire result —│
+│  Digest:      UNAVAILABLE (not on hook.list wire result —│
+│  Events:      PreToolUse                                 │
+│  Cwd scope:   pane                                       │
+│  Env keys:    UNAVAILABLE (not on hook.list wire result —│
+│  Timeout:     UNAVAILABLE (not on hook.list wire result —│
+│  Output cap:  UNAVAILABLE (not on hook.list wire result —│
+│  Status:      active=true bound_epoch=0                  │
+│  ! Some trust fields are UNAVAILABLE from the current wir│
+│Confirm approve? This is a trust-granting change — [y] con│
+└──────────────────────────────────────────────────────────┘
+[confirmation] focus=a attach=idle lease=none

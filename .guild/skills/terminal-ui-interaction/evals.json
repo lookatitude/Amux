@@ -1,0 +1,13 @@
+{
+  "should_trigger": [
+    "Implement directional focus and pane resize in the Bubble Tea client.",
+    "Design conflict-free keymaps and command modes for the terminal multiplexer.",
+    "Add deterministic split-tree geometry tests for very small terminals.",
+    "Build the terminal notification inbox and latest-unread navigation over backend semantic events."
+  ],
+  "should_not_trigger": [
+    "Change the daemon's authoritative workspace or notification state.",
+    "Write marketing copy for the onboarding screen.",
+    "Implement a responsive React dashboard layout."
+  ]
+}

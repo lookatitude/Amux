@@ -1,0 +1,110 @@
+{
+  "schema_version": "guild.resolved_settings.v1",
+  "source_chain": {
+    "rigor": "project",
+    "auto_approve": "project",
+    "review": "project",
+    "host": "project",
+    "roles": "project",
+    "host_profiles": "project",
+    "initiative_default": "project",
+    "index": "project",
+    "record_status_runs": "project",
+    "codex_skip_enforcement": "project",
+    "agent_mode": "project",
+    "workspace": "project",
+    "models": "project",
+    "security": "project",
+    "secrets_policy": "project",
+    "mcp": "project",
+    "statusline": "project",
+    "adversarial_review_provider": "project",
+    "loops": "rigor",
+    "loop_cap": "project",
+    "codex_cap": "project",
+    "defaults": "project",
+    "workspace.mode": "project"
+  },
+  "effective": {
+    "agent_mode": "auto",
+    "host": "auto",
+    "review": "local",
+    "rigor": "standard",
+    "loops": "spec,plan",
+    "loop_cap": 16
+  },
+  "providers": {
+    "authorHost": "claude",
+    "detected": [
+      {
+        "id": "claude",
+        "kind": "host",
+        "family": "claude",
+        "detected": true,
+        "authed": false,
+        "selectable": false,
+        "detail": "current author host"
+      },
+      {
+        "id": "codex-plugin",
+        "kind": "plugin-adapter",
+        "family": "codex",
+        "detected": true,
+        "authed": true,
+        "selectable": true,
+        "detail": "native plugin adapter 'codex-plugin' installed; codex on PATH (version ok); authed"
+      },
+      {
+        "id": "codex-cli",
+        "kind": "cli",
+        "family": "codex",
+        "detected": true,
+        "authed": true,
+        "selectable": true,
+        "detail": "codex on PATH (version ok); authed"
+      },
+      {
+        "id": "pi",
+        "kind": "cli",
+        "family": "pi",
+        "detected": true,
+        "authed": false,
+        "selectable": false,
+        "detail": "pi on PATH (version ok); detect-only (no adapter yet — not selectable)"
+      },
+      {
+        "id": "antigravity",
+        "kind": "cli",
+        "family": "antigravity",
+        "detected": true,
+        "authed": false,
+        "selectable": false,
+        "detail": "agy on PATH (version ok); detect-only (no adapter yet — not selectable)"
+      }
+    ],
+    "recommended": null
+  },
+  "roles": {
+    "schema_version": "guild.role_resolution.v1",
+    "host": {
+      "role": "host",
+      "substrate": "claude-code-cli",
+      "strength": "strong",
+      "reason": "strongest <HIGH_ENTROPY_REDACTED>_selectable substrate (claude-code-cli)"
+    },
+    "advisory": {
+      "role": "advisory",
+      "substrate": "claude-code-cli",
+      "strength": "strong",
+      "reason": "advisory defaults to the host substrate (claude-code-cli, local advisor)"
+    },
+    "adversarial": {
+      "role": "adversarial",
+      "substrate": "codex-cli",
+      "strength": "strong",
+      "reason": "different-family result_adapter substrate (codex-cli) — cross-host independence"
+    }
+  },
+  "communication_contract": "review_result.v1",
+  "resolved_at_ref": "run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0"
+}

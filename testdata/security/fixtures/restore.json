@@ -1,0 +1,25 @@
+{
+  "schema": "amux.security.fixtures.v1",
+  "fixtures": [
+    {
+      "id": "restore.epoch-monotonic",
+      "requirement": "HA-4a, HA-18a, HA-19 (threat-model AB-7)",
+      "claim": "epoch-decrease"
+    },
+    {
+      "id": "restore.grant-stays-inactive",
+      "requirement": "HA-18e, HA-19 (threat-model AB-7)",
+      "claim": "grant-reactivate"
+    },
+    {
+      "id": "restore.audit-retained",
+      "requirement": "AUD-6, HA-19 (threat-model AB-7)",
+      "claim": "audit-erase"
+    },
+    {
+      "id": "restore.no-launch-authority",
+      "requirement": "HA-20 (threat-model AB-7)",
+      "claim": "launch-authority"
+    }
+  ]
+}

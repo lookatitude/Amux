@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <meta name="description" content="Feature-parity gap audit between cmux and the Linux-first Go Amux implementation">
+  <title>cmux to Amux parity gap audit · Amux Research</title>
+  <link rel="stylesheet" href="assets/research.css">
+</head>
+<body>
+  <div class="reading-progress" aria-hidden="true"><span></span></div>
+  <header class="topbar">
+    <a class="brand" href="index.html"><span class="brand-mark">A</span><span><strong>Amux</strong><small>Research library</small></span></a>
+    <div class="toolbar">
+      <label class="search-control"><span>Find</span><input id="page-search" type="search" placeholder="⌘K" aria-label="Find in report"></label>
+      <button id="theme-toggle" type="button" aria-label="Toggle color theme">Theme</button>
+    </div>
+  </header>
+  <div class="reader-layout">
+    <aside class="toc" aria-label="Table of contents">
+      <p class="toc-heading">In this report</p>
+      <nav>
+        <a class="toc-link toc-level-2" href="#bottom-line">Bottom line</a>
+        <a class="toc-link toc-level-2" href="#current-position">Current Amux position</a>
+        <a class="toc-link toc-level-2" href="#mvp-gaps">Linux MVP gaps</a>
+        <a class="toc-link toc-level-2" href="#terminal-parity">Terminal-centric parity</a>
+        <a class="toc-link toc-level-3" href="#terminal-experience">Terminal experience</a>
+        <a class="toc-link toc-level-3" href="#workspace-product">Workspace product</a>
+        <a class="toc-link toc-level-3" href="#agent-depth">Agent depth</a>
+        <a class="toc-link toc-level-3" href="#automation">Automation</a>
+        <a class="toc-link toc-level-2" href="#full-parity">Full product parity</a>
+        <a class="toc-link toc-level-3" href="#browser">Browser</a>
+        <a class="toc-link toc-level-3" href="#remote">SSH and remote</a>
+        <a class="toc-link toc-level-3" href="#desktop">Desktop and platforms</a>
+        <a class="toc-link toc-level-2" href="#tools">Implementation tools</a>
+        <a class="toc-link toc-level-2" href="#roadmap">Recommended roadmap</a>
+        <a class="toc-link toc-level-2" href="#architecture">Architecture decision</a>
+        <a class="toc-link toc-level-2" href="#sources">Sources</a>
+      </nav>
+      <div class="source-links">
+        <a class="source-link" href="cmux-to-amux-parity-gap-audit.md">Canonical Markdown</a>
+        <a class="source-link" href="cmux-linux-replication-deep-dive.html">Original deep dive</a>
+        <a class="source-link" href="amux-go-implementation-plan.html">Approved plan</a>
+      </div>
+    </aside>
+    <main id="main-content">
+      <div class="report-meta"><span>Parity audit</span><span>Updated Jul 17, 2026</span><span>cmux main 673ee6f65 · stable v0.64.19</span></div>
+      <article class="research-article">
+        <h1 id="cmux-to-amux-parity-gap-audit">cmux to Amux parity gap audit<a class="heading-link" href="#cmux-to-amux-parity-gap-audit" aria-label="Link to report title">#</a></h1>
+        <blockquote><p>Amux has the daemon-first terminal foundation. It does not yet have the browser, rich desktop workspace shell, SSH runtime, agent-session depth, or Ghostty-class terminal polish that define full cmux product parity.</p></blockquote>
+
+        <h2 id="bottom-line">Bottom line<a class="heading-link" href="#bottom-line" aria-label="Link to Bottom line">#</a></h2>
+        <p>Amux is a strong clean-room implementation of cmux's core runtime ideas, not a full port. It already has a Go authority, PTY supervision, versioned local protocol, attach/replay/input leases, snapshots, notifications, project-scoped hook trust, context discovery, CLI flows, and a real Bubble Tea split-tree TUI.</p>
+        <p>There are three distinct finish lines:</p>
+        <ol>
+          <li><strong>Approved Linux MVP:</strong> close the reopened backend, security, and release findings, then rerun the complete T6 release-evidence lane.</li>
+          <li><strong>Terminal-centric parity:</strong> add terminal fidelity, rich workspace/sidebar UX, deep agent integrations, broad automation, and notification polish.</li>
+          <li><strong>Full product parity:</strong> add the embedded scriptable browser, SSH remotes, native desktop shell, macOS/Windows, and companion systems.</li>
+        </ol>
+
+        <h2 id="current-position">Current Amux position<a class="heading-link" href="#current-position" aria-label="Link to Current Amux position">#</a></h2>
+        <table>
+          <thead><tr><th>Area</th><th>Current state</th><th>Remaining gate</th></tr></thead>
+          <tbody>
+            <tr><td>Architecture</td><td>Complete and independently reviewed</td><td>Preserve compatibility</td></tr>
+            <tr><td>Security</td><td>Core implemented; atomic transition rework active</td><td>Clean build, G-lane review, frozen security rerun</td></tr>
+            <tr><td>Daemon and CLI</td><td>Core implemented; replay/drain rework active</td><td>Focused, race, Linux gates and G-lane review</td></tr>
+            <tr><td>Bubble Tea TUI</td><td>Real attach/trust lifecycle</td><td>G-lane round 2 satisfied</td></tr>
+            <tr><td>Release qualification</td><td>First T6 pass executed</td><td>Regenerate all receipts on the fixed candidate</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="mvp-gaps">Missing before the Linux MVP ships<a class="heading-link" href="#mvp-gaps" aria-label="Link to Linux MVP gaps">#</a></h2>
+        <h3>Close reopened T2, T3, and T4 findings</h3>
+        <p>The first integrated T6 pass exposed defects missed by lane-local suites. The final candidate still needs atomic trust transitions including audit, one-lock replay snapshots, a deterministic PTY drain barrier, truthful Linux race evidence, and a clean pinned GoReleaser/TMPDIR/package path. At this refresh the trust-store interface is mid-integration, so the live tree is not a releasable baseline.</p>
+        <h3>Rerun T6 release evidence</h3>
+        <ul>
+          <li>Traceability, property, fuzz, golden, protocol, VT, PTY, persistence, and security suites.</li>
+          <li>All 20 CLI flows against installed binaries and real-terminal eight-pane acceptance.</li>
+          <li>Fault injection for frames, disks, snapshots, SQLite, daemon death, hook limits, and reconnects.</li>
+          <li>Arch reference performance, a blocking 30-minute soak, and a nightly 8-hour soak.</li>
+          <li>Clean Arch and Ubuntu package installs, checksums, SBOM/provenance, rollback, and release security review.</li>
+        </ul>
+        <p>Cross-compilation from macOS is not Linux runtime proof. cgroup-v2 containment, descriptor-bound launch, AUR installation, D-Bus notification delivery, PTY behavior, and soak claims require Linux execution.</p>
+        <p>The first candidate did complete a 30-minute Arch-container soak with no gaps or orphans and exercised install/daemon/CLI smoke on Arch amd64, Ubuntu amd64, and Ubuntu arm64. Those are useful harness proofs, but the receipts must be regenerated after the reopened fixes.</p>
+
+        <h2 id="terminal-parity">Missing for terminal-centric cmux parity<a class="heading-link" href="#terminal-parity" aria-label="Link to Terminal-centric parity">#</a></h2>
+        <h3 id="terminal-experience">Ghostty-class terminal experience<a class="heading-link" href="#terminal-experience" aria-label="Link to Terminal experience">#</a></h3>
+        <p>The pure-Go VT engine and Bubble Tea renderer fit the Linux MVP. They do not reproduce cmux's GPU-accelerated Ghostty experience.</p>
+        <ul>
+          <li>GPU rendering and Ghostty configuration compatibility.</li>
+          <li>Mature selection, copy semantics, terminal/directory search, IME, and complex input.</li>
+          <li>Hyperlinks, file drops, image protocols, uploads, fonts, themes, scroll controls, and clear-scrollback actions.</li>
+          <li>Long-tail VT fidelity, resource inspection, memory-pressure handling, and renderer lifecycle controls.</li>
+        </ul>
+
+        <h3 id="workspace-product">Rich workspace and sidebar product<a class="heading-link" href="#workspace-product" aria-label="Link to Workspace product">#</a></h3>
+        <ul>
+          <li>Multiple desktop windows, vertical workspace tabs, richer horizontal surface tabs, and window restore.</li>
+          <li>Workspace groups, anchors, pinning, colors/icons, reorder, drag/drop, and richer pane move/swap/join/zoom operations.</li>
+          <li>Linked PRs, listening ports, progress, logs, todos, auto-naming, and task manager.</li>
+          <li>File explorer, global search, command palette, right sidebar modes, project custom commands, Dock, and safe custom sidebars.</li>
+        </ul>
+
+        <h3 id="agent-depth">Agent integration depth<a class="heading-link" href="#agent-depth" aria-label="Link to Agent depth">#</a></h3>
+        <p>Amux has secure hooks and initial Claude/Codex attention parsing. It still lacks the broader agent product:</p>
+        <ul>
+          <li>Provider installer/adaptor catalog, durable native session IDs, resume and conversation fork.</li>
+          <li>Agent hibernation, focus-triggered resume, Feed approval/question/plan workflows, and team launchers.</li>
+          <li>Custom detection/resume templates, auto-naming, richer agent state, and policy-driven notifications.</li>
+        </ul>
+
+        <h3 id="automation">Automation and compatibility<a class="heading-link" href="#automation" aria-label="Link to Automation">#</a></h3>
+        <ul>
+          <li>The larger command vocabulary for windows, groups, todos, Dock, browser, SSH, themes, diagnostics, and custom sidebars.</li>
+          <li>Partial tmux compatibility, published multi-language SDKs, and a WebSocket gateway.</li>
+          <li>Deep links and native file/service integrations.</li>
+          <li>cmux CLI/config/socket compatibility, if explicitly chosen. It is intentionally not promised today.</li>
+        </ul>
+
+        <h2 id="full-parity">Missing for full cmux product parity<a class="heading-link" href="#full-parity" aria-label="Link to Full product parity">#</a></h2>
+        <h3 id="browser">Embedded, agent-scriptable browser<a class="heading-link" href="#browser" aria-label="Link to Browser">#</a></h3>
+        <p>This is the largest missing differentiator. Full parity means browser surfaces in the same graph, with omnibar/navigation/history, profiles and browser import, downloads/uploads/devtools, and a broad automation API for DOM/accessibility snapshots, refs, input, JavaScript, waits, screenshots, storage, network, and proxy control.</p>
+        <table>
+          <thead><tr><th>Browser route</th><th>Best use</th><th>Tradeoff</th></tr></thead>
+          <tbody>
+            <tr><td>Qt 6/QML + Qt WebEngine</td><td>Same-pane browser parity across desktop OSes</td><td>Large runtime and packaging/licensing burden</td></tr>
+            <tr><td>External Chromium over CDP</td><td>Lighter browser beta and automation validation</td><td>Not a fully native embedded browser</td></tr>
+            <tr><td>Wails system webview</td><td>General desktop UI</td><td>Does not provide one uniform CDP browser surface</td></tr>
+          </tbody>
+        </table>
+
+        <h3 id="remote">SSH and remote workspaces<a class="heading-link" href="#remote" aria-label="Link to SSH and remote">#</a></h3>
+        <p>cmux has remote daemon deployment, persistent remote PTYs, reconnect, authenticated CLI relay, browser egress, scp uploads, SSH-agent controls, and resize coordination. Amux is owner-only and local-only. Remote support needs a new protocol and threat model, not an exposed local socket.</p>
+
+        <h3 id="desktop">Native desktop shell and platforms<a class="heading-link" href="#desktop" aria-label="Link to Desktop and platforms">#</a></h3>
+        <ul>
+          <li>Desktop windows, menus, global shortcuts, tray, drag/drop, clipboard, IME, accessibility, and native focus.</li>
+          <li>macOS runtime adapters, signed/notarized packaging, and native notification/update behavior.</li>
+          <li>Windows ConPTY, named pipes, ACL/peer validation, process containment, installer, and update support.</li>
+          <li>Linux GUI packaging with Wayland/X11 validation and stable/nightly updates.</li>
+          <li>Browser/window/sidebar restore, agent resume bindings, crash diagnostics, telemetry policy, and localization.</li>
+        </ul>
+        <p>Cloud VMs, mobile clients, Agent Chat, and freeform canvas are additional repository surfaces, but several are gated or experimental in cmux. They should be optional parity tiers, not blockers for a credible desktop release.</p>
+        <p>The refreshed cmux main snapshot also contains password-authorized control sockets, remote tmux mirroring, a native diff sidecar/viewer, browser viewport and automation watchdog work, Iroh-backed mobile connectivity, and richer iOS terminal behavior. Mirroring every directory on main is therefore a moving-target product program, not a finite desktop port.</p>
+
+        <h2 id="tools">Recommended implementation tools<a class="heading-link" href="#tools" aria-label="Link to Implementation tools">#</a></h2>
+        <table>
+          <thead><tr><th>Subsystem</th><th>Recommended tools</th><th>Go's role</th></tr></thead>
+          <tbody>
+            <tr><td>Authority</td><td>Existing Go daemon, SQLite, versioned RPC/events</td><td>Sole durable state and security authority</td></tr>
+            <tr><td>Fast portable desktop</td><td>Tauri 2 + xterm.js</td><td>Daemon, PTY, client SDK, policy</td></tr>
+            <tr><td>Embedded-browser desktop</td><td>Qt 6/QML + Qt WebEngine</td><td>Workspace/security authority over RPC</td></tr>
+            <tr><td>Browser beta</td><td>External Chromium + chromedp or go-rod</td><td>Lifecycle, CDP automation, audit</td></tr>
+            <tr><td>Ghostty-class renderer</td><td>libghostty behind narrow IPC</td><td>Raw bytes, replay, cells, lifecycle</td></tr>
+            <tr><td>SSH/remotes</td><td>x/crypto/ssh, pkg/sftp, SSH-stdio remote amuxd, SOCKS5/CONNECT</td><td>Excellent primary implementation language</td></tr>
+            <tr><td>macOS</td><td>Unix PTY, getpeereid, native helper, notarized bundle</td><td>Reuse daemon; add real platform adapters</td></tr>
+            <tr><td>Windows</td><td>ConPTY, go-winio, x/sys/windows ACLs and Job Objects</td><td>Daemon/process authority</td></tr>
+            <tr><td>Agent/extensions</td><td>JSON manifests, built-in Go adapters, wazero/WASI</td><td>Parsing, authorization, resume, audit</td></tr>
+            <tr><td>SDK/gateway</td><td>Generated Go/TS/Python SDKs, authenticated WebSocket or Connect</td><td>Canonical contract and server</td></tr>
+          </tbody>
+        </table>
+        <blockquote><p><strong>Best speed/portability:</strong> Go daemon + Tauri 2 + xterm.js + external Chromium/CDP. <strong>Best embedded-browser parity:</strong> Go daemon + Qt 6/QML + Qt WebEngine. Do not force an all-Go GUI: Go is the right authority language, but not the strongest cross-platform GPU-terminal and embedded-browser toolkit.</p></blockquote>
+
+        <h2 id="roadmap">Recommended roadmap after T6<a class="heading-link" href="#roadmap" aria-label="Link to Recommended roadmap">#</a></h2>
+        <table>
+          <thead><tr><th>Wave</th><th>Outcome</th><th>Reason</th></tr></thead>
+          <tbody>
+            <tr><td>P0</td><td>Close reopened T2/T3/T4 reviews and rerun T6 Linux gates</td><td>Truthful, installable Arch/Ubuntu foundation</td></tr>
+            <tr><td>P1</td><td>Workspace/sidebar depth, palette, groups, todos, metadata, notifications</td><td>Highest daily UX value without a stack change</td></tr>
+            <tr><td>P2</td><td>Agent adapters, resume/fork, Feed, teams, hibernation</td><td>Reuses the secure hook/event architecture</td></tr>
+            <tr><td>P3</td><td>Chromium/CDP beta, then decide Qt WebEngine</td><td>Validate browser demand before a heavy shell commitment</td></tr>
+            <tr><td>P4</td><td>SSH remote daemon and proxy</td><td>Depends on stable local contracts and a network threat model</td></tr>
+            <tr><td>P5</td><td>Native desktop shell and macOS</td><td>Reuses the mature Go daemon and protocol</td></tr>
+            <tr><td>P6</td><td>Windows platform implementation</td><td>ConPTY, pipes, ACLs, packaging are distinct work</td></tr>
+            <tr><td>P7</td><td>Cloud, mobile, and optional companion systems</td><td>Only after the core desktop product is proven</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="architecture">Architecture decision<a class="heading-link" href="#architecture" aria-label="Link to Architecture decision">#</a></h2>
+        <p>Keep Go as the sole daemon, state, and security authority. Do not rewrite the core to chase GUI parity. Add clients around the existing protocol:</p>
+        <pre><code>Go daemon authority
+  → local Unix socket / future authenticated remote protocol
+  → Bubble Tea client (Linux-first)
+  → future desktop client (Qt/QML if browser parity is mandatory)
+  → future authenticated web/remote gateway</code></pre>
+        <p>The first major post-release decision is the browser tier. Choose Qt WebEngine if embedded browser parity is a core promise. Otherwise, validate the workflow with external Chromium/CDP and keep the terminal product lean.</p>
+
+        <h2 id="sources">Sources<a class="heading-link" href="#sources" aria-label="Link to Sources">#</a></h2>
+        <ul>
+          <li><a href="https://github.com/manaflow-ai/cmux">cmux repository and current public features</a></li>
+          <li><a href="https://github.com/manaflow-ai/cmux/releases">cmux releases</a></li>
+          <li><a href="cmux-linux-replication-deep-dive.html">Pinned repository deep dive</a></li>
+          <li><a href="amux-go-implementation-plan.html">Approved Amux specification and plan</a></li>
+          <li><a href="../.guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/handoffs/terminal-ui-T5-terminal-ui.md">Current T5 specialist receipt</a></li>
+        </ul>
+        <footer class="report-footer"><span>Canonical source: <a href="cmux-to-amux-parity-gap-audit.md">Markdown audit</a></span><a href="index.html">Back to research library</a></footer>
+      </article>
+    </main>
+  </div>
+  <button class="mobile-toc-button" type="button" aria-controls="mobile-toc" aria-expanded="false">Contents</button>
+  <div class="mobile-toc" id="mobile-toc" hidden><nav>
+    <a class="toc-link" href="#bottom-line">Bottom line</a>
+    <a class="toc-link" href="#mvp-gaps">Linux MVP gaps</a>
+    <a class="toc-link" href="#terminal-parity">Terminal-centric parity</a>
+    <a class="toc-link" href="#full-parity">Full product parity</a>
+    <a class="toc-link" href="#tools">Implementation tools</a>
+    <a class="toc-link" href="#roadmap">Roadmap</a>
+  </nav></div>
+  <script src="assets/research.js"></script>
+</body>
+</html>

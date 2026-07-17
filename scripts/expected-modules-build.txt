@@ -1,0 +1,47 @@
+# Frozen linux/amd64 release-build module graph (ADR-0007 Decision 1).
+# Regenerate with the command in scripts/check-deps-manifest.sh; any drift is a
+# review-blocking defect and REQUIRES a matching update to docs/dependencies.md.
+#
+# 2026-07-16 (T4 contract completion): x/ansi deliberately updated
+# v0.4.5 -> v0.11.7 (ADR-0007 Decision 3; unblocks Bubble Tea v2 / Lip Gloss v2
+# for T5 — both require exactly x/ansi v0.11.7); x/sys v0.44.0 -> v0.46.0
+# (Bubble Tea v2.0.8's floor, pre-aligned so T5 adoption causes no graph churn);
+# x/ansi v0.11.7 pulls clipperhouse/{displaywidth,uax29}, lucasb-eyer/go-colorful,
+# mattn/go-runewidth. modernc.org/sqlite@v1.53.0 (+libc/mathutil/memory,
+# dustin/go-humanize, remyoudompheng/bigfft) and creack/pty entered the
+# production graph with the B4 store / B5 PTY supervisor.
+#
+# 2026-07-16 (T5 terminal-ui): the approved TUI toolkit is now imported by the
+# production runtime (internal/tui/teabridge, cmd/amux/tui.go), so its graph is
+# recorded truthfully: charm.land/bubbletea/v2@v2.0.8 + charm.land/lipgloss/v2@
+# v2.0.5 and their transitive deps — charmbracelet/{colorprofile, ultraviolet,
+# x/term, x/termios, x/windows}, muesli/cancelreader, xo/terminfo, and
+# golang.org/x/sync. All are pure-Go / no-cgo (TestNoCgo + the linux no-cgo
+# builds enforce this) and permissively licensed (see scripts/check-license.sh).
+charm.land/bubbletea/v2@v2.0.8
+charm.land/lipgloss/v2@v2.0.5
+github.com/charmbracelet/colorprofile@v0.4.3
+github.com/charmbracelet/ultraviolet@v0.0.0-20260703014108-f5a850f9c2b7
+github.com/charmbracelet/x/ansi@v0.11.7
+github.com/charmbracelet/x/term@v0.2.2
+github.com/charmbracelet/x/termios@v0.1.1
+github.com/charmbracelet/x/windows@v0.2.2
+github.com/clipperhouse/displaywidth@v0.11.0
+github.com/clipperhouse/uax29/v2@v2.7.0
+github.com/creack/pty@v1.1.24
+github.com/dustin/go-humanize@v1.0.1
+github.com/google/uuid@v1.6.0
+github.com/lucasb-eyer/go-colorful@v1.4.0
+github.com/mattn/go-runewidth@v0.0.23
+github.com/muesli/cancelreader@v0.2.2
+github.com/remyoudompheng/bigfft@v0.0.0-20230129092748-24d4a6f8daec
+github.com/rivo/uniseg@v0.4.7
+github.com/spf13/cobra@v1.8.1
+github.com/spf13/pflag@v1.0.5
+github.com/xo/terminfo@v0.0.0-20220910002029-abceb7e1c41e
+golang.org/x/sync@v0.21.0
+golang.org/x/sys@v0.46.0
+modernc.org/libc@v1.73.4
+modernc.org/mathutil@v1.7.1
+modernc.org/memory@v1.11.0
+modernc.org/sqlite@v1.53.0

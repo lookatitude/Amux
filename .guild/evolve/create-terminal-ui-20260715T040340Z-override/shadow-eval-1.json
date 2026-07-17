@@ -1,0 +1,32 @@
+{
+  "schema_version": "guild.specialist_shadow_eval.v1",
+  "role": "terminal-ui",
+  "reviewer_host": "codex",
+  "artifacts_scanned": {
+    "historical_run_files": 14,
+    "live_roster_files": 7,
+    "proposed_agent_files": 1,
+    "total": 22
+  },
+  "true_positive_examples": [
+    "Bubble Tea TUI for split-tree navigation and terminal attach",
+    "In-process multiplexer UI for rendering, focus, resize, attach, replay, and notifications",
+    "TUI focus, resize, redraw, and p95 visibility behavior"
+  ],
+  "false_positive_examples": [
+    {
+      "work_unit": "Attach lifecycle, transport, detach, and restore contract definition",
+      "correct_owners": ["architect", "backend"],
+      "cause": "pane attach UX trigger is broad enough to steal protocol design"
+    },
+    {
+      "work_unit": "Go VT parser and cell-state engine ownership",
+      "correct_owners": ["architect", "backend"],
+      "cause": "VT/cell rendering wording is broad enough to steal parser/state-engine work"
+    }
+  ],
+  "missed_terminal_ui_examples": [],
+  "collision_count": 2,
+  "missed_count": 0,
+  "verdict": "fail"
+}

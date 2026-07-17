@@ -1,0 +1,31 @@
+# EXAMPLE systemd USER unit for amuxd (T3 devops, D4).
+#
+# This is an OPT-IN convenience, installed disabled by the AUR package. It is a
+# USER unit (systemctl --user), never a system unit — amuxd is a single-user
+# session daemon bound to an owner-only socket under $XDG_RUNTIME_DIR (spec:
+# local single-user, no network listener). Nothing enables or starts it on
+# install; a user runs `systemctl --user enable --now amuxd` themselves.
+[Unit]
+Description=Amux workspace runtime daemon (per-user)
+Documentation=file:///usr/share/doc/amux/
+# Runtime dir under $XDG_RUNTIME_DIR is provided by the user session.
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/amuxd
+# Clean, bounded restart — manual by default (matches the spec's manual restart
+# policy posture); a user can tighten this. No auto-restart storm.
+Restart=on-failure
+RestartSec=2
+# Least-privilege hardening for a user daemon. These are advisory defaults; the
+# security lane owns the authoritative sandboxing policy.
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=read-only
+PrivateTmp=true
+# amuxd needs its XDG state/data/runtime dirs writable; a user overriding these
+# paths must widen ReadWritePaths accordingly.
+ReadWritePaths=%h/.local/state/amux %h/.local/share/amux %t
+
+[Install]
+WantedBy=default.target

@@ -1,0 +1,21 @@
+{
+  "schema_version": "guild.specialist_paired_eval.v1",
+  "role": "terminal-ui",
+  "reviewer_host": "codex",
+  "baseline": {
+    "total": 15,
+    "correct": 9,
+    "positive_correct": 0,
+    "negative_correct": 9,
+    "normalization_note": "The evaluator correctly marked all six terminal-ui positives as uncovered; uncovered positives count as incorrect for paired-improvement scoring."
+  },
+  "candidate": {
+    "total": 15,
+    "correct": 15,
+    "positive_correct": 6,
+    "negative_correct": 9,
+    "collision_count": 0
+  },
+  "delta_correct": 6,
+  "verdict": "pass"
+}

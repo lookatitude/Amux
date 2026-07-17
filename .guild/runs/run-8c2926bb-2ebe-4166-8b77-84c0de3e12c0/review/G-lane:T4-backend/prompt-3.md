@@ -1,0 +1,3 @@
+Act as the mandatory independent Guild G-lane round-3 reviewer. Read `.guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/review/G-lane:T4-backend/packet-3.md`, the exact current receipt, approved plan/spec/ADR-0005, prior results/trail, and current source/tests needed to verify F2. Focus on whether automatic-policy restore now performs a truthful completed relaunch and whether the fix regressed the already-accepted live/manual/fresh/security behavior. Reopen live files and run read-only/focused checks where useful; do not rubber-stamp or re-litigate settled areas without evidence.
+
+Return only one valid `review_result.v1` object for the packet id and SHA. No markdown prose outside the structured result.

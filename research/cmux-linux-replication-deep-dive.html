@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <meta name="description" content="cmux deep dive and Linux-first replication architecture">
+  <title>cmux deep dive and Linux-first replication architec… · Amux Research</title>
+  <link rel="stylesheet" href="assets/research.css">
+</head>
+<body>
+  <div class="reading-progress" aria-hidden="true"><span></span></div>
+  <header class="topbar">
+    <a class="brand" href="index.html" aria-label="All Amux research">
+      <span class="brand-mark">A</span>
+      <span><strong>Amux</strong><small>Research library</small></span>
+    </a>
+    <div class="toolbar" role="group" aria-label="Reader controls">
+      <label class="search-control"><span>Find</span><input id="page-search" type="search" placeholder="Search this report" autocomplete="off"></label>
+      <button id="theme-toggle" type="button" aria-label="Toggle color theme">Theme</button>
+      <button type="button" onclick="window.print()">Print</button>
+    </div>
+  </header>
+  <div class="reader-layout">
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-heading">On this page</div>
+      <nav aria-label="Report sections"><a class="toc-link toc-level-2" href="#tldr">TL;DR</a>
+<a class="toc-link toc-level-2" href="#scope-and-methodology">Scope and methodology</a>
+<a class="toc-link toc-level-2" href="#what-cmux-actually-is">What cmux actually is</a>
+<a class="toc-link toc-level-2" href="#feature-map">Feature map</a>
+<a class="toc-link toc-level-3" href="#section-1-terminal-and-process-runtime-shipped">1. Terminal and process runtime — shipped</a>
+<a class="toc-link toc-level-3" href="#section-2-window-workspace-pane-and-tab-management-shipped">2. Window, workspace, pane, and tab management — shipped</a>
+<a class="toc-link toc-level-3" href="#section-3-context-rich-sidebar-shipped-with-one-experiment">3. Context-rich sidebar — shipped, with one experiment</a>
+<a class="toc-link toc-level-3" href="#section-4-notifications-and-attention-routing-shipped">4. Notifications and attention routing — shipped</a>
+<a class="toc-link toc-level-3" href="#section-5-agent-integrations-mostly-shipped">5. Agent integrations — mostly shipped</a>
+<a class="toc-link toc-level-3" href="#section-6-browser-shipped-on-macos-alternate-implementation-in-tui">6. Browser — shipped on macOS; alternate implementation in TUI</a>
+<a class="toc-link toc-level-3" href="#section-7-programmability-shipped-and-unusually-extensive">7. Programmability — shipped and unusually extensive</a>
+<a class="toc-link toc-level-3" href="#section-8-ssh-remote-execution-cloud-and-mobile-mixed-maturity">8. SSH, remote execution, cloud, and mobile — mixed maturity</a>
+<a class="toc-link toc-level-3" href="#section-9-customization-distribution-and-operations-shipped-on-macos">9. Customization, distribution, and operations — shipped on macOS</a>
+<a class="toc-link toc-level-2" href="#the-existing-portable-subsystem-cmux-tui">The existing portable subsystem: cmux-tui</a>
+<a class="toc-link toc-level-2" href="#architecture-options">Architecture options</a>
+<a class="toc-link toc-level-2" href="#recommended-stack">Recommended stack</a>
+<a class="toc-link toc-level-3" href="#primary-recommendation-terminal-centric-linux-first">Primary recommendation: terminal-centric, Linux-first</a>
+<a class="toc-link toc-level-2" href="#go-implementation-evaluation">Go implementation evaluation</a>
+<a class="toc-link toc-level-3" href="#where-go-is-excellent">Where Go is excellent</a>
+<a class="toc-link toc-level-3" href="#where-go-is-weaker">Where Go is weaker</a>
+<a class="toc-link toc-level-3" href="#recommended-go-stack">Recommended Go stack</a>
+<a class="toc-link toc-level-3" href="#go-verdict">Go verdict</a>
+<a class="toc-link toc-level-3" href="#browser-first-variant">Browser-first variant</a>
+<a class="toc-link toc-level-2" href="#arch-linux-plan">Arch Linux plan</a>
+<a class="toc-link toc-level-2" href="#delivery-sequence">Delivery sequence</a>
+<a class="toc-link toc-level-3" href="#phase-1-durable-linux-core">Phase 1: durable Linux core</a>
+<a class="toc-link toc-level-3" href="#phase-2-cmux-differentiators">Phase 2: cmux differentiators</a>
+<a class="toc-link toc-level-3" href="#phase-3-platform-and-browser-depth">Phase 3: platform and browser depth</a>
+<a class="toc-link toc-level-2" href="#risks-and-decisions-to-settle-before-implementation">Risks and decisions to settle before implementation</a>
+<a class="toc-link toc-level-2" href="#contested-and-open-questions">Contested and open questions</a>
+<a class="toc-link toc-level-2" href="#sources">Sources</a>
+<a class="toc-link toc-level-2" href="#confidence-summary">Confidence summary</a></nav>
+      <div class="source-links" aria-label="Canonical source files"><a class="source-link" href="../.guild/runs/019f6360-6c58-7d41-ba38-c4498e3c719d/research/cmux-linux-replication-deep-dive.md">View canonical Markdown</a></div>
+    </aside>
+    <main id="main-content">
+      <div class="report-meta">
+        <span>Research brief</span>
+        <span>Updated Jul 15, 2026</span>
+      </div>
+      <article class="research-article"><h1 id="cmux-deep-dive-and-linux-first-replication-architecture">cmux deep dive and Linux-first replication architecture<a class="heading-link" href="#cmux-deep-dive-and-linux-first-replication-architecture" aria-label="Link to cmux deep dive and Linux-first replication architecture">#</a></h1>
+<p>Research snapshot: 2026-07-15<br>Repository: <code>manaflow-ai/cmux</code> at commit <a href="https://github.com/manaflow-ai/cmux/commit/3822f1dd475f0c5ddcf961df9f17308c3066ffa1"><code>3822f1dd</code></a><br>Local research clone: <code>/tmp/cmux-research.Oqg7m3/cmux</code></p>
+<h2 id="tldr">TL;DR<a class="heading-link" href="#tldr" aria-label="Link to TL;DR">#</a></h2>
+<ul>
+<li><strong>[Well-established] cmux is a programmable workspace runtime, not merely a terminal.</strong> Its stable product combines Ghostty terminals, a hierarchical window/workspace/pane/tab model, an embedded and agent-scriptable browser, agent lifecycle hooks, notifications, session restoration, SSH workspaces, custom sidebars/Dock, and a large CLI/socket/event API. The public feature summary is only the top of a much larger implementation surface (<a href="https://github.com/manaflow-ai/cmux/blob/3822f1dd475f0c5ddcf961df9f17308c3066ffa1/README.md#features">README</a>, <a href="https://github.com/manaflow-ai/cmux/blob/3822f1dd475f0c5ddcf961df9f17308c3066ffa1/docs/cli-contract.md">CLI contract</a>).</li>
+<li><strong>[Well-established] Porting the Swift/AppKit app is the wrong Linux strategy.</strong> The macOS UI is deeply coupled to AppKit, SwiftUI, WKWebView, Sparkle, Apple Services, menu-bar/Dock APIs, and Apple-specific window/focus behavior. The reusable product concepts are the state model, protocols, hooks, and remote daemon—not the UI code.</li>
+<li><strong>[Well-established] The repo already contains the best Linux seed: <code>cmux-tui</code>.</strong> It is a Rust multiplexer with workspaces/screens/split panes/tabs, <code>portable-pty</code>, Ghostty&#39;s VT engine, a JSONL control socket, attach clients, WebSocket and multi-language SDKs, and Chrome/CDP browser panes. Linux and macOS run the full test matrix; release workflows build Linux x86_64 and aarch64; Windows is explicitly experimental (<a href="https://github.com/manaflow-ai/cmux/blob/3822f1dd475f0c5ddcf961df9f17308c3066ffa1/cmux-tui/README.md">TUI README</a>, <a href="https://github.com/manaflow-ai/cmux/blob/3822f1dd475f0c5ddcf961df9f17308c3066ffa1/.github/workflows/cmux-tui.yml">CI</a>, <a href="https://github.com/manaflow-ai/cmux/blob/3822f1dd475f0c5ddcf961df9f17308c3066ffa1/.github/workflows/cmux-tui-build-package.yml">release build</a>).</li>
+<li><strong>[Recommendation] Build a Rust-first core around the <code>cmux-tui-core</code> architecture and preserve its protocol boundary.</strong> For a terminal-centric MVP, use Tauri 2 + React/Solid + xterm.js. If a same-pane, production-grade, automatable browser is non-negotiable, use Qt 6/QML + Qt WebEngine for the desktop shell instead. Do not mix both shells in v1.</li>
+<li><strong>[Recommendation] Target Arch first as a native package, then portable binaries.</strong> Ship an AUR/PKGBUILD package plus tarball; test Wayland and X11 separately. Pin Zig 0.15.2 initially because the repository build pins it while Arch currently ships Zig 0.16.0. Add macOS after Linux architecture stabilizes; treat Windows as phase 3 because ConPTY, named-pipe/socket semantics, WebView/Chromium packaging, and shell behavior are separate product work.</li>
+</ul>
+<h2 id="scope-and-methodology">Scope and methodology<a class="heading-link" href="#scope-and-methodology" aria-label="Link to Scope and methodology">#</a></h2>
+<p>This brief maps the repository&#39;s user-visible and platform capabilities, identifies which parts are shipped, gated, partial, or separate experiments, and recommends a Linux-first architecture that can later support macOS and Windows. It does not estimate team size or delivery dates because those depend on the desired parity tier and licensing strategy.</p>
+<p>Evidence came from the cloned source tree, public docs, build workflows, source-level feature gates, package manifests, and official documentation for Ghostty, Tauri, Qt, and Arch Linux. A feature is marked “shipped” only when it is in the README/CLI contract or has a concrete implementation path without an off-by-default release gate. Design documents and prototype directories are not treated as shipped merely because code exists.</p>
+<h2 id="what-cmux-actually-is">What cmux actually is<a class="heading-link" href="#what-cmux-actually-is" aria-label="Link to What cmux actually is">#</a></h2>
+<p>The architectural center is an authoritative workspace graph:</p>
+<pre><code class="language-text">application
+  -&gt; windows
+    -&gt; workspaces (vertical sidebar, metadata, groups)
+      -&gt; split-tree panes
+        -&gt; surfaces/tabs (terminal, browser, viewers)
+</code></pre>
+<p>Around that graph are five systems:</p>
+<ol>
+<li>A terminal runtime based on <code>libghostty</code>.</li>
+<li>A browser runtime based on <code>WKWebView</code> in the macOS app.</li>
+<li>A control plane (CLI, local authenticated socket, JSON-RPC-style v2 methods, event stream).</li>
+<li>An agent-awareness layer (hooks, session identity, notifications, restore, hibernation, Feed).</li>
+<li>Remote and companion layers (SSH daemon/proxy, cloud VMs, iOS pairing/transport).</li>
+</ol>
+<p>This separation is the key replication lesson. The pane UI is replaceable; stable IDs, lifecycle transitions, events, and capability boundaries are the durable product.</p>
+<h2 id="feature-map">Feature map<a class="heading-link" href="#feature-map" aria-label="Link to Feature map">#</a></h2>
+<h3 id="section-1-terminal-and-process-runtime-shipped">1. Terminal and process runtime — shipped<a class="heading-link" href="#section-1-terminal-and-process-runtime-shipped" aria-label="Link to 1. Terminal and process runtime — shipped">#</a></h3>
+<ul>
+<li>GPU-accelerated Ghostty rendering and Ghostty configuration compatibility: fonts, themes, colors, terminal behavior.</li>
+<li>PTY-backed interactive shells, multiple terminal surfaces, scrollback, selection, copy/paste, IME, links, file/path drops, terminal search, directory search, clear scrollback, font size, configurable scroll speed, and current-directory actions.</li>
+<li>Per-workspace working directory and environment, with inheritance into future panes and restored sessions; protected <code>CMUX_*</code> identity variables.</li>
+<li>Surface health/debug commands, process/resource inspection (<code>top</code>), memory-pressure reclamation, and renderer realization controls.</li>
+<li>Custom terminal upload commands and remote image/file upload behavior.</li>
+</ul>
+<p>Linux implication: the terminal engine is portable; AppKit hosting is not. Ghostty officially describes <code>libghostty</code> as a cross-platform C-ABI library used by both its Swift/AppKit macOS frontend and Zig/GTK4 Linux frontend (<a href="https://ghostty.org/docs/about">Ghostty architecture</a>). For initial reuse, <code>cmux-tui</code> narrows this further to <code>libghostty-vt</code> plus a frontend renderer.</p>
+<h3 id="section-2-window-workspace-pane-and-tab-management-shipped">2. Window, workspace, pane, and tab management — shipped<a class="heading-link" href="#section-2-window-workspace-pane-and-tab-management-shipped" aria-label="Link to 2. Window, workspace, pane, and tab management — shipped">#</a></h3>
+<ul>
+<li>Multiple windows, vertical workspace tabs, horizontal surface tabs, horizontal/vertical split panes, directional focus, resizing/equalizing, drag/reorder/move, pinning, names, descriptions, colors, and recent-focus behavior.</li>
+<li>Workspace groups with collapsible sections, anchor workspaces, pinning, group-aware creation, drag order, persistence, and CLI operations (<a href="https://github.com/manaflow-ai/cmux/blob/3822f1dd475f0c5ddcf961df9f17308c3066ffa1/docs/workspace-groups.md">workspace groups</a>).</li>
+<li>Saved layouts/session snapshots and restoration of window/workspace/pane structure, working directories, scrollback best-effort, and browser history.</li>
+<li>Workspace todos/checklists with lifecycle status lanes and CLI mutation.</li>
+<li>A right-side Dock that reuses the terminal/browser split system for project dashboards, TUIs, logs, test watchers, and reference pages; project configs have a trust gate (<a href="https://github.com/manaflow-ai/cmux/blob/3822f1dd475f0c5ddcf961df9f17308c3066ffa1/docs/dock.md">Dock</a>).</li>
+<li>File explorer, command palette, notifications panel, right-sidebar modes, status/progress/log metadata, and custom command actions.</li>
+</ul>
+<h3 id="section-3-context-rich-sidebar-shipped-with-one-experiment">3. Context-rich sidebar — shipped, with one experiment<a class="heading-link" href="#section-3-context-rich-sidebar-shipped-with-one-experiment" aria-label="Link to 3. Context-rich sidebar — shipped, with one experiment">#</a></h3>
+<ul>
+<li>Workspace cwd, git branch/status, linked PR information, listening ports, recent notification text, unread state, agent state, description, custom color/icon, progress/status/logs, and todos.</li>
+<li>Workspace auto-naming through supported agent CLIs, with manual-name protection and throttling.</li>
+<li>Data-driven custom sidebars authored in a constrained SwiftUI-like DSL, with live workspace/notification data, commands, drag reorder, and in-process or isolated rendering. Two-way binding and arbitrary Swift are explicitly not supported (<a href="https://github.com/manaflow-ai/cmux/blob/3822f1dd475f0c5ddcf961df9f17308c3066ffa1/docs/custom-sidebars.md">custom sidebars</a>).</li>
+<li>The workspace agent spinner is an off-by-default experiment; do not count it as stable parity (<a href="https://github.com/manaflow-ai/cmux/blob/3822f1dd475f0c5ddcf961df9f17308c3066ffa1/Sources/FeatureFlags.swift">feature flags</a>).</li>
+</ul>
+<h3 id="section-4-notifications-and-attention-routing-shipped">4. Notifications and attention routing — shipped<a class="heading-link" href="#section-4-notifications-and-attention-routing-shipped" aria-label="Link to 4. Notifications and attention routing — shipped">#</a></h3>
+<ul>
+<li>Terminal OSC notifications (9/99/777) and <code>cmux notify</code> hooks.</li>
+<li>Blue pane rings, workspace/tab unread state, notification list/panel, latest-unread navigation, mark read/unread, clear/dismiss, and open/focus routing.</li>
+<li>macOS native banners, Dock icon count, main menu and menu-bar-extra notification controls.</li>
+<li>Structured notification metadata in the local event stream and persistent recent logs.</li>
+</ul>
+<p>Linux replication must split the semantic notification store from delivery. Use a portable in-app store and event stream; add <code>notify-rust</code>/D-Bus and tray badges as adapters. Wayland compositors vary, so native notifications cannot be the sole attention surface.</p>
+<h3 id="section-5-agent-integrations-mostly-shipped">5. Agent integrations — mostly shipped<a class="heading-link" href="#section-5-agent-integrations-mostly-shipped" aria-label="Link to 5. Agent integrations — mostly shipped">#</a></h3>
+<ul>
+<li>Hook installers and lifecycle/session restoration for Claude Code, Codex, Grok, OpenCode, Pi, OMP, Campfire, Amp, Cursor CLI, Gemini, Kiro, Kimi, Rovo Dev, Copilot, CodeBuddy, Factory, Qoder, and related adapters; exact capabilities differ by agent (<a href="https://github.com/manaflow-ai/cmux/blob/3822f1dd475f0c5ddcf961df9f17308c3066ffa1/docs/agent-hooks.md">agent hooks</a>).</li>
+<li>Native resume identity attached to terminal surfaces, trusted custom resume commands, fork conversation support where providers expose it, secret scrubbing, and automatic session restoration.</li>
+<li>Agent Hibernation: opt-in resource reclamation after strict idle/visibility/session gates and a confirmation period, followed by native resume on focus.</li>
+<li><code>claude-teams</code>, <code>codex-teams</code>, and integrations for OMO/OMX/OMC-style orchestrators.</li>
+<li>Feed: keyboard-first approval/question/plan stream with audit history and jump-back-to-terminal behavior.</li>
+<li>Vault-style registration for custom agent detection and resume/fork templates.</li>
+</ul>
+<p>The web-based Agent Chat is <strong>not stable product parity</strong>. Its README calls it an MVP; the release UI gate is off by default and the document lists missing persistence, native permission routing, terminal/worktree attachment, and terminal escape hatch (<a href="https://github.com/manaflow-ai/cmux/blob/3822f1dd475f0c5ddcf961df9f17308c3066ffa1/agent-chat/README.md">Agent Chat</a>, <a href="https://github.com/manaflow-ai/cmux/blob/3822f1dd475f0c5ddcf961df9f17308c3066ffa1/Sources/FeatureFlags.swift">feature gate</a>).</p>
+<h3 id="section-6-browser-shipped-on-macos-alternate-implementation-in-tui">6. Browser — shipped on macOS; alternate implementation in TUI<a class="heading-link" href="#section-6-browser-shipped-on-macos-alternate-implementation-in-tui" aria-label="Link to 6. Browser — shipped on macOS; alternate implementation in TUI">#</a></h3>
+<ul>
+<li>Browser surfaces can sit beside terminals, share tab/split behavior, provide an omnibar, navigation/history/reload/find, downloads/uploads, file drops, devtools, profiles/cookies, and browser import from many installed browsers.</li>
+<li>Agent-browser-style CLI automation includes accessibility/DOM snapshots and refs, click/double-click/hover/focus, type/fill, keyboard/mouse, JS evaluation, waits, screenshots, cookies/storage, network and proxy controls, and explicit unsupported mappings where WKWebView lacks CDP behavior (<a href="https://github.com/manaflow-ai/cmux/blob/3822f1dd475f0c5ddcf961df9f17308c3066ffa1/docs/agent-browser-port-spec.md">browser port contract</a>).</li>
+<li>Remote SSH workspaces automatically proxy browser traffic through the remote host.</li>
+</ul>
+<p><code>cmux-tui</code> uses a different, portable browser design: it launches or attaches to Chrome/Chromium over CDP, captures <code>Page.screencastFrame</code>, draws frames using Kitty graphics, and forwards input over CDP. Profiles persist per session; Linux Chrome discovery is implemented. This is portable and automatable but visually depends on Kitty graphics and is not equivalent to a native embedded browser (<a href="https://github.com/manaflow-ai/cmux/blob/3822f1dd475f0c5ddcf961df9f17308c3066ffa1/cmux-tui/docs/browser-panes.md">TUI browser panes</a>).</p>
+<h3 id="section-7-programmability-shipped-and-unusually-extensive">7. Programmability — shipped and unusually extensive<a class="heading-link" href="#section-7-programmability-shipped-and-unusually-extensive" aria-label="Link to 7. Programmability — shipped and unusually extensive">#</a></h3>
+<ul>
+<li>CLI operations span windows, displays, workspaces/groups/todos, panes/surfaces, terminal input/screen reads, browser automation, notifications, sidebars, themes, SSH, cloud VMs, remotes, hooks, auth, and diagnostics.</li>
+<li>A local authenticated socket exposes legacy text commands and structured v2 requests. Stable refs and UUIDs identify resources.</li>
+<li>Reconnectable event stream with sequence numbers, boot IDs, bounded replay, heartbeats, filters, durable JSONL logging, slow-consumer handling, and snapshot refresh on gaps (<a href="https://github.com/manaflow-ai/cmux/blob/3822f1dd475f0c5ddcf961df9f17308c3066ffa1/docs/events.md">events</a>).</li>
+<li>Partial tmux compatibility: pane capture/resize/pipe, wait-for, swap/break/join, window navigation, hooks, buffers, respawn, and display messages; some commands remain placeholders.</li>
+<li>AppleScript, deep links, Finder/Services actions, project custom commands, and configuration reload.</li>
+</ul>
+<h3 id="section-8-ssh-remote-execution-cloud-and-mobile-mixed-maturity">8. SSH, remote execution, cloud, and mobile — mixed maturity<a class="heading-link" href="#section-8-ssh-remote-execution-cloud-and-mobile-mixed-maturity" aria-label="Link to 8. SSH, remote execution, cloud, and mobile — mixed maturity">#</a></h3>
+<ul>
+<li><code>cmux ssh</code> is substantial: remote workspaces, a versioned remote daemon for Linux/macOS arm64/amd64, authenticated CLI relay, persistent PTY work, reconnect/disconnect, SOCKS5/CONNECT browser egress over daemon RPC, scp uploads, SSH-agent forwarding controls, and tmux-like resize coordination (<a href="https://github.com/manaflow-ai/cmux/blob/3822f1dd475f0c5ddcf961df9f17308c3066ffa1/docs/remote-daemon-spec.md">remote spec</a>). Detachable persistent SSH sessions remain marked in progress.</li>
+<li>Cloud VM commands/backend exist, but release UI defaults off; treat this as beta/gated rather than core parity.</li>
+<li>Mobile Connect is visible by default. The iOS/iPadOS app has auth, pairing, device/workspace lists, terminal selection/input, and evolving Iroh/Tailscale transport. It is a companion product, not a portable desktop layer (<a href="https://github.com/manaflow-ai/cmux/blob/3822f1dd475f0c5ddcf961df9f17308c3066ffa1/ios/README.md">iOS status</a>).</li>
+</ul>
+<h3 id="section-9-customization-distribution-and-operations-shipped-on-macos">9. Customization, distribution, and operations — shipped on macOS<a class="heading-link" href="#section-9-customization-distribution-and-operations-shipped-on-macos" aria-label="Link to 9. Customization, distribution, and operations — shipped on macOS">#</a></h3>
+<ul>
+<li><code>cmux.json</code>/JSONC settings, Ghostty config reuse, customizable shortcuts, themes, actions, layouts, env, upload commands, Dock, sidebars, agent behavior, and restore controls.</li>
+<li>English/Japanese string catalogs plus many translated READMEs.</li>
+<li>Sparkle stable/nightly update channels, Homebrew cask, DMG signing/notarization, Sentry/PostHog, feedback collection, extensive unit/UI/integration/VM tests.</li>
+<li>Freeform canvas code/design exists, but it is DEBUG-gated in routing; classify it as experimental.</li>
+</ul>
+<h2 id="the-existing-portable-subsystem-cmux-tui">The existing portable subsystem: <code>cmux-tui</code><a class="heading-link" href="#the-existing-portable-subsystem-cmux-tui" aria-label="Link to The existing portable subsystem: cmux-tui">#</a></h2>
+<p><code>cmux-tui</code> should be evaluated as a product seed, not a curiosity.</p>
+<p>Implemented today:</p>
+<ul>
+<li>Rust 2024 workspace, MSRV 1.88, MIT metadata for the TUI workspace.</li>
+<li><code>portable-pty</code>, <code>crossterm</code>, Ratatui, <code>libghostty-vt</code>, Serde/JSON, Unix-domain sockets with a Windows compatibility implementation, and raw CDP.</li>
+<li>Authoritative tree: session → workspaces → screens → split-tree panes → tabs/surfaces.</li>
+<li>PTY and browser surfaces, resize/focus/move/close operations, attach/replay, subscriptions, browser frames, and headless mode.</li>
+<li>Protocol-v6 SDKs/bindings for Rust, TypeScript, Python, Go, and Java.</li>
+<li>A proof web frontend using xterm.js and WebSockets; it currently renders only the active pane rather than the complete split tree (<a href="https://github.com/manaflow-ai/cmux/blob/3822f1dd475f0c5ddcf961df9f17308c3066ffa1/cmux-tui/frontends/web/README.md">web frontend</a>).</li>
+<li>Full Linux and macOS CI/smoke tests; Linux x86_64/aarch64 release artifacts; experimental Windows GNU build.</li>
+</ul>
+<p>Important limitations:</p>
+<ul>
+<li>It does not have the macOS app&#39;s full sidebar metadata, notifications UX, agent hook catalog, Dock, browser-import UI, session persistence depth, remote daemon integration, or native desktop polish.</li>
+<li>Browser rendering via CDP screenshots/Kitty graphics is clever but not a replacement for a desktop browser widget.</li>
+<li>Windows builds are <code>continue-on-error</code>; support is not production-grade.</li>
+<li>Licensing needs clarification before reuse: the repository root is GPL-3.0-or-later/commercial while the TUI Cargo workspace declares MIT. Obtain an explicit answer from the maintainers; do not assume the subdirectory metadata overrides the repository license.</li>
+</ul>
+<h2 id="architecture-options">Architecture options<a class="heading-link" href="#architecture-options" aria-label="Link to Architecture options">#</a></h2>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Strengths</th>
+<th>Weaknesses</th>
+<th>Fit</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Rust core + Tauri 2 + xterm.js</td>
+<td>Fastest cross-platform GUI path; small shell; Rust backend; good settings/sidebar/palette productivity; official Arch prerequisites and AUR/AppImage support</td>
+<td>Terminal rendering is web-based; Linux uses WebKitGTK while macOS/Windows use different engines; arbitrary embedded-browser automation is not uniformly CDP-capable; multiple native webviews and focus can be tricky</td>
+<td><strong>Best terminal-centric MVP</strong></td>
+</tr>
+<tr>
+<td>Rust/C++ core + Qt 6/QML + Qt WebEngine</td>
+<td>One mature UI/browser stack on Linux/macOS/Windows; Chromium engine; strong profiles, cookies, devtools, accessibility, GPU rendering, windows/docking</td>
+<td>Large installed footprint; Qt/Chromium packaging and LGPL obligations; Rust bridge complexity; custom native terminal surface still required</td>
+<td><strong>Best if browser parity is mandatory</strong></td>
+</tr>
+<tr>
+<td>Electron + React + xterm.js</td>
+<td>Fastest UI and browser tooling; Chromium/CDP everywhere; huge ecosystem</td>
+<td>Highest RAM/disk cost; duplicates Chromium; directly conflicts with cmux&#39;s performance motivation</td>
+<td>Good prototype, poor final fit</td>
+</tr>
+<tr>
+<td>Pure Rust winit/wgpu/Slint/egui + libghostty + CEF</td>
+<td>Maximum rendering/control and potentially excellent performance</td>
+<td>You own accessibility, IME, menus, drag/drop, web embedding, focus, packaging, and platform bugs; longest route</td>
+<td>Only for a well-funded systems team</td>
+</tr>
+<tr>
+<td>GTK4/libadwaita + libghostty</td>
+<td>Most native Arch/Linux result; follows Ghostty&#39;s Linux architecture</td>
+<td>macOS/Windows require separate frontends; WebKitGTK automation and browser parity remain hard</td>
+<td>Best Linux-only product, not best cross-platform product</td>
+</tr>
+<tr>
+<td>Go core + Bubble Tea/Wails + xterm.js</td>
+<td>Excellent concurrency and process orchestration; simple services and cross-compilation; strong TUI and CDP libraries; productive web frontend bridge</td>
+<td>Cannot reuse the Rust <code>cmux-tui-core</code>; libghostty requires cgo/C ABI work; Wails has the same system-webview browser mismatch as Tauri; weaker native GPU terminal ecosystem</td>
+<td><strong>Strong clean-room alternative, second choice overall</strong></td>
+</tr>
+</tbody></table>
+<p>Tauri is built from Rust plus HTML in OS webviews and officially supports macOS, Windows, and Linux; its Arch prerequisites include <code>webkit2gtk-4.1</code>, <code>base-devel</code>, OpenSSL, appindicator, librsvg, and xdotool (<a href="https://v2.tauri.app/concept/architecture/">Tauri architecture</a>, <a href="https://v2.tauri.app/start/prerequisites/">Arch prerequisites</a>). Qt supports all three desktop OS families, and Qt WebEngine embeds Chromium, but distribution must account for Qt and Chromium licensing and a much larger runtime (<a href="https://doc.qt.io/qt-6/supported-platforms.html">Qt platforms</a>, <a href="https://doc.qt.io/qt-6/qtwebengine-overview.html">Qt WebEngine</a>, <a href="https://doc.qt.io/qt-6/qtwebengine-licensing.html">licensing</a>). Arch&#39;s current <code>qt6-webengine</code> installed size is about 282 MiB (<a href="https://archlinux.org/packages/extra/x86_64/qt6-webengine/">Arch package</a>).</p>
+<h2 id="recommended-stack">Recommended stack<a class="heading-link" href="#recommended-stack" aria-label="Link to Recommended stack">#</a></h2>
+<h3 id="primary-recommendation-terminal-centric-linux-first">Primary recommendation: terminal-centric, Linux-first<a class="heading-link" href="#primary-recommendation-terminal-centric-linux-first" aria-label="Link to Primary recommendation: terminal-centric, Linux-first">#</a></h3>
+<p>Use:</p>
+<ul>
+<li><strong>Core language:</strong> Rust.</li>
+<li><strong>Starting architecture:</strong> extract/fork the ideas and, if licensing permits, code from <code>cmux-tui-core</code> and <code>ghostty-vt</code> bindings.</li>
+<li><strong>PTY:</strong> <code>portable-pty</code> initially; retain a thin platform adapter for Unix PTYs and Windows ConPTY edge cases.</li>
+<li><strong>Terminal frontend:</strong> xterm.js in v1 for delivery speed; retain VT bytes/replay and cell geometry in the backend so a native libghostty renderer can replace it later without changing the protocol.</li>
+<li><strong>Desktop shell:</strong> Tauri 2 with a small React or Solid frontend. Solid is attractive for fine-grained updates; React has the larger hiring/testing ecosystem. Either is adequate if rows consume immutable snapshots rather than a global reactive store.</li>
+<li><strong>State model:</strong> normalized Rust entities with stable opaque IDs and an explicit split tree. All UI, CLI, hooks, and restore paths call the same commands.</li>
+<li><strong>IPC/API:</strong> JSON-RPC-like requests over Unix sockets on Linux/macOS and named pipes on Windows; WebSocket gateway for web/remote clients; sequence-numbered event stream with snapshot-on-gap semantics.</li>
+<li><strong>Persistence:</strong> atomic versioned JSON for layout snapshots plus SQLite/WAL for notifications, agent sessions, event cursors, and audit history.</li>
+<li><strong>Browser MVP:</strong> launched Chromium via raw CDP, using the existing <code>cmux-tui-cdp</code> design. Open the real headful window or render screencast frames as an explicitly labeled beta. Do not promise WKWebView-level embedded parity.</li>
+<li><strong>Agent integration:</strong> executable hook adapters writing structured lifecycle events to the socket. Keep provider-specific parsing outside the core. Add ACP as one adapter family, but preserve native adapters where they expose richer approvals/resume data.</li>
+<li><strong>SSH:</strong> invoke the user&#39;s OpenSSH binary so ssh_config, ProxyJump, keys, and agents behave normally; upload a versioned Rust remote daemon for persistent PTYs, proxy streams, and CLI relay.</li>
+<li><strong>Git/process/ports:</strong> prefer invoking <code>git</code>/<code>gh</code> for behavior parity and auth; use <code>sysinfo</code> plus <code>/proc</code>/platform adapters for process and listening-port metadata.</li>
+<li><strong>Notifications:</strong> in-app authoritative store; <code>notify-rust</code>/D-Bus and Tauri notification/tray plugins as optional delivery adapters.</li>
+<li><strong>Packaging:</strong> <code>cargo-dist</code> or Tauri bundler for tarballs/AppImage/deb/rpm; hand-maintained PKGBUILD/AUR for Arch; Homebrew and MSI/NSIS later.</li>
+</ul>
+<p>Why this wins: it delivers the differentiating agent/workspace control plane quickly, keeps Linux first-class, and avoids locking the core to any GUI toolkit. It also matches the repo&#39;s own emerging portable architecture.</p>
+<h2 id="go-implementation-evaluation">Go implementation evaluation<a class="heading-link" href="#go-implementation-evaluation" aria-label="Link to Go implementation evaluation">#</a></h2>
+<p>Go is fully viable for a cmux-like product, but it changes the best reuse strategy.</p>
+<h3 id="where-go-is-excellent">Where Go is excellent<a class="heading-link" href="#where-go-is-excellent" aria-label="Link to Where Go is excellent">#</a></h3>
+<ul>
+<li><strong>Mux/control plane:</strong> goroutines and channels fit PTY readers, event subscribers, hook ingestion, process monitors, browser workers, reconnect loops, and bounded queues naturally.</li>
+<li><strong>TUI:</strong> Bubble Tea uses an Elm-style model/update/view architecture and ships keyboard, mouse, clipboard, and a high-performance cell renderer. It is a strong fit for a first Linux frontend (<a href="https://charm.land/bubbletea">Bubble Tea</a>).</li>
+<li><strong>Desktop shell:</strong> Wails combines a Go backend with React/Svelte/Vue-style frontends, supports Linux amd64/arm64, macOS, and Windows, and produces Go↔TypeScript bindings (<a href="https://wails.io/docs/introduction/">Wails</a>, <a href="https://wails.io/docs/gettingstarted/installation/">platform requirements</a>). Architecturally it is the Go analogue of Tauri.</li>
+<li><strong>Browser automation:</strong> <code>chromedp</code> implements CDP in Go without an external Go runtime dependency and is mature enough for target management, DOM operations, screenshots, network control, and event subscriptions (<a href="https://github.com/chromedp/chromedp">chromedp</a>).</li>
+<li><strong>Remote/SSH:</strong> <code>golang.org/x/crypto/ssh</code>, <code>creack/pty</code> on Unix, Windows ConPTY wrappers, <code>os/exec</code>, and the standard networking stack are well suited to a remote daemon and CLI relay. A static-ish Go remote daemon is easier to deploy than a GUI runtime.</li>
+<li><strong>Distribution:</strong> the headless/TUI binary can be a simple Arch package with no Rust/Zig toolchain. Go&#39;s build and profiling tools are excellent for a long-running daemon.</li>
+</ul>
+<h3 id="where-go-is-weaker">Where Go is weaker<a class="heading-link" href="#where-go-is-weaker" aria-label="Link to Where Go is weaker">#</a></h3>
+<ul>
+<li>The repository&#39;s most reusable portable code—<code>cmux-tui-core</code>, its Ghostty VT wrapper, protocol implementation, tests, and SDK contract—is Rust. Choosing Go means a clean-room port or running a Rust sidecar; a Go/Rust split at the mux boundary adds complexity without a clear benefit.</li>
+<li>There is no Go-native equivalent to the full <code>libghostty</code> renderer. Using Ghostty means cgo/C ABI integration and platform-specific graphics hosting. That harms cross-compilation and makes Windows packaging harder. Using xterm.js avoids that issue but gives up native GPU terminal rendering.</li>
+<li>Wails uses platform webviews rather than one consistent Chromium. Windows uses WebView2; Linux uses WebKitGTK. Consequently, Wails does not solve the embedded, uniformly automatable browser problem any more than Tauri does.</li>
+<li>Fyne/Gio can build cross-platform native Go GUIs, but neither supplies the browser, terminal, docking, accessibility, and devtools stack needed here. They would force substantial custom widget and renderer work.</li>
+</ul>
+<h3 id="recommended-go-stack">Recommended Go stack<a class="heading-link" href="#recommended-go-stack" aria-label="Link to Recommended Go stack">#</a></h3>
+<p>If Go is selected, use a coherent Go architecture rather than a Go wrapper around the Rust mux:</p>
+<ul>
+<li><strong>Core:</strong> Go modules with immutable command inputs, a single authoritative tree, opaque IDs, and serialized mutation through an event-loop goroutine per session.</li>
+<li><strong>PTY:</strong> <code>github.com/creack/pty</code> on Unix and a ConPTY adapter on Windows; hide both behind one interface.</li>
+<li><strong>Terminal state:</strong> either embed <code>libghostty-vt</code> through a very small cgo wrapper, or start with frontend xterm.js and store raw VT/replay streams. The latter is the safer cross-platform v1.</li>
+<li><strong>TUI:</strong> Bubble Tea + Lip Gloss + Bubbles.</li>
+<li><strong>Desktop:</strong> Wails v3 + React or Svelte + xterm.js. On Arch, package GTK/WebKitGTK dependencies explicitly and test Wayland/X11 separately.</li>
+<li><strong>IPC:</strong> JSONL/JSON-RPC over Unix sockets; named pipes on Windows; WebSocket gateway using <code>nhooyr.io/websocket</code>/its maintained successor or Gorilla WebSocket.</li>
+<li><strong>Browser:</strong> <code>chromedp</code> with a dedicated Chromium profile per session. Use real headful Chrome initially; label screencast embedding experimental.</li>
+<li><strong>CLI/config:</strong> Cobra for commands, <code>encoding/json</code> plus JSONC preprocessing, and generated shell completions.</li>
+<li><strong>Persistence:</strong> atomic JSON snapshots plus SQLite through <code>modernc.org/sqlite</code> for a cgo-free build, or <code>mattn/go-sqlite3</code> if cgo is already accepted.</li>
+<li><strong>Notifications/keyring:</strong> D-Bus/portal adapters on Linux, native platform adapters elsewhere, and <code>99designs/keyring</code> or OS-specific secret stores.</li>
+<li><strong>Observability:</strong> <code>slog</code>, OpenTelemetry, <code>pprof</code>, and bounded local event logs.</li>
+</ul>
+<h3 id="go-verdict">Go verdict<a class="heading-link" href="#go-verdict" aria-label="Link to Go verdict">#</a></h3>
+<p><strong>Choose Go if</strong> the project is a clean-room implementation, the team is substantially stronger in Go, the first product is a headless/TUI multiplexer plus daemon, or rapid SSH/CDP/control-plane work matters more than reusing cmux&#39;s portable subsystem.</p>
+<p><strong>Choose Rust if</strong> the plan is to reuse or closely track <code>cmux-tui</code>, embed Ghostty at a low level, build a native renderer later, or minimize cross-language boundaries. For this particular repository and goal, Rust remains the stronger primary recommendation because the portable reference implementation already exists in Rust.</p>
+<p><strong>Do not choose a Go core plus a Rust <code>cmux-tui</code> core.</strong> Pick one authority. A sidecar is appropriate for optional browser or cloud services, not for splitting ownership of workspaces, panes, PTYs, and session state.</p>
+<h3 id="browser-first-variant">Browser-first variant<a class="heading-link" href="#browser-first-variant" aria-label="Link to Browser-first variant">#</a></h3>
+<p>If the product promise includes “a real embedded browser beside each terminal, with profiles, cookies, devtools, proxying, and reliable automation,” choose <strong>Qt 6/QML + Qt WebEngine</strong> instead of Tauri. Keep the same Rust daemon and protocol, but bridge the shell with CXX-Qt or a narrow C ABI. Use one <code>QWebEngineProfile</code> per isolation scope and Qt&#39;s Chromium remote-debugging/devtools facilities. Accept the footprint and licensing work as the cost of browser parity.</p>
+<p>Do not build browser parity on WebKitGTK and assume it will match WKWebView/WebView2. The engines, devtools protocols, profile storage, proxy APIs, and accessibility behavior differ. cmux itself already maintains unsupported mappings even within WKWebView.</p>
+<h2 id="arch-linux-plan">Arch Linux plan<a class="heading-link" href="#arch-linux-plan" aria-label="Link to Arch Linux plan">#</a></h2>
+<ol>
+<li>Make Arch/Wayland the developer reference: GNOME and KDE plus Sway or Hyprland; also test X11/XWayland.</li>
+<li>Publish a prebuilt <code>x86_64-unknown-linux-gnu</code> tarball and an AUR binary package first; add a source PKGBUILD after toolchains stabilize.</li>
+<li>Pin Zig 0.15.2 for the Ghostty VT build. The repo pins 0.15.2, while Arch currently ships Zig 0.16.0 (<a href="https://archlinux.org/packages/extra/x86_64/zig/">Arch Zig</a>). Rust is not a blocker: the TUI MSRV is 1.88 and Arch currently ships a newer toolchain (<a href="https://archlinux.org/packages/extra/x86_64/rust/">Arch Rust</a>).</li>
+<li>If using Tauri, depend on Arch&#39;s <code>webkit2gtk-4.1</code> stack and test GPU/IME/clipboard behavior under both Wayland and X11. If using Qt, depend on <code>qt6-base</code>/<code>qt6-webengine</code>; do not bundle a second Qt unless producing a fully self-contained commercial distribution.</li>
+<li>Integrate XDG paths, desktop files, MIME/deep-link registration, D-Bus notifications, Secret Service/keyring, xdg-desktop-portal file dialogs, and systemd user units where useful.</li>
+<li>Avoid global-shortcut assumptions. Wayland requires portal/compositor cooperation; all essential actions must remain accessible in-app and from the CLI.</li>
+</ol>
+<h2 id="delivery-sequence">Delivery sequence<a class="heading-link" href="#delivery-sequence" aria-label="Link to Delivery sequence">#</a></h2>
+<h3 id="phase-1-durable-linux-core">Phase 1: durable Linux core<a class="heading-link" href="#phase-1-durable-linux-core" aria-label="Link to Phase 1: durable Linux core">#</a></h3>
+<ul>
+<li>Workspace/split/tab model, PTYs, terminal attach/replay, config, CLI/socket/events, snapshots, notifications, hooks for 2–3 agents, git/cwd metadata.</li>
+<li>TUI frontend first, then the desktop shell against the same protocol.</li>
+<li>Arch package and Linux CI across x86_64/aarch64.</li>
+</ul>
+<h3 id="phase-2-cmux-differentiators">Phase 2: cmux differentiators<a class="heading-link" href="#phase-2-cmux-differentiators" aria-label="Link to Phase 2: cmux differentiators">#</a></h3>
+<ul>
+<li>Agent resume/fork, attention rings, notification inbox, todos, auto-naming, Dock/sidecars, custom commands, session restore, tmux compatibility subset.</li>
+<li>SSH workspace plus remote daemon and browser proxy.</li>
+<li>Chromium/CDP browser beta and automation subset.</li>
+</ul>
+<h3 id="phase-3-platform-and-browser-depth">Phase 3: platform and browser depth<a class="heading-link" href="#phase-3-platform-and-browser-depth" aria-label="Link to Phase 3: platform and browser depth">#</a></h3>
+<ul>
+<li>macOS shell/package, then Windows ConPTY/named-pipe/package work.</li>
+<li>Embedded browser only after deciding between Qt WebEngine and a deliberately less uniform native-webview approach.</li>
+<li>Cloud/mobile companion only after local/SSH reliability is strong.</li>
+</ul>
+<h2 id="risks-and-decisions-to-settle-before-implementation">Risks and decisions to settle before implementation<a class="heading-link" href="#risks-and-decisions-to-settle-before-implementation" aria-label="Link to Risks and decisions to settle before implementation">#</a></h2>
+<ol>
+<li><strong>License:</strong> confirm whether <code>cmux-tui</code> is independently MIT or covered by the root GPL/commercial license.</li>
+<li><strong>Browser parity tier:</strong> external/headful Chrome, CDP screencast, system webview, or embedded Chromium. This single decision determines Tauri vs Qt.</li>
+<li><strong>Terminal renderer tier:</strong> xterm.js speed-to-market vs native libghostty performance. Preserve protocol independence either way.</li>
+<li><strong>Windows promise:</strong> experimental buildability is not product support. Define whether Windows is “best effort” or parity.</li>
+<li><strong>Agent data security:</strong> session IDs, prompts, hooks, environment variables, and browser cookies require threat modeling, redaction, and explicit trust gates.</li>
+<li><strong>Feature boundary:</strong> do not attempt cloud VMs, iOS, freeform canvas, Agent Chat, and every hook in v1. They are separate products or gated experiments even in cmux.</li>
+</ol>
+<h2 id="contested-and-open-questions">Contested and open questions<a class="heading-link" href="#contested-and-open-questions" aria-label="Link to Contested and open questions">#</a></h2>
+<ul>
+<li><strong>[Contested] Tauri vs Qt:</strong> Tauri is the better product-development tool for a terminal-first app; Qt is the better browser-embedding tool. There is no honest universal winner without fixing the browser parity requirement.</li>
+<li><strong>[Emerging] <code>libghostty</code> as an embedding SDK:</strong> Ghostty&#39;s architecture is explicitly designed for alternative frontends, but API stability and downstream integration burden still need a proof-of-concept on Linux, macOS, and Windows.</li>
+<li><strong>[Emerging] Windows:</strong> the TUI contains Windows platform code and release jobs, but CI treats the Windows artifact as experimental and non-blocking.</li>
+<li><strong>[Speculative] Reusing the existing TUI code commercially:</strong> Cargo metadata says MIT while the repository root says GPL/commercial. Only an explicit maintainer statement or legal review can resolve that contradiction.</li>
+<li>Which cmux parity target matters most: the terminal/workspace/agent loop, the embedded browser, or the remote/mobile ecosystem?</li>
+<li>Is a Chromium dependency acceptable for consistent automation, footprint notwithstanding?</li>
+<li>Should the project be a clean-room implementation of concepts or a fork? Licensing and desired compatibility determine the answer.</li>
+</ul>
+<h2 id="sources">Sources<a class="heading-link" href="#sources" aria-label="Link to Sources">#</a></h2>
+<ol>
+<li>cmux README · Manaflow · repository snapshot 2026-07-14 · <a href="https://github.com/manaflow-ai/cmux/blob/3822f1dd475f0c5ddcf961df9f17308c3066ffa1/README.md">https://github.com/manaflow-ai/cmux/blob/3822f1dd475f0c5ddcf961df9f17308c3066ffa1/README.md</a> · primary.</li>
+<li>cmux CLI contract, events, agent hooks, Dock, workspace groups, remote daemon, browser port spec · Manaflow · 2026 snapshot · repository links above · primary.</li>
+<li>cmux-tui README, concepts, browser panes, protocol, Cargo manifests, platform code, CI and release workflows · Manaflow · 2026 snapshot · repository links above · primary.</li>
+<li>About Ghostty / libghostty architecture · Ghostty project · accessed 2026-07-15 · <a href="https://ghostty.org/docs/about">https://ghostty.org/docs/about</a> · primary.</li>
+<li>Tauri architecture and prerequisites · Tauri project · updated 2026-06-30 / accessed 2026-07-15 · <a href="https://v2.tauri.app/concept/architecture/">https://v2.tauri.app/concept/architecture/</a> and <a href="https://v2.tauri.app/start/prerequisites/">https://v2.tauri.app/start/prerequisites/</a> · primary.</li>
+<li>Qt supported platforms, Qt WebEngine overview and licensing · Qt project · Qt 6.11 docs, accessed 2026-07-15 · <a href="https://doc.qt.io/qt-6/supported-platforms.html">https://doc.qt.io/qt-6/supported-platforms.html</a>, <a href="https://doc.qt.io/qt-6/qtwebengine-overview.html">https://doc.qt.io/qt-6/qtwebengine-overview.html</a>, <a href="https://doc.qt.io/qt-6/qtwebengine-licensing.html">https://doc.qt.io/qt-6/qtwebengine-licensing.html</a> · primary.</li>
+<li>Arch Linux package database: Zig, Rust, Qt WebEngine · Arch Linux · accessed 2026-07-15 · package links above · primary distribution metadata.</li>
+</ol>
+<h2 id="confidence-summary">Confidence summary<a class="heading-link" href="#confidence-summary" aria-label="Link to Confidence summary">#</a></h2>
+<ul>
+<li>Repository feature and architecture claims: <strong>high</strong>, based on the pinned source and contracts.</li>
+<li>Linux/macOS TUI build support: <strong>high</strong>, based on blocking CI and release matrices.</li>
+<li>Windows readiness: <strong>medium for buildability, low for production parity</strong>, because its release job is experimental/non-blocking.</li>
+<li>Tauri recommendation: <strong>high for terminal-centric scope, medium for browser-heavy scope</strong>.</li>
+<li>Qt recommendation: <strong>high for consistent embedded-browser scope, medium for native terminal integration effort</strong>.</li>
+<li>Arch packaging details: <strong>high for current package versions, medium over time</strong> because Arch is rolling release.</li>
+</ul>
+
+</article>
+      <footer class="report-footer">
+        <p>Generated from canonical Guild artifacts.</p>
+        <a href="index.html">Back to all research</a>
+      </footer>
+    </main>
+  </div>
+  <button class="mobile-toc-button" type="button" aria-expanded="false" aria-controls="mobile-toc">Contents</button>
+  <div id="mobile-toc" class="mobile-toc" hidden><nav aria-label="Mobile report sections"><a class="toc-link toc-level-2" href="#tldr">TL;DR</a>
+<a class="toc-link toc-level-2" href="#scope-and-methodology">Scope and methodology</a>
+<a class="toc-link toc-level-2" href="#what-cmux-actually-is">What cmux actually is</a>
+<a class="toc-link toc-level-2" href="#feature-map">Feature map</a>
+<a class="toc-link toc-level-3" href="#section-1-terminal-and-process-runtime-shipped">1. Terminal and process runtime — shipped</a>
+<a class="toc-link toc-level-3" href="#section-2-window-workspace-pane-and-tab-management-shipped">2. Window, workspace, pane, and tab management — shipped</a>
+<a class="toc-link toc-level-3" href="#section-3-context-rich-sidebar-shipped-with-one-experiment">3. Context-rich sidebar — shipped, with one experiment</a>
+<a class="toc-link toc-level-3" href="#section-4-notifications-and-attention-routing-shipped">4. Notifications and attention routing — shipped</a>
+<a class="toc-link toc-level-3" href="#section-5-agent-integrations-mostly-shipped">5. Agent integrations — mostly shipped</a>
+<a class="toc-link toc-level-3" href="#section-6-browser-shipped-on-macos-alternate-implementation-in-tui">6. Browser — shipped on macOS; alternate implementation in TUI</a>
+<a class="toc-link toc-level-3" href="#section-7-programmability-shipped-and-unusually-extensive">7. Programmability — shipped and unusually extensive</a>
+<a class="toc-link toc-level-3" href="#section-8-ssh-remote-execution-cloud-and-mobile-mixed-maturity">8. SSH, remote execution, cloud, and mobile — mixed maturity</a>
+<a class="toc-link toc-level-3" href="#section-9-customization-distribution-and-operations-shipped-on-macos">9. Customization, distribution, and operations — shipped on macOS</a>
+<a class="toc-link toc-level-2" href="#the-existing-portable-subsystem-cmux-tui">The existing portable subsystem: cmux-tui</a>
+<a class="toc-link toc-level-2" href="#architecture-options">Architecture options</a>
+<a class="toc-link toc-level-2" href="#recommended-stack">Recommended stack</a>
+<a class="toc-link toc-level-3" href="#primary-recommendation-terminal-centric-linux-first">Primary recommendation: terminal-centric, Linux-first</a>
+<a class="toc-link toc-level-2" href="#go-implementation-evaluation">Go implementation evaluation</a>
+<a class="toc-link toc-level-3" href="#where-go-is-excellent">Where Go is excellent</a>
+<a class="toc-link toc-level-3" href="#where-go-is-weaker">Where Go is weaker</a>
+<a class="toc-link toc-level-3" href="#recommended-go-stack">Recommended Go stack</a>
+<a class="toc-link toc-level-3" href="#go-verdict">Go verdict</a>
+<a class="toc-link toc-level-3" href="#browser-first-variant">Browser-first variant</a>
+<a class="toc-link toc-level-2" href="#arch-linux-plan">Arch Linux plan</a>
+<a class="toc-link toc-level-2" href="#delivery-sequence">Delivery sequence</a>
+<a class="toc-link toc-level-3" href="#phase-1-durable-linux-core">Phase 1: durable Linux core</a>
+<a class="toc-link toc-level-3" href="#phase-2-cmux-differentiators">Phase 2: cmux differentiators</a>
+<a class="toc-link toc-level-3" href="#phase-3-platform-and-browser-depth">Phase 3: platform and browser depth</a>
+<a class="toc-link toc-level-2" href="#risks-and-decisions-to-settle-before-implementation">Risks and decisions to settle before implementation</a>
+<a class="toc-link toc-level-2" href="#contested-and-open-questions">Contested and open questions</a>
+<a class="toc-link toc-level-2" href="#sources">Sources</a>
+<a class="toc-link toc-level-2" href="#confidence-summary">Confidence summary</a></nav></div>
+  <script src="assets/research.js"></script>
+</body>
+</html>

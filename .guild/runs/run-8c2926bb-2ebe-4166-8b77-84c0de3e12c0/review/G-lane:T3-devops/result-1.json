@@ -1,0 +1,54 @@
+{
+  "schema_version": "review_result.v1",
+  "packet_id": "G-lane-T3-devops-r1",
+  "artifact_sha256_reviewed": "729bd0050b9a6ea3498a55ee267dccb2132d2250a541f2b87d26594c3f8861c1",
+  "verdict": "issues",
+  "findings": [
+    {
+      "id": "F1",
+      "severity": "blocking",
+      "title": "The promised Arch arm64 CI surface is still missing",
+      "detail": "T3's approved scope is Arch and Ubuntu across amd64 and arm64, and the success criteria require Arch and Ubuntu jobs to run the blocking suite. The live CI matrix only defines Ubuntu amd64, Ubuntu arm64, and Arch amd64; the remaining Arch-on-arm64 cell is documented as a deferred hole with no self-hosted replacement wired. The receipt still reports D2 as complete and says no ask-gate fired, so T4/T6 are being handed an incomplete supported-target interface rather than a completed matrix.",
+      "evidence": ".guild/plan/amux-go-linux-runtime.md:225-228,244-246; .github/workflows/ci.yml:88-145; docs/operations/reference-profile.md:42-53; .guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/handoffs/devops-T3-devops.md:36-38,59-65,106-117,200"
+    },
+    {
+      "id": "F2",
+      "severity": "blocking",
+      "title": "The package smoke harness does not fail on cgo or dynamic-link regressions",
+      "detail": "The lane claims the smoke harness validates that release artifacts remain cgo-free, but the live script only prints a note when file or ldd show dynamic linkage and leaves fail unchanged. That means a tarball can drift into forbidden runtime-cgo territory and still pass the advertised smoke gate, which directly undermines the Linux packaging evidence T3 is supposed to supply to T6.",
+      "evidence": ".guild/plan/amux-go-linux-runtime.md:225-237,250-252; packaging/smoke/smoke-install.sh:14-15,43-57,69-70; docs/release/aur-maintenance.md:61-68"
+    },
+    {
+      "id": "F3",
+      "severity": "blocking",
+      "title": "The documented snapshot backup and restore procedure is operationally wrong",
+      "detail": "The new rollback runbook claims success-criterion #7 is closed, but its supported-today backup command archives both ~/.local/share/amux and ~/.local/state/amux under the same top-level amux/ path, and the restore example extracts only into ~/.local/share. Re-running the documented tar invocation confirms the state tree is restored under the share tree instead of recreating ~/.local/state/amux, so the published backup/restore contract is not safe to follow.",
+      "evidence": "docs/release/rollback-and-recovery.md:58-77,86-89; .guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/handoffs/devops-T3-devops.md:81-87,101-105,200"
+    }
+  ],
+  "blocking_findings": [
+    {
+      "id": "F1",
+      "severity": "blocking",
+      "title": "The promised Arch arm64 CI surface is still missing",
+      "detail": "T3 documents Arch-on-arm64 as a deferred gap even though the approved lane scope and success criteria require Arch and Ubuntu coverage across amd64 and arm64.",
+      "evidence": ".guild/plan/amux-go-linux-runtime.md:225-228; .github/workflows/ci.yml:88-145; docs/operations/reference-profile.md:42-53"
+    },
+    {
+      "id": "F2",
+      "severity": "blocking",
+      "title": "The package smoke harness does not fail on cgo or dynamic-link regressions",
+      "detail": "The smoke script only emits notes for non-static linkage, so a forbidden cgo-enabled artifact can still pass the advertised packaging gate.",
+      "evidence": "packaging/smoke/smoke-install.sh:43-57,69-70; docs/release/aur-maintenance.md:61-68"
+    },
+    {
+      "id": "F3",
+      "severity": "blocking",
+      "title": "The documented snapshot backup and restore procedure is operationally wrong",
+      "detail": "The published tar backup/restore commands do not recreate ~/.local/state/amux correctly, so the supported rollback path is broken.",
+      "evidence": "docs/release/rollback-and-recovery.md:63-77,86-89"
+    }
+  ],
+  "round": 1,
+  "reviewer_host": "codex"
+}

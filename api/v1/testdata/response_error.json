@@ -1,0 +1,9 @@
+{
+  "type": "response",
+  "id": "req-2",
+  "error": {
+    "code": "not_found",
+    "message": "target pane not found: pan-999",
+    "retryable": false
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "schema_version": "guild.specialist_shadow_eval.v1",
+  "role": "terminal-ui",
+  "reviewer_host": "codex",
+  "artifacts_scanned": {"historical_run_files": 14, "total": 33},
+  "false_positive_examples": [],
+  "missed_terminal_ui_examples": [
+    {
+      "work_unit": "Bubble Tea notification list/panel, unread navigation, and in-app attention presentation over backend semantic notification events.",
+      "cause": "The proposal did not explicitly name terminal-side notification presentation/navigation."
+    }
+  ],
+  "collision_count": 0,
+  "missed_count": 1,
+  "verdict": "fail"
+}

@@ -1,0 +1,34 @@
+{
+  "schema_version": "review_result.v1",
+  "packet_id": "G-spec-amux-go-linux-runtime-r1",
+  "artifact_sha256_reviewed": "b55c59896bf277ea3693bb87c45c378bb70e55a58ea68f06c90ecde6c69d007a",
+  "verdict": "needs_revision",
+  "findings": [
+    {
+      "id": "F1",
+      "severity": "blocking",
+      "summary": "Hook trust is not safely keyed for repo-agnostic workspaces.",
+      "recommendation": "Define canonical project identity, multi-repo isolation, and fail-closed workspace-primary behavior."
+    },
+    {
+      "id": "F2",
+      "severity": "blocking",
+      "summary": "The attach contract is underdefined.",
+      "recommendation": "Specify attach lifecycle, shared/exclusive behavior, transport, detach, and restore state transitions."
+    }
+  ],
+  "blocking_findings": [
+    {
+      "id": "F1",
+      "severity": "blocking",
+      "summary": "Hook trust is not safely keyed for repo-agnostic workspaces."
+    },
+    {
+      "id": "F2",
+      "severity": "blocking",
+      "summary": "The attach contract is underdefined."
+    }
+  ],
+  "round": 1,
+  "reviewer_host": "codex"
+}

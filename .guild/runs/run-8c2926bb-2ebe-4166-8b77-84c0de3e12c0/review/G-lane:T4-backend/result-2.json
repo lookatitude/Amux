@@ -1,0 +1,26 @@
+{
+  "schema_version": "review_result.v1",
+  "packet_id": "G-lane-T4-backend-r2",
+  "artifact_sha256_reviewed": "c2147339944457b9f7d77a74063fc1eda3eec2bf09fffed426fd4ae564d9b938",
+  "verdict": "issues",
+  "findings": [
+    {
+      "id": "F2",
+      "severity": "blocking",
+      "title": "Restore can report `restarted` without actually relaunching the surface process",
+      "detail": "Round-1 F1 is genuinely closed: the live-reconcile path is now wired through the production restore entry point, and focused live-path verification passed. But the rework introduced a B8 contract regression on the automatic-policy branch. ADR-0005 defines `restarted` as a new process launched under automatic policy. The current restore flow classifies surfaces first, and for an automatic-policy surface with a present executable/cwd it will produce `ClassRestarted`; then, in the commit path, it only installs the rebuilt replay/VT runtime and optionally stops an old live process. `RestoreSnapshot` never calls the PTY supervisor to spawn a replacement process anywhere on the restore path. That means restore can return `class: restarted` while no PTY was launched and the surface remains non-live. The new tests and CLI E2E do not cover automatic-policy restore at all: they cover live reconcile, manual-policy stopped, mismatch fail-closed, fresh-daemon never-live, and a separate explicit operator `restart` flow after restore. That violates the approved B8 acceptance contract and ADR-0005's meaning of `restarted`.",
+      "evidence": ".guild/plan/amux-go-linux-runtime.md:145-148; .guild/spec/amux-go-linux-runtime.md:158-160; internal/persist/contract.go:18-20,32-34,69-87; internal/daemon/snapshot.go:199-224,314-358; internal/daemon/restore_test.go:145-297; internal/daemon/server_test.go:302-313; cmd/amux/e2e_test.go:349-423,472-500; .guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/handoffs/backend-T4-backend.md:73-74,111-116,173-175"
+    }
+  ],
+  "blocking_findings": [
+    {
+      "id": "F2",
+      "severity": "blocking",
+      "title": "Restore can report `restarted` without actually relaunching the surface process",
+      "detail": "The production restore path classifies automatic-policy surfaces as `restarted` via `persist.Classify`, but `RestoreSnapshot` never spawns a replacement PTY on restore, so the reported class can be false.",
+      "evidence": "internal/persist/contract.go:18-20,32-34,69-87; internal/daemon/snapshot.go:222-224,314-358; .guild/plan/amux-go-linux-runtime.md:145-148; .guild/runs/run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0/handoffs/backend-T4-backend.md:73-74,173-175"
+    }
+  ],
+  "round": 2,
+  "reviewer_host": "codex"
+}

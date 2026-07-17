@@ -1,0 +1,11 @@
+{
+  "pane": "pan-000001",
+  "cwd": "/repo/src",
+  "git_root": "/repo",
+  "git_branch": "main",
+  "git_dirty": true,
+  "foreground_pid": 4242,
+  "foreground_cmd": "nvim",
+  "exit_code": 0,
+  "updated_ms": 1737000000000
+}

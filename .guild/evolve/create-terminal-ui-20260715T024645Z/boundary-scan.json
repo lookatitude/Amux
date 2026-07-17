@@ -1,0 +1,32 @@
+{
+  "schema_version": "guild.specialist_boundary_scan.v1",
+  "role": "terminal-ui",
+  "method": "naive-token-jaccard",
+  "threshold": 0.35,
+  "template_already_covers_domain": false,
+  "adjacent_specialists_above_threshold": [],
+  "top_matches": [
+    {
+      "specialist": "mobile",
+      "score": 0.184,
+      "disposition": "generic implementation vocabulary; no routing collision"
+    },
+    {
+      "specialist": "frontend",
+      "score": 0.182,
+      "disposition": "web-only template; terminal-native work explicitly excluded from the proposed role's web boundary"
+    },
+    {
+      "specialist": "architect",
+      "score": 0.164,
+      "disposition": "cross-component design remains architect-owned"
+    },
+    {
+      "specialist": "backend",
+      "score": 0.160,
+      "disposition": "daemon, PTY, IPC, and persistence remain backend-owned"
+    }
+  ],
+  "boundary_edits_proposed": [],
+  "note": "No description crossed the deterministic adjacency threshold, so step-4 edits and step-5 evolve gates are not authorized."
+}

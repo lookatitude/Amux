@@ -1,0 +1,96 @@
+spec: .guild/spec/amux-go-linux-runtime.md
+phase: plan
+backend: auto
+allow_larger: false
+specialists:
+  - name: architect
+    tier: powerful
+    scope: "Freeze the Go component boundaries, package ownership, versioned command/event protocols, persistence contracts, and replaceable platform interfaces for the Linux-first runtime."
+    depends-on: []
+    definition: .guild/agents/architect.md
+    definition_source: project
+    default_tier: powerful
+    implied-by: "multi-component"
+    capability_scope:
+      - "Read"
+      - "Write"
+      - "Edit"
+      - "Bash"
+      - "Glob"
+      - "Grep"
+      - "WebSearch"
+      - "WebFetch"
+  - name: backend
+    scope: "Plan the daemon, session event loops, PTY and process lifecycle, VT authority, IPC, attach streams, persistence, hooks, notifications, adapters, and complete CLI command contract."
+    depends-on: [architect, security, devops]
+    definition: .guild/agents/backend.md
+    definition_source: project
+    default_tier: mid
+    capability_scope:
+      - "Read"
+      - "Write"
+      - "Edit"
+      - "Bash"
+      - "Glob"
+      - "Grep"
+  - name: terminal-ui
+    scope: "Plan the Bubble Tea client over architect-approved and backend-provided contracts: split-tree rendering, focus/input modes, attach presentation, notification navigation, redraw, and terminal accessibility."
+    depends-on: [architect, backend]
+    definition: .guild/agents/terminal-ui.md
+    definition_source: project
+    default_tier: mid
+    capability_scope:
+      - "Read"
+      - "Write"
+      - "Edit"
+      - "Bash"
+      - "Glob"
+      - "Grep"
+  - name: security
+    scope: "Threat-model the local control plane, project identity, hook grants, trust epochs, revocation ordering, socket/process boundaries, redaction, and fail-closed validation."
+    depends-on: [architect]
+    definition: .guild/agents/security.md
+    definition_source: project
+    default_tier: powerful
+    implied-by: "external-integration-and-process-execution"
+    capability_scope:
+      - "Read"
+      - "Write"
+      - "Edit"
+      - "Bash"
+      - "Glob"
+      - "Grep"
+      - "WebSearch"
+      - "WebFetch"
+  - name: devops
+    scope: "Plan reproducible Arch and Ubuntu CI, Go toolchain and dependency controls, x86_64/aarch64 builds, tarballs, AUR packaging, release provenance, and operational diagnostics."
+    depends-on: [architect]
+    definition: .guild/agents/devops.md
+    definition_source: project
+    default_tier: mid
+    capability_scope:
+      - "Read"
+      - "Write"
+      - "Edit"
+      - "Bash"
+      - "Glob"
+      - "Grep"
+  - name: qa
+    scope: "Plan layered unit, property, replay, integration, recovery, concurrency, performance, soak, packaging, and acceptance tests with deterministic evidence for every release gate."
+    depends-on: [backend, terminal-ui, security, devops]
+    definition: .guild/agents/qa.md
+    definition_source: project
+    default_tier: mid
+    implied-by: "backend-present"
+    capability_scope:
+      - "Read"
+      - "Write"
+      - "Edit"
+      - "Bash"
+      - "Glob"
+      - "Grep"
+gaps_resolved:
+  - proposed_role: terminal-ui
+    resolution: "A"
+    notes: "User approved a dedicated project specialist; candidate routing passed 15/15 and the 57-artifact shadow scan reported zero collisions and zero missed work units. Evidence extraction was explicitly waived by the user for this greenfield project and recorded in the evolve audit."
+coverage_flags: []

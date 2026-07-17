@@ -1,0 +1,8 @@
+{
+  "schema_version": "guild.specialist_paired_eval.v1",
+  "role": "terminal-ui",
+  "reviewer_host": "codex",
+  "baseline": {"total": 13, "correct": 8, "positive_correct": 0, "negative_correct": 8},
+  "candidate": {"total": 13, "correct": 13, "positive_correct": 5, "negative_correct": 8, "collision_count": 0},
+  "verdict": "pass"
+}

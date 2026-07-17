@@ -1,0 +1,9 @@
+{
+  "schema_version": "guild.lane_resume.v1",
+  "lane_id": "T2-security",
+  "run_id": "run-8c2926bb-2ebe-4166-8b77-84c0de3e12c0",
+  "attempts": 2,
+  "last_attempt_at": "2026-07-15T15:20:15.233Z",
+  "resumable_at": "2026-07-15T15:20:15.235Z",
+  "last_error": "Attempt 2 crossed the 600000 ms liveness timeout, could not accept the required nudge because wrapper stdin was closed, remained stalled on the next deterministic sweep, and emitted no receipt."
+}

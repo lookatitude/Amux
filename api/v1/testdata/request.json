@@ -1,0 +1,12 @@
+{
+  "type": "request",
+  "id": "req-1",
+  "method": "workspace.split",
+  "deadline_ms": 2000,
+  "params": {
+    "workspace": "wsp-000001",
+    "target": "pan-000001",
+    "orientation": "horizontal",
+    "ratio": 0.5
+  }
+}

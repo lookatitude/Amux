@@ -1,0 +1,27 @@
+# guild.learning_checkpoint.v1
+learning_checkpoint:
+  version: guild.learning_checkpoint.v1
+  phase: init
+  run_id: init-20260715-023954
+  observed:
+    - Deterministic cheap scan found zero application source files.
+    - The repository has no committed HEAD, so generated_from_commit is unknown.
+    - Deep learning artifacts are deferred by the plain Init contract.
+  decisions:
+    memory: none
+    wiki: none
+    knowledge_graph: none
+    domain_model: none
+    agent_def: none
+    skill_def: none
+    agent_template: none
+    skill_template: none
+    config: none
+    task_tracking: none
+    workflow_rules: none
+    review_policy: none
+  knowledge_links_batch: []
+  routed_to: .guild/reflections/init-20260715-023954.md
+  evidence_ref: .guild/init/amux.md
+  emitter_status: manual-fallback
+  emitter_note: Installed Guild bundle does not contain hooks/emit-learning-checkpoint.ts.

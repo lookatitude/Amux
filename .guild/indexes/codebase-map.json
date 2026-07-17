@@ -1,0 +1,15 @@
+{
+  "version": "guild.codebase_map.v1",
+  "generated_from_commit": "unknown",
+  "project": {
+    "root": "/Users/miguelp/Projects/Amux",
+    "languages": [],
+    "frameworks": []
+  },
+  "files": [],
+  "import_map": [],
+  "stats": {
+    "file_count": 0,
+    "module_count": 0
+  }
+}
