@@ -59,10 +59,26 @@ make release-snapshot
 diff <(sort dist/checksums.txt) <(sort <original>/checksums.txt)
 ```
 
-Reproducibility rests on `-trimpath` + `mod_timestamp={{ .CommitTimestamp }}`
-(pinned in `goreleaser.yaml`): identical inputs yield identical archives
-regardless of when or where the build runs. A checksum divergence means an input
-drifted — chase it before release.
+Reproducibility rests on three things pinned in `goreleaser.yaml`: `-trimpath`,
+`mod_timestamp={{ .CommitTimestamp }}` (binary mtimes), and an explicit
+`info.mtime={{ .CommitDate }}` on **every non-binary archive member**. The third
+is load-bearing and was added only after being measured: `-trimpath` +
+`mod_timestamp` alone make the four binaries byte-identical but leave the tar
+headers carrying wall-clock mtimes, because the before-hook regenerates the
+shell completions on every run. Two builds of the same commit therefore produced
+different tarball digests. See
+`.amux-artifacts/devops-t6/release-frozen-20260722/repro-double-build-arm64.BEFORE-mtime-fix.log`
+for the divergence and `repro-double-build-arm64.log` for the fixed run.
+
+This is a claim with a gate behind it, not an assertion — run it yourself:
+
+```bash
+scripts/release/linux-repro-check.sh arm64 .amux-artifacts/devops-t6/<stamp>
+# builds the frozen snapshot twice in one Linux container and diffs the
+# artifact digests; non-zero exit on any divergence
+```
+
+A checksum divergence means an input drifted — chase it before release.
 
 ## 4 · Provenance attestation (QA, integrated candidate)
 
