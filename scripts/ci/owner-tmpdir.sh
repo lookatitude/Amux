@@ -30,6 +30,11 @@ perm_bits() {
   stat -c '%a' "$1" 2>/dev/null || stat -f '%Lp' "$1"
 }
 
+# Numeric owner UID of a path, portable across GNU (Linux/CI) and BSD (macOS).
+owner_uid() {
+  stat -c '%u' "$1" 2>/dev/null || stat -f '%u' "$1"
+}
+
 # True if the path is group- or other-writable (mask 0022) — exactly what STR-3
 # rejects in a socket-path ancestor chain.
 is_group_or_other_writable() {
@@ -40,8 +45,15 @@ is_group_or_other_writable() {
 # Walk from a directory up to `/`, failing closed if any ancestor is group/other
 # writable — the same property STR-3 enforces on the live socket chain.
 verify_chain() {
-  local p; p="$(cd "$1" && pwd -P)"
+  local p uid expected_uid
+  p="$(cd "$1" && pwd -P)"
+  expected_uid="$(id -u)"
   while :; do
+    uid="$(owner_uid "$p")"
+    if [ "$uid" != "$expected_uid" ] && [ "$uid" != "0" ]; then
+      echo "owner-tmpdir: FAIL '$p' is owned by uid $uid, expected $expected_uid or root — STR-3 would reject a socket under it" >&2
+      return 1
+    fi
     if is_group_or_other_writable "$p"; then
       echo "owner-tmpdir: FAIL '$p' is group/other-writable (mode $(perm_bits "$p")) — STR-3 would reject a socket under it" >&2
       return 1
@@ -102,7 +114,7 @@ PY
   fi
 fi
 
-echo "owner-tmpdir: OK TMPDIR=$dir (mode 700, ancestor chain g/o-non-writable, unix-socket bind proved)" >&2
+echo "owner-tmpdir: OK TMPDIR=$dir (mode 700, ancestor chain owner-safe + g/o-non-writable, unix-socket bind proved)" >&2
 
 if [ "$print_only" -eq 1 ]; then
   echo "export TMPDIR=$dir"

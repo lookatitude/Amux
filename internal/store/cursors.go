@@ -11,7 +11,7 @@ import (
 // restart (ADR-0004 event cursor; durability row in ADR-0005). Overwrites any
 // prior cursor for the (client, session) pair.
 func (s *Store) SetCursor(client, session string, seq uint64) error {
-	_, err := s.db.Exec(`
+	_, err := s.execWrite(`
 		INSERT INTO cursors (client, session, seq) VALUES (?, ?, ?)
 		ON CONFLICT(client, session) DO UPDATE SET seq = excluded.seq`,
 		client, session, int64(seq))

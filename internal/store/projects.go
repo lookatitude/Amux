@@ -38,7 +38,7 @@ type ProjectRow struct {
 // or epoch: registration confers nothing, and trust transitions go
 // exclusively through SetProjectState.
 func (s *Store) UpsertProject(key, realpath string, dev, ino uint64, vscheme, vvalue string) error {
-	_, err := s.db.Exec(`
+	_, err := s.execWrite(`
 		INSERT INTO projects (key, realpath, dev, ino, validation_scheme, validation_value)
 		VALUES (?, ?, ?, ?, ?, ?)
 		ON CONFLICT(key) DO UPDATE SET realpath = excluded.realpath,
@@ -56,7 +56,7 @@ func (s *Store) UpsertProject(key, realpath string, dev, ino uint64, vscheme, vv
 // discriminator of an already-registered project (state/epoch untouched).
 // Returns ErrNotFound for an unregistered key.
 func (s *Store) UpdateProjectValidation(key, vscheme, vvalue string) error {
-	res, err := s.db.Exec(
+	res, err := s.execWrite(
 		`UPDATE projects SET validation_scheme = ?, validation_value = ? WHERE key = ?`,
 		vscheme, vvalue, key)
 	if err != nil {
