@@ -171,7 +171,16 @@ release-toolcheck:
 	 fi; \
 	 echo "release: goreleaser $$have matches pin $(GORELEASER_VERSION)"
 	@command -v syft >/dev/null 2>&1 || { echo "release: syft not on PATH (SBOM step needs $(SYFT_VERSION); 'make release-tools')"; exit 1; }
-	@echo "release: syft present ($$(syft version 2>/dev/null | awk '/Version:/{print $$2}' | head -1))"
+# Presence check only — the syft pin is NOT enforced here, unlike goreleaser.
+# A syft built by `go install` (what `make release-tools` does) embeds no
+# version and self-reports "[not provided]", so there is nothing to compare
+# against $(SYFT_VERSION). CI installs the pinned syft via
+# anchore/sbom-action/download-syft (.github/workflows/release.yml), which is
+# where the pin is actually enforced. Say so rather than printing a truncated
+# version string that cannot attest which syft ran.
+	@v="$$(syft version 2>/dev/null | sed -n 's/^Version:[[:space:]]*//p' | head -1)"; \
+	 case "$$v" in ''|'[not provided]') v="unversioned (go-install build)";; esac; \
+	 echo "release: syft present — version '$$v'; pin $(SYFT_VERSION) is enforced by CI's download-syft step, not by this check"
 
 .PHONY: release-check
 release-check: release-toolcheck ## Validate the GoReleaser config without building (pinned tool)
